@@ -1,0 +1,942 @@
+{% extends "base.html" %}
+{% block title %}Mentor Home - BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: var(--cream-dark);
+    }
+    
+    .main-content {
+        padding: 2rem 3rem;
+        padding-top: 90px;
+    }
+    
+    /* Welcome Section */
+    .welcome-section {
+        text-align: center;
+        padding: 2rem 0 3rem;
+    }
+    
+    .welcome-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 3.5rem;
+        font-weight: 500;
+        color: var(--black);
+        margin-bottom: 0.5rem;
+    }
+    
+    .welcome-streak {
+        font-size: 1.1rem;
+        color: var(--gray);
+    }
+    
+    /* Template Section */
+    .template-section {
+        margin-bottom: 2.5rem;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.25rem;
+    }
+    
+    .section-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: var(--black);
+    }
+    
+    .section-subtitle {
+        font-size: 0.9rem;
+        color: var(--gray);
+        margin-bottom: 1rem;
+    }
+    
+    .view-all {
+        color: var(--gray);
+        text-decoration: underline;
+        font-size: 0.9rem;
+    }
+    
+    .view-all:hover {
+        color: var(--brown);
+    }
+    
+    /* Template Carousel Container */
+    .template-carousel-container {
+        position: relative;
+    }
+    
+    .template-carousel-wrapper {
+        overflow: hidden;
+    }
+    
+    .template-carousel {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+    }
+    
+    .template-card {
+        border-radius: 12px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.2s;
+        background: white;
+    }
+    
+    .template-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    
+    .template-img {
+        height: 110px;
+        width: 100%;
+    }
+    
+    .template-body {
+        padding: 1rem;
+    }
+    
+    .template-category {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: var(--gray);
+        background: var(--cream);
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .template-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--black);
+        margin-bottom: 0.25rem;
+        line-height: 1.3;
+    }
+    
+    .template-meta {
+        font-size: 0.75rem;
+        color: var(--gray);
+        margin-top: 0.5rem;
+    }
+    
+    .template-usage {
+        font-size: 0.8rem;
+        color: var(--gray);
+    }
+    
+    .progress-bar-bg {
+        height: 6px;
+        background: var(--cream-dark);
+        border-radius: 3px;
+        margin-top: 0.5rem;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: var(--brown);
+        border-radius: 3px;
+    }
+    
+    /* Carousel Navigation Arrows */
+    .carousel-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        background: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        z-index: 10;
+        transition: all 0.2s;
+    }
+    
+    .carousel-nav:hover {
+        background: var(--cream);
+        transform: translateY(-50%) scale(1.05);
+    }
+    
+    .carousel-nav.prev {
+        left: -20px;
+    }
+    
+    .carousel-nav.next {
+        right: -20px;
+    }
+    
+    .carousel-nav.hidden {
+        display: none;
+    }
+    
+    .carousel-nav i {
+        font-size: 1.1rem;
+        color: var(--black);
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 2.5rem 2rem;
+    }
+    
+    .empty-state i {
+        font-size: 2.5rem;
+        color: var(--gray-light);
+        margin-bottom: 0.75rem;
+    }
+    
+    .empty-state p {
+        color: var(--gray);
+        font-size: 1rem;
+    }
+    
+    /* Course Card (for "See what others are creating") */
+    .course-card {
+        border-radius: 12px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.2s;
+        background: white;
+    }
+    
+    .course-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    
+    .course-img {
+        height: 110px;
+        width: 100%;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    
+    .course-body {
+        padding: 1rem;
+    }
+    
+    .course-category {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: var(--gray);
+        background: var(--cream);
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .course-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--black);
+        margin-bottom: 0.25rem;
+        line-height: 1.3;
+    }
+    
+    .course-instructor {
+        font-size: 0.8rem;
+        color: var(--gray);
+    }
+    
+    /* Folder Grid */
+    .folder-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .folder-card {
+        height: 150px;
+        border-radius: 12px;
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.2s;
+        padding: 1.25rem;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .folder-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    
+    .folder-icon {
+        font-size: 1.75rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .folder-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+    
+    .folder-count {
+        font-size: 0.8rem;
+        opacity: 0.8;
+        margin-top: auto;
+    }
+    
+    /* Add Folder Card */
+    .add-folder-card {
+        border: 2px dashed var(--gray-light);
+        background: transparent;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray);
+        text-decoration: none;
+    }
+    
+    .add-folder-card:hover {
+        border-color: var(--brown);
+        color: var(--brown);
+        background: rgba(222, 192, 154, 0.1);
+    }
+    
+    .add-folder-card i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* FAB Buttons - Matching learner homepage style */
+    .fab-container {
+        position: fixed;
+        right: 2rem;
+        bottom: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        z-index: 100;
+    }
+    
+    .fab {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border: none;
+        transition: transform 0.2s;
+        text-decoration: none;
+    }
+    
+    .fab:hover {
+        transform: scale(1.05);
+    }
+    
+    .fab-chat {
+        background-color: white;
+        color: var(--black);
+        font-size: 1.25rem;
+    }
+    
+    .fab-add {
+        background-color: white;
+        color: var(--black);
+        font-size: 1.5rem;
+    }
+    
+    .fab-menu {
+        display: none;
+        position: absolute;
+        right: 65px;
+        bottom: 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        padding: 0.5rem 0;
+        min-width: 150px;
+    }
+    
+    .fab-menu.show {
+        display: block;
+    }
+    
+    .fab-menu a {
+        display: block;
+        padding: 0.6rem 1rem;
+        color: var(--black);
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    
+    .fab-menu a:hover {
+        background: var(--cream);
+    }
+    
+    .fab-secondary {
+        background: white;
+        color: var(--brown);
+    }
+    
+    .fab-btn i {
+        font-size: 1.5rem;
+    }
+    
+    /* Template Popup Overlay */
+    .template-popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.6);
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .template-popup-overlay.active {
+        display: flex;
+    }
+    
+    .template-popup {
+        background: white;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 500px;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+    }
+    
+    .template-popup-header {
+        height: 150px;
+        position: relative;
+    }
+    
+    .template-popup-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        z-index: 10;
+    }
+    
+    .template-popup-close:hover {
+        background: var(--cream);
+    }
+    
+    .template-popup-body {
+        padding: 1.5rem;
+    }
+    
+    .template-popup-category {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--gray);
+        background: var(--cream);
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        display: inline-block;
+        margin-bottom: 0.75rem;
+    }
+    
+    .template-popup-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .template-popup-desc {
+        color: var(--gray);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+    
+    .template-popup-actions {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .btn-use-template {
+        flex: 1;
+        padding: 0.875rem;
+        background: var(--brown);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .btn-use-template:hover {
+        background: #7A6A5A;
+    }
+    
+    .btn-add-folder {
+        padding: 0.875rem 1.25rem;
+        background: var(--cream);
+        color: var(--brown);
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .btn-add-folder:hover {
+        background: var(--tan);
+    }
+    
+    /* Folder Dropdown in Popup */
+    .folder-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .folder-dropdown-content {
+        display: none;
+        position: absolute;
+        bottom: 100%;
+        right: 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        min-width: 180px;
+        margin-bottom: 0.5rem;
+        overflow: hidden;
+    }
+    
+    .folder-dropdown-content.show {
+        display: block;
+    }
+    
+    .folder-dropdown-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: background 0.2s;
+    }
+    
+    .folder-dropdown-item:hover {
+        background: var(--cream);
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+        {% if user and user.is_new_user %}
+            <h1 class="welcome-title">Welcome, {{ user.username }}!</h1>
+            <p class="welcome-streak">Start your teaching journey today! 🌟</p>
+        {% else %}
+            <h1 class="welcome-title">Welcome back, {{ user.username if user else 'Creator' }}!</h1>
+            <p class="welcome-streak">🔥 {{ user.streak_days if user else 0 }} day streak</p>
+        {% endif %}
+    </div>
+    
+    <!-- Jump Back In Section -->
+    <div class="template-section">
+        <div class="section-header">
+            <h2 class="section-title">Jump back in</h2>
+            {% if templates_in_progress %}
+            <a href="{{ url_for('in_progress_templates_page') }}" class="view-all">View all</a>
+            {% endif %}
+        </div>
+        <p class="section-subtitle">Continue where you left off</p>
+        
+        {% if templates_in_progress %}
+        <div class="template-carousel-container" id="jumpBackInCarousel">
+            <div class="template-carousel-wrapper">
+                <div class="template-carousel">
+                    {% for item in templates_in_progress %}
+                    <div class="template-card" data-page="{{ (loop.index0 // 4) + 1 }}" {% if loop.index0 >= 4 %}style="display: none;"{% endif %} onclick="openTemplatePopup({{ item.template.id }}, '{{ item.template.title }}', '{{ item.template.category }}', '{{ item.template.color }}', '{{ item.template.description | default('A template to help you create engaging courses.') | e }}')">
+                        <div class="template-img" style="background-color: {{ item.template.color }};"></div>
+                        <div class="template-body">
+                            <span class="template-category">{{ item.template.category }}</span>
+                            <h3 class="template-title">{{ item.template.title }}</h3>
+                            <div class="progress-bar-bg">
+                                <div class="progress-fill" style="width: {{ item.progress }}%;"></div>
+                            </div>
+                            <p class="template-meta">{{ item.progress }}% complete</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if templates_in_progress|length > 4 %}
+            <button class="carousel-nav prev hidden" onclick="navigateCarousel('jumpBackInCarousel', -1)">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <button class="carousel-nav next" onclick="navigateCarousel('jumpBackInCarousel', 1)">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-file-earmark-plus"></i>
+            <p>No templates started yet. Pick one below to start creating a course!</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Templates Based on Your Interests -->
+    <div class="template-section">
+        <div class="section-header">
+            <h2 class="section-title">We think you may like these</h2>
+            <a href="{{ url_for('recommended_templates_page') }}" class="view-all">View all</a>
+        </div>
+        <p class="section-subtitle">Templates based on your interests</p>
+        
+        <div class="template-carousel-container" id="recommendedCarousel">
+            <div class="template-carousel-wrapper">
+                <div class="template-carousel">
+                    {% for template in recommended_templates %}
+                    <div class="template-card" data-page="{{ (loop.index0 // 4) + 1 }}" {% if loop.index0 >= 4 %}style="display: none;"{% endif %} onclick="openTemplatePopup({{ template.id }}, '{{ template.title }}', '{{ template.category }}', '{{ template.color }}', '{{ template.description | default('A template to help you create engaging courses.') | e }}')">
+                        <div class="template-img" style="background-color: {{ template.color }};"></div>
+                        <div class="template-body">
+                            <span class="template-category">{{ template.category }}</span>
+                            <h3 class="template-title">{{ template.title }}</h3>
+                            <p class="template-usage">{{ template.usage_count }} uses</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if recommended_templates|length > 4 %}
+            <button class="carousel-nav prev hidden" onclick="navigateCarousel('recommendedCarousel', -1)">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <button class="carousel-nav next" onclick="navigateCarousel('recommendedCarousel', 1)">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Latest Trendy Templates -->
+    <div class="template-section">
+        <div class="section-header">
+            <h2 class="section-title">Latest from us</h2>
+            <a href="{{ url_for('all_templates_page') }}" class="view-all">View all</a>
+        </div>
+        <p class="section-subtitle">Latest trendy templates used by users</p>
+        
+        <div class="template-carousel-container" id="latestCarousel">
+            <div class="template-carousel-wrapper">
+                <div class="template-carousel">
+                    {% for template in all_templates %}
+                    <div class="template-card" data-page="{{ (loop.index0 // 4) + 1 }}" {% if loop.index0 >= 4 %}style="display: none;"{% endif %} onclick="openTemplatePopup({{ template.id }}, '{{ template.title }}', '{{ template.category }}', '{{ template.color }}', '{{ template.description | default('A template to help you create engaging courses.') | e }}')">
+                        <div class="template-img" style="background-color: {{ template.color }};"></div>
+                        <div class="template-body">
+                            <span class="template-category">{{ template.category }}</span>
+                            <h3 class="template-title">{{ template.title }}</h3>
+                            <p class="template-usage">{{ template.usage_count }} uses</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if all_templates|length > 4 %}
+            <button class="carousel-nav prev hidden" onclick="navigateCarousel('latestCarousel', -1)">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <button class="carousel-nav next" onclick="navigateCarousel('latestCarousel', 1)">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- See What Others Are Creating -->
+    <div class="template-section">
+        <div class="section-header">
+            <h2 class="section-title">See what others are creating</h2>
+            {% if related_courses %}
+            <a href="/lib/library" class="view-all">View all</a>
+            {% endif %}
+        </div>
+        <p class="section-subtitle">Courses created by others based on your works</p>
+        
+        {% if related_courses %}
+        <div class="template-carousel-container" id="othersCarousel">
+            <div class="template-carousel-wrapper">
+                <div class="template-carousel">
+                    {% for course in related_courses %}
+                    <div class="course-card" data-page="{{ (loop.index0 // 4) + 1 }}" {% if loop.index0 >= 4 %}style="display: none;"{% endif %}>
+                        <div class="course-img" style="{% if course.image_url %}background-image: url('{{ course.image_url }}');{% endif %} background-color: {{ course.color }};"></div>
+                        <div class="course-body">
+                            <span class="course-category">{{ course.category }}</span>
+                            <h3 class="course-title">{{ course.title }}</h3>
+                            <p class="course-instructor">{{ course.instructor_name }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if related_courses|length > 4 %}
+            <button class="carousel-nav prev hidden" onclick="navigateCarousel('othersCarousel', -1)">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <button class="carousel-nav next" onclick="navigateCarousel('othersCarousel', 1)">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-people"></i>
+            <p>Start using a template to see courses created by others in the same topics!</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- My Collections (Folders) -->
+    <div class="template-section">
+        <div class="section-header">
+            <h2 class="section-title">My Collections</h2>
+            <a href="{{ url_for('mentor_folder_list') }}" class="view-all">View all</a>
+        </div>
+        <p class="section-subtitle">Your saved templates</p>
+        
+        <div class="folder-grid">
+            {% for folder in folders %}
+            <a href="{{ url_for('mentor_folder_view', folder_id=folder.id) }}" class="folder-card" style="background-color: {{ folder.color }}; color: {% if folder.color in ['#8F7B6A', '#BEBAAF', '#C4B4A7'] %}white{% else %}var(--black){% endif %};">
+                <i class="bi bi-{{ folder.icon }}-fill folder-icon"></i>
+                <span class="folder-name">{{ folder.folder_name }}</span>
+                <span class="folder-count">{{ folder_template_counts.get(folder.id, 0) }} templates</span>
+            </a>
+            {% endfor %}
+            <a href="{{ url_for('folder_create') }}" class="folder-card add-folder-card">
+                <i class="bi bi-plus-lg"></i>
+                <span>New Folder</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- FAB Buttons - Matching learner homepage style -->
+<div class="fab-container">
+    <a href="{{ url_for('mentor_chatbot') }}" class="fab fab-chat">
+        <i class="bi bi-chat-square-text"></i>
+    </a>
+    <div style="position: relative;">
+        <button class="fab fab-add" id="fabAdd" onclick="toggleFabMenu()">
+            <i class="bi bi-plus"></i>
+        </button>
+        <div class="fab-menu" id="fabMenu">
+            <a href="/lib/create">Create new course</a>
+            <a href="{{ url_for('mentor_folder_create') }}">New folder</a>
+            <a href="{{ url_for('all_templates_page') }}">View templates</a>
+        </div>
+    </div>
+</div>
+
+<!-- Template Popup Overlay -->
+<div class="template-popup-overlay" id="templatePopup">
+    <div class="template-popup">
+        <div class="template-popup-header" id="popupHeader" style="background-color: #FEFAF1;">
+            <button class="template-popup-close" onclick="closeTemplatePopup()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="template-popup-body">
+            <span class="template-popup-category" id="popupCategory">Category</span>
+            <h2 class="template-popup-title" id="popupTitle">Template Title</h2>
+            <p class="template-popup-desc" id="popupDesc">Template description goes here.</p>
+            <div class="template-popup-actions">
+                <a href="#" class="btn-use-template" id="popupUseBtn">Use Template</a>
+                <div class="folder-dropdown">
+                    <button class="btn-add-folder" onclick="toggleFolderDropdown()">
+                        <i class="bi bi-folder-plus"></i>
+                    </button>
+                    <div class="folder-dropdown-content" id="folderDropdown">
+                        {% for folder in folders %}
+                        <button class="folder-dropdown-item" onclick="addTemplateToFolder({{ folder.id }})">
+                            <i class="bi bi-{{ folder.icon }}"></i>
+                            {{ folder.folder_name }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Carousel pagination state
+    var carouselPages = {};
+    
+    function navigateCarousel(carouselId, direction) {
+        var container = document.getElementById(carouselId);
+        var cards = container.querySelectorAll('[data-page]');
+        var totalPages = Math.ceil(cards.length / 4);
+        
+        if (!carouselPages[carouselId]) {
+            carouselPages[carouselId] = 1;
+        }
+        
+        var currentPage = carouselPages[carouselId];
+        var newPage = currentPage + direction;
+        
+        if (newPage < 1 || newPage > totalPages) return;
+        
+        carouselPages[carouselId] = newPage;
+        
+        // Hide all cards
+        cards.forEach(function(card) {
+            card.style.display = 'none';
+        });
+        
+        // Show cards for current page
+        cards.forEach(function(card) {
+            if (parseInt(card.dataset.page) === newPage) {
+                card.style.display = 'block';
+            }
+        });
+        
+        // Update arrow visibility
+        var prevBtn = container.querySelector('.carousel-nav.prev');
+        var nextBtn = container.querySelector('.carousel-nav.next');
+        
+        if (prevBtn) {
+            prevBtn.classList.toggle('hidden', newPage === 1);
+        }
+        if (nextBtn) {
+            nextBtn.classList.toggle('hidden', newPage === totalPages);
+        }
+    }
+    
+    // FAB Menu Toggle
+    function toggleFabMenu() {
+        document.getElementById('fabMenu').classList.toggle('show');
+    }
+    
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.fab-add') && !e.target.closest('.fab-menu')) {
+            var fabMenu = document.getElementById('fabMenu');
+            if (fabMenu) fabMenu.classList.remove('show');
+        }
+    });
+    
+    // Template Popup Functions
+    var currentTemplateId = null;
+    
+    function openTemplatePopup(id, title, category, color, description) {
+        currentTemplateId = id;
+        document.getElementById('popupHeader').style.backgroundColor = color;
+        document.getElementById('popupCategory').textContent = category;
+        document.getElementById('popupTitle').textContent = title;
+        document.getElementById('popupDesc').textContent = description;
+        document.getElementById('popupUseBtn').href = '/template/' + id;
+        
+        document.getElementById('templatePopup').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeTemplatePopup() {
+        document.getElementById('templatePopup').classList.remove('active');
+        document.body.style.overflow = '';
+        document.getElementById('folderDropdown').classList.remove('show');
+    }
+    
+    function toggleFolderDropdown() {
+        document.getElementById('folderDropdown').classList.toggle('show');
+    }
+    
+    // AJAX add template to folder - no page redirect
+    async function addTemplateToFolder(folderId) {
+        try {
+            const response = await fetch('/folder/' + folderId + '/add-template/' + currentTemplateId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            
+            // Close dropdown and show feedback
+            document.getElementById('folderDropdown').classList.remove('show');
+            
+            // Brief visual feedback
+            const btn = document.querySelector('.btn-add-folder');
+            btn.innerHTML = '<i class="bi bi-check"></i>';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="bi bi-folder-plus"></i>';
+            }, 1500);
+            
+        } catch (error) {
+            console.error('Error adding to folder:', error);
+        }
+    }
+    
+    // Close popup when clicking outside
+    document.getElementById('templatePopup').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeTemplatePopup();
+        }
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.folder-dropdown')) {
+            var dropdown = document.getElementById('folderDropdown');
+            if (dropdown) dropdown.classList.remove('show');
+        }
+    });
+    
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeTemplatePopup();
+        }
+    });
+
+    // Disable all navigation - this page is not the active homepage
+    document.addEventListener('click', function(e) {
+        var link = e.target.closest('a, button');
+        if (link && link.tagName === 'A' && link.getAttribute('href') !== '#') {
+            e.preventDefault();
+        }
+    }, true);
+</script>
+{% endblock %}

@@ -1,0 +1,560 @@
+{% extends "base.html" %}
+{% block title %}BridgeHive - Connect. Learn. Grow.{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* --- VIBRANT LANDING PAGE ENHANCEMENTS --- */
+    
+    /* Animated gradient background */
+    body {
+        background: linear-gradient(135deg, #FEFAF1 0%, #FFF8E7 25%, #FEFAF1 50%, #FDF6E9 75%, #FEFAF1 100%);
+        background-size: 400% 400%;
+        animation: gradientShift 15s ease infinite;
+    }
+    
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    /* Hero Section - Centered */
+    .hero {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 4rem 3rem;
+        padding-top: 90px;
+        gap: 4rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        position: relative;
+    }
+    
+    /* Decorative floating shapes */
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: 60px;
+        left: 5%;
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, rgba(222, 192, 154, 0.3), rgba(143, 123, 106, 0.2));
+        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+        animation: floatShape 8s ease-in-out infinite;
+        z-index: 0;
+    }
+    
+    .hero::after {
+        content: '';
+        position: absolute;
+        bottom: 20%;
+        right: 8%;
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, rgba(255, 229, 196, 0.5), rgba(222, 192, 154, 0.3));
+        border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+        animation: floatShape 6s ease-in-out infinite reverse;
+        z-index: 0;
+    }
+    
+    @keyframes floatShape {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(10deg); }
+    }
+    
+    .hero-content {
+        flex: 0 0 500px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .hero-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 3rem;
+        font-weight: 500;
+        color: var(--black);
+        margin-bottom: 1.5rem;
+        line-height: 1.1;
+        position: relative;
+    }
+    
+    /* Accent underline for title */
+    .hero-title::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--brown), var(--tan));
+        border-radius: 2px;
+    }
+    
+    .hero-text {
+        font-size: 1rem;
+        line-height: 1.7;
+        color: var(--gray);
+    }
+    
+    .hero-image {
+        flex: 0 0 380px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .hero-image img {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(143, 123, 106, 0.25);
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    
+    .hero-image:hover img {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 30px 80px rgba(143, 123, 106, 0.35);
+    }
+    
+    /* User Type Cards */
+    .user-cards {
+        display: flex;
+        gap: 3rem;
+        padding: 2rem 4rem 4rem;
+        justify-content: center;
+        position: relative;
+    }
+    
+    .user-card {
+        width: 420px;
+        min-height: 420px;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    
+    .user-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 25px 70px rgba(0,0,0,0.2);
+    }
+    
+    .user-card-elderly {
+        background: linear-gradient(145deg, #E8D4B8 0%, #DEC09A 50%, #D4B48A 100%);
+    }
+    
+    .user-card-youth {
+        background: linear-gradient(145deg, #A08979 0%, #8F7B6A 50%, #7A6859 100%);
+    }
+    
+    /* Subtle pattern overlay */
+    .user-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                          radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 40%);
+        pointer-events: none;
+        z-index: 1;
+    }
+    
+    .user-card h3 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.75rem;
+        font-weight: 500;
+        color: white;
+        margin-bottom: 0.25rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .user-card .subtitle {
+        font-size: 1rem;
+        color: rgba(255,255,255,0.9);
+        margin-bottom: 1rem;
+    }
+    
+    .user-card p {
+        font-size: 0.9rem;
+        line-height: 1.6;
+        color: rgba(255,255,255,0.85);
+        max-width: 280px;
+    }
+    
+    .user-card-image {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 280px;
+        height: auto;
+        transition: filter 0.3s ease, transform 0.4s ease;
+    }
+    
+    .user-card:hover .user-card-image {
+        transform: scale(1.05);
+    }
+    
+    .user-card-image img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    /* Hover Overlay */
+    .user-card-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.4) 100%);
+        backdrop-filter: blur(2px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 5;
+    }
+    
+    .user-card:hover .user-card-overlay {
+        opacity: 1;
+    }
+    
+    /* Blur effect on hover */
+    .user-card-content {
+        padding: 2rem;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: filter 0.3s ease;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .user-card:hover .user-card-content,
+    .user-card:hover .user-card-image {
+        filter: blur(4px);
+    }
+    
+    .user-card-overlay h4 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        color: white;
+        margin-bottom: 0.25rem;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    
+    .user-card-overlay p {
+        color: white;
+        margin-bottom: 1.25rem;
+        max-width: none;
+    }
+    
+    .user-card-overlay .btn-signup {
+        background: linear-gradient(135deg, #FEFAF1 0%, #FFF8E7 100%);
+        color: var(--black);
+        padding: 0.85rem 2.75rem;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .user-card-overlay .btn-signup:hover {
+        transform: scale(1.05);
+        box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+    }
+    
+    /* FAQ Section */
+    .faq-section {
+        text-align: center;
+        padding: 3rem 4rem;
+        padding-bottom: 50vh;
+        position: relative;
+    }
+    
+    /* Decorative element */
+    .faq-section::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, transparent, var(--tan), var(--brown), var(--tan), transparent);
+        border-radius: 2px;
+    }
+    
+    .faq-section h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        font-weight: 500;
+        color: var(--black);
+        margin-bottom: 0.5rem;
+    }
+    
+    .faq-section .subtitle {
+        color: var(--gray);
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .faq-search-box {
+        max-width: 450px;
+        width: 100%;
+        position: relative;
+        margin: 0 auto;
+    }
+    
+    .faq-search-input {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        border: 2px solid transparent;
+        border-radius: 50px;
+        background: linear-gradient(white, white) padding-box,
+                    linear-gradient(135deg, var(--tan-light), var(--cream-dark)) border-box;
+        font-size: 0.95rem;
+        color: var(--black);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+    
+    .faq-search-input:focus {
+        outline: none;
+        box-shadow: 0 8px 30px rgba(143, 123, 106, 0.15);
+        transform: translateY(-2px);
+    }
+    
+    .faq-search-input::placeholder {
+        color: var(--gray);
+    }
+    
+    .faq-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 16px;
+        margin-top: 0.75rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+        display: none;
+        text-align: left;
+        z-index: 100;
+        overflow: hidden;
+    }
+    
+    .faq-results.show {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+    
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .faq-result-item {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--off-white);
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    
+    .faq-result-item:last-child {
+        border-bottom: none;
+    }
+    
+    .faq-result-item:hover {
+        background: linear-gradient(135deg, var(--cream) 0%, #FFF8E7 100%);
+    }
+    
+    .faq-result-item .question {
+        font-weight: 500;
+        color: var(--black);
+        margin-bottom: 0.25rem;
+    }
+    
+    .faq-result-item .answer {
+        font-size: 0.85rem;
+        color: var(--gray);
+        display: none;
+    }
+    
+    .faq-result-item.expanded .answer {
+        display: block;
+        margin-top: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+<nav class="navbar-landing">
+    <a href="{{ url_for('landing') }}" class="logo">BridgeHive</a>
+    <div class="nav-links">
+        <a href="{{ url_for('about') }}">about us</a>
+        <a href="{{ url_for('contact') }}">contact us</a>
+    </div>
+    <div class="nav-right">
+        <div class="search-bar-dark" onclick="openSearchOverlay()" style="cursor: pointer;">
+            <input type="text" placeholder="What would you like to ask?" readonly style="cursor: pointer;">
+            <button type="button"><i class="bi bi-search"></i></button>
+        </div>
+        <a href="#" class="profile-icon" onclick="openSignupPopup(); return false;">
+            <i class="bi bi-person"></i>
+        </a>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content">
+        <h1 class="hero-title">What is BridgeHive?</h1>
+        <p class="hero-text">
+            BridgeHive is a dedicated web platform designed to bridge the intergenerational gap in Singapore. By utilizing a unique course-based skillsharing model, we connect youth and seniors to foster mutual learning, digital literacy, and community connection.
+        <br><br>
+            The Vision In an increasingly digital landscape, BridgeHive serves as the essential, sustainable, and safe digital infrastructure for intergenerational learning. We empower seniors to share valuable life skills while enabling youth to provide essential technology mentorship.
+        </p>
+    </div>
+    <div class="hero-image">
+        <img src="{{ url_for('static', filename='images/hero-painting.png') }}" alt="Senior teaching youth">
+    </div>
+</section>
+
+<!-- User Type Cards -->
+<section class="user-cards">
+    <div class="user-card user-card-elderly">
+        <div class="user-card-content">
+            <h3>BridgeHive</h3>
+            <p class="subtitle">for elderlies</p>
+            <p>
+                Share Wisdom, Learn Tech.
+                <br>
+                Turn your life experience into a legacy. Teach your skills to the younger generation and receive patient, 1-on-1 help mastering smartphones and digital tools in return.
+            </p>
+        </div>
+        <div class="user-card-image">
+            <img src="{{ url_for('static', filename='images/elderly-laptop.png') }}" alt="Elderly with laptop">
+        </div>
+        <div class="user-card-overlay">
+            <h4>Interested in joining us?</h4>
+            <p>Sign up now!</p>
+            <a href="{{ url_for('onboard_elder') }}" class="btn-signup">Sign Up</a>
+        </div>
+    </div>
+    
+    <div class="user-card user-card-youth">
+        <div class="user-card-content">
+            <h3>BridgeHive</h3>
+            <p class="subtitle">for youths</p>
+            <p>
+                Master Unique Life Skills. 
+                <br>
+                Learn dialects, crafts, and wisdom directly from the pioneer generation. In exchange, offer a helping hand to guide them through the digital world.
+            </p>
+        </div>
+        <div class="user-card-image">
+            <img src="{{ url_for('static', filename='images/youth-robotics.png') }}" alt="Youth with robotics">
+        </div>
+        <div class="user-card-overlay">
+            <h4>Interested in joining us?</h4>
+            <p>Sign up now!</p>
+            <a href="{{ url_for('onboard_youth') }}" class="btn-signup">Sign Up</a>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section" id="faq">
+    <h2>Have a question? Ask away!</h2>
+    <p class="subtitle">We will match yours to many frequently asked and answer them!</p>
+    <div class="faq-search-box">
+        <form action="{{ url_for('faq_search') }}" method="GET">
+            <input type="text" name="q" class="faq-search-input" id="faqInput" placeholder="Enter question..." autocomplete="off">
+        </form>
+        <div class="faq-results" id="faqResults"></div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const faqData = [
+    {% for faq in faqs %}
+    {id: {{ faq.id }}, question: "{{ faq.question|e }}", answer: "{{ faq.answer|e }}"}{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+
+// Landing page FAQ search
+const faqInput = document.getElementById('faqInput');
+const faqResults = document.getElementById('faqResults');
+
+if (faqInput) {
+    faqInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        if (query.length < 2) {
+            faqResults.classList.remove('show');
+            return;
+        }
+        
+        const matches = faqData.filter(f => f.question.toLowerCase().includes(query)).slice(0, 5);
+        
+        if (matches.length === 0) {
+            faqResults.innerHTML = '<div style="padding: 1rem; color: #555;">No matching questions found</div>';
+        } else {
+            faqResults.innerHTML = matches.map(f => `
+                <div class="faq-result-item" onclick="this.classList.toggle('expanded')">
+                    <div class="question">${f.question}</div>
+                    <div class="answer">${f.answer}</div>
+                </div>
+            `).join('');
+        }
+        faqResults.classList.add('show');
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.faq-search-box')) {
+            faqResults.classList.remove('show');
+        }
+    });
+}
+
+// Fullscreen overlay FAQ search
+const searchOverlayInput = document.getElementById('searchOverlayInput');
+const searchOverlayResults = document.getElementById('searchOverlayResults');
+
+if (searchOverlayInput) {
+    searchOverlayInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        if (query.length < 2) {
+            searchOverlayResults.innerHTML = '';
+            return;
+        }
+        
+        const matches = faqData.filter(f => f.question.toLowerCase().includes(query)).slice(0, 5);
+        
+        if (matches.length === 0) {
+            searchOverlayResults.innerHTML = '<div class="search-overlay-no-results">No matching questions found</div>';
+        } else {
+            searchOverlayResults.innerHTML = matches.map(f => `
+                <div class="search-overlay-result-item" onclick="this.classList.toggle('expanded')">
+                    <div class="question">${f.question}</div>
+                    <div class="answer">${f.answer}</div>
+                </div>
+            `).join('');
+        }
+    });
+}
+</script>
+{% endblock %}

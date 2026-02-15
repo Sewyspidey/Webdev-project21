@@ -1,0 +1,1357 @@
+{% extends "lib/base.html" %}
+
+{% block title %}Library | BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* VIBRANT ENHANCEMENTS */
+    .stat-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+        border: 2px solid #e5e7eb;
+        border-radius: 24px;
+        padding: 3rem 2.5rem;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        animation: slideInUp 0.6s ease-out backwards;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .stat-card:nth-child(1) {
+        border-color: rgba(59, 130, 246, 0.2);
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.01) 100%);
+    }
+
+    .stat-card:nth-child(2) {
+        border-color: rgba(16, 185, 129, 0.2);
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.01) 100%);
+    }
+
+    .stat-card:nth-child(3) {
+        border-color: rgba(251, 146, 60, 0.2);
+        background: linear-gradient(135deg, rgba(251, 146, 60, 0.05) 0%, rgba(251, 146, 60, 0.01) 100%);
+    }
+
+    .stat-card:nth-child(4) {
+        border-color: rgba(239, 68, 68, 0.2);
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.01) 100%);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 24px 48px rgba(44, 62, 80, 0.16);
+        border-color: #2C3E50;
+        background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
+    }
+
+    .stat-card:nth-child(1):hover {
+        border-color: #3b82f6;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.02) 100%);
+    }
+
+    .stat-card:nth-child(2):hover {
+        border-color: #10b981;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.02) 100%);
+    }
+
+    .stat-card:nth-child(3):hover {
+        border-color: #fb923c;
+        background: linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, rgba(251, 146, 60, 0.02) 100%);
+    }
+
+    .stat-card:nth-child(4):hover {
+        border-color: #ef4444;
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.02) 100%);
+    }
+
+    .stat-card:hover::before {
+        left: 100%;
+    }
+
+    .stat-card .stat-number {
+        font-size: 3.5rem;
+        font-weight: 900;
+        color: #1f2937;
+        margin: 1rem 0 0.5rem 0;
+        letter-spacing: -2px;
+    }
+
+    .stat-card:nth-child(1) .stat-number { color: #3b82f6; }
+    .stat-card:nth-child(2) .stat-number { color: #10b981; }
+    .stat-card:nth-child(3) .stat-number { color: #fb923c; }
+    .stat-card:nth-child(4) .stat-number { color: #ef4444; }
+
+    .stat-card .text-muted {
+        font-size: 1.1rem;
+        color: #6b7280;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+    }
+
+        .community-group-meta {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+        .community-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            border: 2px solid rgba(44, 62, 80, 0.2);
+            background: #fff;
+            color: #2C3E50;
+            padding: 0.65rem 1.25rem;
+            border-radius: 999px;
+            font-weight: 700;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .community-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(44, 62, 80, 0.2);
+        }
+
+        .community-panel {
+            background: #ffffff;
+            border-radius: 18px;
+            border: 1px solid rgba(44, 62, 80, 0.08);
+            box-shadow: 0 12px 30px rgba(44, 62, 80, 0.1);
+            padding: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .community-panel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .community-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 0.75rem 1rem;
+            border-radius: 14px;
+            background: rgba(248, 180, 180, 0.12);
+            color: #2C3E50;
+            font-weight: 600;
+        }
+
+        .community-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+        }
+
+        .community-metric {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid rgba(44, 62, 80, 0.08);
+            padding: 0.85rem 1rem;
+            text-align: left;
+        }
+
+        .community-metric span {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+        }
+
+        .community-metric strong {
+            font-size: 1.1rem;
+            color: #1f2937;
+        }
+
+        .community-groups {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .community-group-card {
+            background: #f9fafb;
+            border-radius: 16px;
+            padding: 1rem;
+            border: 1px solid rgba(44, 62, 80, 0.08);
+        }
+
+        .community-group-card h5 {
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+            color: #1f2937;
+            font-size: 1rem;
+        }
+
+        .community-group-meta {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .btn-community {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.85rem 1.75rem;
+            border-radius: 999px;
+            font-weight: 700;
+            border: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn-community.join {
+            background: linear-gradient(135deg, #2C3E50, #1a252f);
+            color: #fff;
+            box-shadow: 0 12px 26px rgba(44, 62, 80, 0.25);
+        }
+
+        .btn-community.create {
+            background: #fff;
+            color: #2C3E50;
+            border: 2px solid rgba(44, 62, 80, 0.2);
+        }
+
+        .btn-community:hover {
+            transform: translateY(-3px) scale(1.02);
+        }
+
+        .community-note {
+            font-size: 0.95rem;
+            color: #5f6b74;
+            margin-top: 1rem;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .search-box {
+            position: relative;
+            animation: slideInUp 0.7s ease-out;
+        }
+
+        .search-box input {
+            border: 2px solid #e5e7eb;
+            border-radius: 24px;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            border-color: #2C3E50;
+            box-shadow: 0 0 0 4px rgba(44, 62, 80, 0.1);
+            outline: none;
+        }
+
+        .btn-create {
+            background: linear-gradient(135deg, #2C3E50, #1a252f);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 24px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .btn-create:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 12px 32px rgba(44, 62, 80, 0.3);
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .view-more-btn {
+            background: white;
+            border: 2px solid #2C3E50;
+            color: #2C3E50;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .view-more-btn:hover {
+            background: #2C3E50;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .instructor-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .instructor-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #F8B4B4, #A7C5EB);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        /* HERO ICON STYLING */
+        .hero-icon {
+            font-size: 18rem;
+            background: linear-gradient(135deg, #1e40af, #7c3aed, #1f2937, #374151);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: float 6s ease-in-out infinite, colorFlow 8s ease-in-out infinite;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 280px;
+            filter: drop-shadow(0 20px 40px rgba(30, 64, 175, 0.25));
+        }
+
+        .hero-icon i {
+            display: inline-block;
+            animation: pulse 3s ease-in-out infinite;
+            background: linear-gradient(135deg, #1e40af, #7c3aed, #1f2937, #374151);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @keyframes colorFlow {
+            0% { filter: drop-shadow(0 20px 40px rgba(30, 64, 175, 0.35)); }
+            25% { filter: drop-shadow(0 20px 40px rgba(124, 58, 237, 0.35)); }
+            50% { filter: drop-shadow(0 20px 40px rgba(31, 41, 55, 0.35)); }
+            75% { filter: drop-shadow(0 20px 40px rgba(55, 65, 81, 0.35)); }
+            100% { filter: drop-shadow(0 20px 40px rgba(30, 64, 175, 0.35)); }
+        }
+
+        /* FILTER SECTION STYLING */
+        .filter-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            padding: 2.5rem 2rem;
+            border-top: none;
+            border-bottom: 3px solid #f3f4f6;
+            background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
+            border-radius: 24px;
+            animation: slideInDown 0.6s ease-out;
+            margin-bottom: 3rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .filter-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1.1rem 2.2rem;
+            border: 2px solid #e5e7eb;
+            background: #ffffff;
+            color: #2C3E50;
+            border-radius: 32px;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-btn:nth-child(1) { --btn-color: #3b82f6; }
+        .filter-btn:nth-child(2) { --btn-color: #10b981; }
+        .filter-btn:nth-child(3) { --btn-color: #f59e0b; }
+        .filter-btn:nth-child(4) { --btn-color: #8b5cf6; }
+        .filter-btn:nth-child(5) { --btn-color: #ec4899; }
+        .filter-btn:nth-child(6) { --btn-color: #06b6d4; }
+        .filter-btn:nth-child(7) { --btn-color: #ef4444; }
+        .filter-btn:nth-child(8) { --btn-color: #6366f1; }
+
+        .filter-btn:hover {
+            border-color: var(--btn-color);
+            transform: translateY(-6px);
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+            color: var(--btn-color);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, var(--btn-color) 0%, var(--btn-color) 100%);
+            color: white;
+            border-color: var(--btn-color);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
+            transform: translateY(-6px);
+        }
+
+        .filter-btn.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        .filter-btn i {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .filter-btn:hover i {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .filter-btn.active i {
+            animation: bounce 0.6s ease-out;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filter-section {
+                gap: 0.75rem;
+                padding: 1.5rem 1rem;
+                justify-content: center;
+            }
+
+            .filter-btn {
+                padding: 0.75rem 1.25rem;
+                font-size: 0.85rem;
+                flex: 0 1 auto;
+            }
+
+            .filter-btn i {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .filter-section {
+                flex-direction: column;
+                gap: 0.6rem;
+            }
+
+            .filter-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* COMMUNITY SECTION STYLES */
+        .community-section {
+            margin-top: 8rem;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+        .community-header {
+            text-align: center;
+            margin-bottom: 4rem;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .community-header-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            color: white;
+            box-shadow: 0 12px 30px rgba(44, 62, 80, 0.25);
+            animation: slideInDown 0.6s ease-out;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .community-header-icon:hover {
+            transform: scale(1.12) rotate(-5deg);
+            box-shadow: 0 16px 40px rgba(44, 62, 80, 0.35);
+        }
+
+        .community-header h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+
+        .community-header p {
+            font-size: 1.15rem;
+            color: #6B7280;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        .community-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .community-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            animation: slideInUp 0.6s ease-out backwards;
+            cursor: pointer;
+        }
+
+        .community-card:nth-child(1) {
+            animation-delay: 0.1s;
+            border-color: rgba(59, 130, 246, 0.3);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.01) 100%);
+        }
+
+        .community-card:nth-child(2) {
+            animation-delay: 0.2s;
+            border-color: rgba(139, 92, 246, 0.3);
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(139, 92, 246, 0.01) 100%);
+        }
+
+        .community-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .community-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 24px 48px rgba(44, 62, 80, 0.16);
+            border-color: #2C3E50;
+        }
+
+        .community-card:nth-child(1):hover {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(59, 130, 246, 0.03) 100%);
+        }
+
+        .community-card:nth-child(2):hover {
+            border-color: #8b5cf6;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(139, 92, 246, 0.03) 100%);
+        }
+
+        .community-card:hover::before {
+            left: 100%;
+        }
+
+        .community-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 90px;
+            height: 90px;
+            border-radius: 20px;
+            transition: all 0.4s ease;
+        }
+
+        .community-card:nth-child(1) .community-icon {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .community-card:nth-child(2) .community-icon {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .community-card:hover .community-icon {
+            transform: scale(1.15) rotate(-5deg);
+        }
+
+        .community-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            letter-spacing: -0.5px;
+        }
+
+        .community-card p {
+            color: #6B7280;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            margin-bottom: 2.5rem;
+        }
+
+        .community-features {
+            text-align: left;
+            margin: 2rem 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .community-features li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            color: #4B5563;
+        }
+
+        .community-features i {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 0.6rem;
+        }
+
+        .community-card:nth-child(1) .community-features i {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+
+        .community-card:nth-child(2) .community-features i {
+            background: rgba(139, 92, 246, 0.2);
+            color: #8b5cf6;
+        }
+
+        .community-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 2rem;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.3px;
+        }
+
+        .community-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            transition: left 0.5s ease;
+            z-index: 0;
+        }
+
+        .community-btn span {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .community-card:nth-child(1) .community-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .community-card:nth-child(1) .community-btn::before {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        }
+
+        .community-card:nth-child(2) .community-btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .community-card:nth-child(2) .community-btn::before {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+        }
+
+        .community-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .community-btn:hover::before {
+            left: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .community-header h2 {
+                font-size: 2rem;
+            }
+
+            .community-header-icon {
+                width: 70px;
+                height: 70px;
+                font-size: 2rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .community-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .community-card {
+                padding: 2.5rem 2rem;
+            }
+
+            .community-icon {
+                font-size: 3rem;
+                width: 80px;
+                height: 80px;
+            }
+
+            .community-card h3 {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container py-5">
+        
+        <!-- HERO SECTION -->
+        <div class="hero-section">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-3 fw-bold mb-3">Discover & Learn</h1>
+                    <p class="lead text-muted mb-4">Connect across generations through shared skills. Master new abilities, mentor others, and build lasting community bonds.</p>
+                    <div class="search-box">
+                        <input type="text" class="form-control form-control-lg" id="searchInput" placeholder="Search courses, instructors, topics...">
+                        <i class="fas fa-search" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: #999;"></i>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block text-end">
+                    <div class="hero-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COURSE GUIDE SECTION -->
+        <div class="mb-5 mt-5">
+            <button class="btn btn-lg w-100" id="guideToggle" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; font-weight: 600; border: none; padding: 15px; border-radius: 12px;">
+                <i class="fas fa-book-open me-2"></i> Course Guide - Learn How Everything Works
+                <i class="fas fa-chevron-down ms-2" id="guideChevron"></i>
+            </button>
+            
+            <div id="courseGuide" style="display: none; background: white; border-radius: 12px; padding: 30px; margin-top: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                <h3 style="color: #667eea; font-weight: 700; margin-bottom: 25px;">
+                    <i class="fas fa-question-circle me-2"></i>How to Use BridgeHive Courses
+                </h3>
+
+                <!-- Overview -->
+                <div style="background: #f9fafb; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #667eea;">
+                    <h5 style="color: #333; font-weight: 600; margin-bottom: 10px;">
+                        <i class="fas fa-graduation-cap me-2" style="color: #667eea;"></i>Overview
+                    </h5>
+                    <p style="color: #666; margin: 0; line-height: 1.6;">
+                        Each course is divided into <strong>modules (lessons)</strong> that you learn sequentially. You must <strong>complete all modules</strong> before you can take the <strong>quiz</strong>. After passing the quiz (75%+), you'll receive a <strong>certificate</strong>.
+                    </p>
+                </div>
+
+                <!-- The Learning Flow -->
+                <h5 style="color: #333; font-weight: 600; margin-bottom: 15px; margin-top: 25px;">
+                    <i class="fas fa-arrows-alt me-2" style="color: #667eea;"></i>The Learning Flow
+                </h5>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                    <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 15px; border-radius: 10px; text-align: center; font-weight: 600;">
+                        <i class="fas fa-play-circle" style="font-size: 1.5rem; display: block; margin-bottom: 10px;"></i>1. Select Course
+                    </div>
+                    <div style="background: #e5e7eb; color: #333; padding: 15px; border-radius: 10px; text-align: center; font-weight: 600;">
+                        <i class="fas fa-arrow-right" style="font-size: 1.5rem; display: block; margin-bottom: 10px;"></i>2. Click "Continue Learning"
+                    </div>
+                    <div style="background: #e5e7eb; color: #333; padding: 15px; border-radius: 10px; text-align: center; font-weight: 600;">
+                        <i class="fas fa-list-check" style="font-size: 1.5rem; display: block; margin-bottom: 10px;"></i>3. View All Modules
+                    </div>
+                    <div style="background: #e5e7eb; color: #333; padding: 15px; border-radius: 10px; text-align: center; font-weight: 600;">
+                        <i class="fas fa-video" style="font-size: 1.5rem; display: block; margin-bottom: 10px;"></i>4. Click Module
+                    </div>
+                    <div style="background: #e5e7eb; color: #333; padding: 15px; border-radius: 10px; text-align: center; font-weight: 600;">
+                        <i class="fas fa-book-open" style="font-size: 1.5rem; display: block; margin-bottom: 10px;"></i>5. Watch & Learn
+                    </div>
+                    <div style="background: #e5e7eb; color: #333; padding: 15px; border-radius: 10px; text-align: center; font-weight: 600;">
+                        <i class="fas fa-check-circle" style="font-size: 1.5rem; display: block; margin-bottom: 10px;"></i>6. Mark Complete
+                    </div>
+                    <div style="background: #e5e7eb; color: #333; padding: 15px; border-radius: 10px; text-align: center; font-weight: 600;">
+                        <i class="fas fa-graduation-cap" style="font-size: 1.5rem; display: block; margin-bottom: 10px;"></i>7. Take Quiz
+                    </div>
+                    <div style="background: linear-gradient(135deg, #10b981, #34d399); color: white; padding: 15px; border-radius: 10px; text-align: center; font-weight: 600;">
+                        <i class="fas fa-certificate" style="font-size: 1.5rem; display: block; margin-bottom: 10px;"></i>8. Get Certificate
+                    </div>
+                </div>
+
+                <!-- Detailed Steps -->
+                <h5 style="color: #333; font-weight: 600; margin-bottom: 15px; margin-top: 25px;">
+                    <i class="fas fa-list-ol me-2" style="color: #667eea;"></i>Step-by-Step Guide
+                </h5>
+                
+                <div style="border-left: 4px solid #667eea; padding-left: 20px; margin-bottom: 20px;">
+                    <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fas fa-1 me-2" style="color: #667eea; font-weight: 700;"></i>Find a Course
+                    </h6>
+                    <p style="color: #666; margin: 0; font-size: 0.95rem;">Click on any course card to view its details, description, and "Continue Learning" button.</p>
+                </div>
+
+                <div style="border-left: 4px solid #667eea; padding-left: 20px; margin-bottom: 20px;">
+                    <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fas fa-2 me-2" style="color: #667eea; font-weight: 700;"></i>View Modules Page
+                    </h6>
+                    <p style="color: #666; margin: 0; font-size: 0.95rem;">Click "Continue Learning" to see all course modules in a learning path. Each module shows its status: ✓ Completed, ● In Progress, or 🔒 Locked.</p>
+                </div>
+
+                <div style="border-left: 4px solid #667eea; padding-left: 20px; margin-bottom: 20px;">
+                    <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fas fa-3 me-2" style="color: #667eea; font-weight: 700;"></i>Click a Module to Learn
+                    </h6>
+                    <p style="color: #666; margin: 0; font-size: 0.95rem;">Open any module card to watch the video lesson, read content, and access additional resources (PDFs, articles, related videos).</p>
+                </div>
+
+                <div style="border-left: 4px solid #667eea; padding-left: 20px; margin-bottom: 20px;">
+                    <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fas fa-4 me-2" style="color: #667eea; font-weight: 700;"></i>Mark Module Complete
+                    </h6>
+                    <p style="color: #666; margin: 0; font-size: 0.95rem;">Click the "Mark as Complete" button to save your progress. The progress bar updates in real-time.</p>
+                </div>
+
+                <div style="border-left: 4px solid #667eea; padding-left: 20px; margin-bottom: 20px;">
+                    <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fas fa-5 me-2" style="color: #667eea; font-weight: 700;"></i>Complete All Modules
+                    </h6>
+                    <p style="color: #666; margin: 0; font-size: 0.95rem;">Navigate through all modules using Previous/Next buttons. You must complete every module to unlock the quiz.</p>
+                </div>
+
+                <div style="border-left: 4px solid #667eea; padding-left: 20px; margin-bottom: 20px;">
+                    <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fas fa-6 me-2" style="color: #667eea; font-weight: 700;"></i>Take the Quiz
+                    </h6>
+                    <p style="color: #666; margin: 0; font-size: 0.95rem;">Once all modules are complete, the "Take Quiz" button becomes active. You need to score at least 75% to pass.</p>
+                </div>
+
+                <div style="border-left: 4px solid #10b981; padding-left: 20px; margin-bottom: 20px;">
+                    <h6 style="color: #10b981; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fas fa-7 me-2" style="color: #10b981; font-weight: 700;"></i>Receive Certificate
+                    </h6>
+                    <p style="color: #666; margin: 0; font-size: 0.95rem;">Pass the quiz and get your personalized certificate with your name and course completion date!</p>
+                </div>
+
+                <!-- Important Notes -->
+                <h5 style="color: #333; font-weight: 600; margin-bottom: 15px; margin-top: 25px;">
+                    <i class="fas fa-lightbulb me-2" style="color: #667eea;"></i>Important Notes
+                </h5>
+
+                <div style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)); border-left: 4px solid #667eea; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <p style="color: #333; margin: 0; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fas fa-lock me-2"></i>Quiz is Locked Until All Modules Complete
+                    </p>
+                    <p style="color: #666; margin: 0; font-size: 0.95rem;">You cannot take the quiz until you finish every single module. This ensures you have all the knowledge needed to pass!</p>
+                </div>
+
+                <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.1)); border-left: 4px solid #10b981; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <p style="color: #333; margin: 0; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fas fa-sync me-2"></i>Real-Time Progress Updates
+                    </p>
+                    <p style="color: #666; margin: 0; font-size: 0.95rem;">Your progress is saved instantly. Return anytime to continue where you left off.</p>
+                </div>
+
+                <div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(244, 114, 101, 0.1)); border-left: 4px solid #ef4444; padding: 15px; border-radius: 8px;">
+                    <p style="color: #333; margin: 0; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fas fa-percentage me-2"></i>Pass Rate: 75% Required
+                    </p>
+                    <p style="color: #666; margin: 0; font-size: 0.95rem;">You need to score at least 75% on the quiz to pass the course and earn your certificate.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATISTICS DASHBOARD -->
+        <h3 class="font-serif mb-4 mt-5">📊 Live Statistics</h3>
+        <div class="stats-grid" id="statsContainer">
+            <div class="stat-card">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted small mb-2">Total Courses</p>
+                        <p class="stat-number" id="statCourses">0</p>
+                    </div>
+                    <i class="fas fa-book text-primary" style="font-size: 2.5rem; opacity: 0.2;"></i>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted small mb-2">Active Learners</p>
+                        <p class="stat-number" id="statStudents">0</p>
+                    </div>
+                    <i class="fas fa-users text-success" style="font-size: 2.5rem; opacity: 0.2;"></i>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted small mb-2">Expert Instructors</p>
+                        <p class="stat-number" id="statInstructors">0</p>
+                    </div>
+                    <i class="fas fa-chalkboard-user text-warning" style="font-size: 2.5rem; opacity: 0.2;"></i>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted small mb-2">Completion Rate</p>
+                        <p class="stat-number" id="statCompletion">0%</p>
+                    </div>
+                    <i class="fas fa-trophy text-danger" style="font-size: 2.5rem; opacity: 0.2;"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILTER SECTION -->
+        <div class="filter-section mt-5 mb-5">
+            <button class="filter-btn active" data-filter="all" onclick="filterCourses('all')">
+                <i class="fas fa-th me-2"></i>All Courses
+            </button>
+            <button class="filter-btn" data-filter="cooking" onclick="filterCourses('cooking')">
+                <i class="fas fa-utensils me-2"></i>Cooking
+            </button>
+            <button class="filter-btn" data-filter="technology" onclick="filterCourses('technology')">
+                <i class="fas fa-laptop me-2"></i>Technology
+            </button>
+            <button class="filter-btn" data-filter="language" onclick="filterCourses('language')">
+                <i class="fas fa-language me-2"></i>Language
+            </button>
+            <button class="filter-btn" data-filter="arts & creativity" onclick="filterCourses('arts & creativity')">
+                <i class="fas fa-palette me-2"></i>Arts & Creativity
+            </button>
+            <button class="filter-btn" data-filter="finance" onclick="filterCourses('finance')">
+                <i class="fas fa-coins me-2"></i>Finance
+            </button>
+            <button class="filter-btn" data-filter="health & wellness" onclick="filterCourses('health & wellness')">
+                <i class="fas fa-heart me-2"></i>Wellness
+            </button>
+            <button class="filter-btn" data-filter="gardening" onclick="filterCourses('gardening')">
+                <i class="fas fa-leaf me-2"></i>Gardening
+            </button>
+        </div>
+
+        <!-- COURSES GRID -->
+        <h3 class="font-serif mb-5">🌟 Featured Courses ({{ courses|length }})</h3>
+        <div class="course-grid" id="coursesContainer">
+            {% for course in courses %}
+            <div class="course-item" data-category="{{ course.category.lower() }}">
+                <a href="{{ url_for('lib.learn_modules', course_id=course.id) }}" class="course-card-link">
+                    <div class="course-card-modern">
+                        <div class="course-image-wrapper">
+                            <img src="{{ course.image_url or '' }}" alt="{{ course.title }}" class="w-100 h-100" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800';">
+                            <div class="course-image-overlay"></div>
+                            <span class="course-badge">{{ course.category }}</span>
+                        </div>
+                    
+                    <div class="course-content">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="skill-badge skill-{{ course.skill_level.lower() }}">
+                                <i class="fas fa-graduation-cap"></i> {{ course.skill_level }}
+                            </span>
+                            <div class="course-rating">
+                                {% for i in range(5) %}
+                                <i class="fas fa-star"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <h5 class="course-title">{{ course.title }}</h5>
+                        <p class="course-description">{{ course.description[:90] }}...</p>
+                        
+                        <div class="course-meta">
+                            <div class="course-meta-item">
+                                <i class="fas fa-clock"></i>
+                                <span>{{ course.duration_days }} days</span>
+                            </div>
+                            <div class="course-meta-item">
+                                <i class="fas fa-users"></i>
+                                <span>{{ course.max_participants }} students</span>
+                            </div>
+                            <div class="course-meta-item">
+                                <i class="fas fa-video"></i>
+                                <span>{{ course.session_hours }} hrs</span>
+                            </div>
+                        </div>
+                        
+                        <div class="course-footer">
+                            <div class="course-instructor">
+                                <small>
+                                    <strong>{{ course.instructor_name }}</strong><br>
+                                    <span style="color: #999;">{{ course.instructor_role }}</span>
+                                </small>
+                            </div>
+                            <span class="btn-enroll">
+                                <i class="fas fa-arrow-right"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- EMPTY STATE -->
+        <div id="emptyState" style="display: none; text-align: center; padding: 4rem 2rem;">
+            <i class="fas fa-search" style="font-size: 4rem; color: #ccc; margin-bottom: 1rem;"></i>
+            <h4 class="text-muted">No courses found</h4>
+            <p class="text-muted">Try adjusting your filters or search terms</p>
+        </div>
+
+        <!-- COMMUNITY SECTION -->
+        <div class="community-section">
+            <div class="community-header">
+                <div class="community-header-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h2>Join or Build Your Community</h2>
+                <p>Connect with learners and mentors, or create your own space to share knowledge and grow together</p>
+            </div>
+
+            <div class="community-grid">
+                <!-- JOIN COMMUNITY CARD -->
+                <div class="community-card">
+                    <div class="community-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h3>Join Community</h3>
+                    <p>Discover vibrant communities dedicated to learning, sharing, and growing together with like-minded individuals</p>
+                    
+                    <ul class="community-features">
+                        <li><i class="fas fa-check"></i> Connect with learners worldwide</li>
+                        <li><i class="fas fa-check"></i> Share experiences & knowledge</li>
+                        <li><i class="fas fa-check"></i> Find mentors & mentees</li>
+                        <li><i class="fas fa-check"></i> Participate in discussions</li>
+                        <li><i class="fas fa-check"></i> Get exclusive resources</li>
+                    </ul>
+
+                    <a href="/lib/community" class="community-btn">
+                        <span><i class="fas fa-arrow-right"></i> Explore Communities</span>
+                    </a>
+                </div>
+
+                <!-- CREATE COMMUNITY CARD -->
+                <div class="community-card">
+                    <div class="community-icon">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <h3>Create Community</h3>
+                    <p>Start your own community to build meaningful connections and establish yourself as a thought leader</p>
+                    
+                    <ul class="community-features">
+                        <li><i class="fas fa-check"></i> Build your own network</li>
+                        <li><i class="fas fa-check"></i> Control community rules</li>
+                        <li><i class="fas fa-check"></i> Host discussions & events</li>
+                        <li><i class="fas fa-check"></i> Manage members easily</li>
+                        <li><i class="fas fa-check"></i> Grow your influence</li>
+                    </ul>
+
+                    <!-- link adjusted to community hub; separate creation page not yet implemented -->
+                    <a href="/lib/community" class="community-btn">
+                        <span><i class="fas fa-plus"></i> Create New Community</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // STATISTICS ANIMATION & LOADING
+        async function loadStatistics() {
+            try {
+                const response = await fetch('/lib/api/v1/stats');
+                const stats = await response.json();
+                
+                // Animate stat numbers
+                animateValue('statCourses', 0, stats.total_courses, 1500);
+                animateValue('statStudents', 0, stats.total_students, 1500);
+                animateValue('statInstructors', 0, stats.total_instructors, 1500);
+                
+                const completionElem = document.getElementById('statCompletion');
+                animateValue(completionElem.id, 0, stats.completion_rate, 1500, '%');
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
+        }
+
+        function animateValue(id, start, end, duration, suffix = '') {
+            const elem = document.getElementById(id);
+            const range = end - start;
+            const increment = end > start ? 1 : -1;
+            const stepTime = Math.abs(Math.floor(duration / range));
+            let current = start;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                    current = end;
+                    clearInterval(timer);
+                }
+                elem.textContent = current.toLocaleString() + suffix;
+            }, stepTime);
+        }
+
+        // FILTER FUNCTIONALITY
+        function filterCourses(category) {
+            const items = document.querySelectorAll('.course-item');
+            const emptyState = document.getElementById('emptyState');
+            const activeBtn = document.querySelector('.filter-btn.active');
+            
+            activeBtn?.classList.remove('active');
+            event.target.closest('.filter-btn').classList.add('active');
+
+            let visibleCount = 0;
+            items.forEach(item => {
+                const itemCategory = item.dataset.category;
+                if (category === 'all' || itemCategory.includes(category.toLowerCase())) {
+                    item.style.display = '';
+                    item.style.animation = 'fadeInUp 0.6s ease-out';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+
+        // SEARCH FUNCTIONALITY
+        document.getElementById('searchInput')?.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const items = document.querySelectorAll('.course-item');
+            let visibleCount = 0;
+
+            items.forEach(item => {
+                const title = item.querySelector('.course-title')?.textContent.toLowerCase() || '';
+                const description = item.querySelector('.course-description')?.textContent.toLowerCase() || '';
+                const instructor = item.querySelector('.course-instructor')?.textContent.toLowerCase() || '';
+
+                if (title.includes(searchTerm) || description.includes(searchTerm) || instructor.includes(searchTerm) || searchTerm === '') {
+                    item.style.display = '';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            document.getElementById('emptyState').style.display = visibleCount === 0 && searchTerm ? 'block' : 'none';
+        });
+
+        // REAL-TIME UPDATE - Reload courses every 5 seconds and insert new ones
+        function pollForNewCourses() {
+            fetch('/lib/api/v1/courses')
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById('coursesContainer');
+                    const existingIds = new Set(Array.from(container.querySelectorAll('.course-item')).map(el => Number(el.dataset.courseId)));
+                    let added = 0;
+                    data.forEach(c => {
+                        if (!existingIds.has(c.id)) {
+                            existingIds.add(c.id);
+                            added += 1;
+                            const div = document.createElement('div');
+                            div.className = 'course-item';
+                            div.dataset.category = c.category.toLowerCase();
+                            div.dataset.courseId = c.id;
+                            div.innerHTML = `
+            <a href="/lib/course/${c.id}/learn" class="course-card-link">
+                <div class="course-card-modern">
+                    <div class="course-image-wrapper">
+                        <img src="${c.image_url || ''}" alt="${c.title}" class="w-100 h-100" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800';">
+                        <div class="course-image-overlay"></div>
+                        <span class="course-badge">${c.category}</span>
+                    </div>
+                    <div class="course-content">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="skill-badge skill-${c.skill_level.toLowerCase()}">
+                                <i class="fas fa-graduation-cap"></i> ${c.skill_level}
+                            </span>
+                            <div class="course-rating">
+                                ${'<i class="fas fa-star"></i>'.repeat(5)}
+                            </div>
+                        </div>
+                        <h5 class="course-title">${c.title}</h5>
+                        <p class="course-description">${c.description.slice(0,90)}...</p>
+                        <div class="course-meta">
+                            <div class="course-meta-item">
+                                <i class="fas fa-clock"></i>
+                                <span>${c.duration_days} days</span>
+                            </div>
+                            <div class="course-meta-item">
+                                <i class="fas fa-users"></i>
+                                <span>${c.max_participants} students</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        `;
+                            container.prepend(div);
+                        }
+                    });
+                    if (added > 0) {
+                        const hdr = document.querySelector('h3.font-serif');
+                        hdr.textContent = `🌟 Featured Courses (${container.children.length})`;
+                    }
+                })
+                .catch(console.error);
+        }
+
+        // INITIALIZE ON PAGE LOAD
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStatistics();
+            pollForNewCourses();
+            setInterval(pollForNewCourses, 5000);
+            // console.log('BridgeHive Library Loaded Successfully'); (debug log removed)
+            
+            // Setup Course Guide Toggle
+            const guideToggle = document.getElementById('guideToggle');
+            const courseGuide = document.getElementById('courseGuide');
+            const guideChevron = document.getElementById('guideChevron');
+            
+            if (guideToggle) {
+                guideToggle.addEventListener('click', function() {
+                    if (courseGuide.style.display === 'none') {
+                        courseGuide.style.display = 'block';
+                        guideChevron.style.transform = 'rotate(180deg)';
+                    } else {
+                        courseGuide.style.display = 'none';
+                        guideChevron.style.transform = 'rotate(0deg)';
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}

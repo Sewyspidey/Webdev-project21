@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+{% block title %}Contact Us - BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    .contact-container {
+        display: flex;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+        padding-top: 90px;
+        gap: 4rem;
+    }
+    
+    /* Left Side - Info */
+    .contact-info {
+        flex: 1;
+    }
+    
+    .contact-info h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        color: var(--black);
+        margin-bottom: 1rem;
+    }
+    
+    .contact-info > p {
+        color: var(--gray);
+        line-height: 1.7;
+        margin-bottom: 2.5rem;
+    }
+    
+    .contact-method {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .contact-method-icon {
+        width: 44px;
+        height: 44px;
+        background-color: var(--tan-light);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+    
+    .contact-method-text h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--black);
+        margin-bottom: 0.25rem;
+    }
+    
+    .contact-method-text p {
+        color: var(--gray);
+        font-size: 0.9rem;
+    }
+    
+    /* Right Side - Form */
+    .contact-form-card {
+        flex: 1;
+        background: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    
+    .contact-form-card h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        color: var(--black);
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .form-row .form-group {
+        flex: 1;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--black);
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--gray-light);
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        background-color: var(--cream);
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: var(--brown);
+        background-color: white;
+    }
+    
+    .form-group textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+    
+    .btn-submit {
+        width: 100%;
+        padding: 0.85rem;
+        background-color: var(--brown);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        margin-top: 0.5rem;
+    }
+    
+    .btn-submit:hover {
+        background-color: #7A6A5A;
+    }
+    
+    /* FAQ Link */
+    .faq-link-section {
+        text-align: center;
+        padding: 3rem 2rem 5rem;
+        background-color: var(--cream-dark);
+    }
+    
+    .faq-link-section p {
+        color: var(--gray);
+        margin-bottom: 1rem;
+    }
+    
+    .faq-link-section a {
+        color: var(--brown);
+        font-weight: 500;
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+<nav class="navbar-landing">
+    <a href="{{ url_for('landing') }}" class="logo">BridgeHive</a>
+    <div class="nav-links">
+        <a href="{{ url_for('about') }}">about us</a>
+        <a href="{{ url_for('contact') }}">contact us</a>
+    </div>
+    <div class="nav-right">
+        <div class="search-bar-dark" onclick="openSearchOverlay()" style="cursor: pointer;">
+            <input type="text" placeholder="What would you like to ask?" readonly style="cursor: pointer;">
+            <button type="button"><i class="bi bi-search"></i></button>
+        </div>
+        <a href="#" class="profile-icon" onclick="openSignupPopup(); return false;">
+            <i class="bi bi-person"></i>
+        </a>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="contact-container">
+    <!-- Left - Info -->
+    <div class="contact-info">
+        <h1>Get in Touch</h1>
+        <p>Have a question or feedback? We'd love to hear from you. Reach out and our team will get back to you as soon as possible.</p>
+        
+        <div class="contact-method">
+            <div class="contact-method-icon">📧</div>
+            <div class="contact-method-text">
+                <h3>Email</h3>
+                <p>hello@bridgehive.sg</p>
+            </div>
+        </div>
+        
+        <div class="contact-method">
+            <div class="contact-method-icon">📍</div>
+            <div class="contact-method-text">
+                <h3>Location</h3>
+                <p>Singapore</p>
+            </div>
+        </div>
+        
+        <div class="contact-method">
+            <div class="contact-method-icon">⏰</div>
+            <div class="contact-method-text">
+                <h3>Response Time</h3>
+                <p>Within 2-3 business days</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right - Form -->
+    <div class="contact-form-card">
+        <h2>Send Us a Message</h2>
+        <form method="POST">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" name="first_name" required>
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" name="last_name" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Topic</label>
+                <select name="topic" required>
+                    <option value="">Select a topic...</option>
+                    <option value="general">General Inquiry</option>
+                    <option value="support">Technical Support</option>
+                    <option value="feedback">Feedback</option>
+                    <option value="partnership">Partnership</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Message</label>
+                <textarea name="message" placeholder="How can we help you?" required></textarea>
+            </div>
+            
+            <button type="submit" class="btn-submit">Send Message</button>
+        </form>
+    </div>
+</div>
+
+<!-- FAQ Link -->
+<section class="faq-link-section">
+    <p>Looking for quick answers?</p>
+    <a href="{{ url_for('landing') }}#faq">Check out our FAQ →</a>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const faqData = [
+    {% for faq in faqs %}
+    {id: {{ faq.id }}, question: "{{ faq.question|e }}", answer: "{{ faq.answer|e }}"}{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+
+const searchOverlayInput = document.getElementById('searchOverlayInput');
+const searchOverlayResults = document.getElementById('searchOverlayResults');
+
+if (searchOverlayInput) {
+    searchOverlayInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        if (query.length < 2) {
+            searchOverlayResults.innerHTML = '';
+            return;
+        }
+        
+        const matches = faqData.filter(f => f.question.toLowerCase().includes(query)).slice(0, 5);
+        
+        if (matches.length === 0) {
+            searchOverlayResults.innerHTML = '<div class="search-overlay-no-results">No matching questions found</div>';
+        } else {
+            searchOverlayResults.innerHTML = matches.map(f => `
+                <div class="search-overlay-result-item" onclick="this.classList.toggle('expanded')">
+                    <div class="question">${f.question}</div>
+                    <div class="answer">${f.answer}</div>
+                </div>
+            `).join('');
+        }
+    });
+}
+</script>
+{% endblock %}

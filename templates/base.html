@@ -1,0 +1,2096 @@
+<!DOCTYPE html>
+<html lang="{{ current_locale|default('en') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BridgeHive{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --cream: #FEFAF1;
+            --cream-dark: #EDEDE5;
+            --brown: #8F7B6A;
+            --tan: #DEC09A;
+            --tan-light: #ECD9B9;
+            --peach: #FFE5C4;
+            --black: #454545;
+            --gray: #555555;
+            --gray-light: #B7B7B7;
+            --taupe: #C4B4A7;
+            --warm-gray: #BEBAAF;
+            --off-white: #ECECE4;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--cream);
+            color: var(--black);
+            min-height: 100vh;
+        }
+        
+        h1, h2, h3, .playfair {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        /* ==================== DARK MODE ==================== */
+        body.dark-mode {
+            background-color: #1a1a1a !important;
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode .navbar-landing,
+        body.dark-mode .navbar-new {
+            background-color: #252525 !important;
+            border-color: #3a3a3a !important;
+        }
+        body.dark-mode .navbar-new-link,
+        body.dark-mode .navbar-landing a {
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode .navbar-new-link:hover {
+            color: #fff !important;
+            background-color: rgba(255,255,255,0.1) !important;
+        }
+        body.dark-mode .card,
+        body.dark-mode .settings-card,
+        body.dark-mode .item-card,
+        body.dark-mode .quest-card,
+        body.dark-mode .ticket-card,
+        body.dark-mode .ticket-form-card,
+        body.dark-mode .faq-item,
+        body.dark-mode .modal-content,
+        body.dark-mode .dropdown-menu,
+        body.dark-mode .navbar-new-dropdown,
+        body.dark-mode .card-custom,
+        body.dark-mode .folder-card,
+        body.dark-mode .course-card,
+        body.dark-mode .template-card {
+            background-color: #2d2d2d !important;
+            border-color: #4a4a4a !important;
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode .form-control,
+        body.dark-mode .form-select,
+        body.dark-mode input,
+        body.dark-mode textarea,
+        body.dark-mode select {
+            background-color: #333 !important;
+            border-color: #555 !important;
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode .form-control:focus,
+        body.dark-mode .form-select:focus,
+        body.dark-mode input:focus,
+        body.dark-mode textarea:focus,
+        body.dark-mode select:focus {
+            background-color: #3a3a3a !important;
+            border-color: var(--brown) !important;
+            color: #fff !important;
+        }
+        body.dark-mode .form-control::placeholder,
+        body.dark-mode input::placeholder,
+        body.dark-mode textarea::placeholder {
+            color: #888 !important;
+        }
+        body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, 
+        body.dark-mode h4, body.dark-mode h5, body.dark-mode h6,
+        body.dark-mode p, body.dark-mode label, body.dark-mode span,
+        body.dark-mode .item-title, body.dark-mode .faq-question,
+        body.dark-mode .playfair {
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode .text-muted,
+        body.dark-mode small.text-muted {
+            color: #aaa !important;
+        }
+        body.dark-mode .list-group-item {
+            background-color: transparent !important;
+            color: #e8e8e8 !important;
+            border-color: #3a3a3a !important;
+        }
+        body.dark-mode .list-group-item:hover {
+            background-color: rgba(255,255,255,0.05) !important;
+        }
+        body.dark-mode .list-group-item.active {
+            background-color: var(--brown) !important;
+            color: white !important;
+        }
+        body.dark-mode .site-footer {
+            background-color: #111 !important;
+            border-top: 1px solid #3a3a3a !important;
+        }
+        body.dark-mode .btn-outline-secondary,
+        body.dark-mode .btn-outline-custom {
+            color: #e8e8e8 !important;
+            border-color: #555 !important;
+            background-color: transparent !important;
+        }
+        body.dark-mode .btn-outline-secondary:hover,
+        body.dark-mode .btn-outline-custom:hover {
+            background-color: #555 !important;
+            color: #fff !important;
+        }
+        body.dark-mode .modal-header,
+        body.dark-mode .modal-footer {
+            background-color: #252525 !important;
+            border-color: #3a3a3a !important;
+        }
+        body.dark-mode .support-icon,
+        body.dark-mode .item-preview {
+            background: #333 !important;
+        }
+        body.dark-mode .faq-item,
+        body.dark-mode .faq-question {
+            background-color: #2d2d2d !important;
+            border-color: #4a4a4a !important;
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode .faq-item:hover {
+            background-color: #333 !important;
+        }
+        body.dark-mode .faq-answer {
+            background-color: #252525 !important;
+            color: #bbb !important;
+        }
+        body.dark-mode .balance-display {
+            background: #3a3a3a !important;
+        }
+        body.dark-mode .view-tabs,
+        body.dark-mode .support-tabs {
+            border-color: #3a3a3a !important;
+        }
+        body.dark-mode .cat-btn,
+        body.dark-mode .tab-btn {
+            color: #e8e8e8 !important;
+            border-color: #555 !important;
+            background-color: #2d2d2d !important;
+        }
+        body.dark-mode .cat-btn:hover,
+        body.dark-mode .tab-btn:hover {
+            background-color: #3a3a3a !important;
+        }
+        body.dark-mode .cat-btn.active,
+        body.dark-mode .tab-btn.active {
+            background-color: var(--brown) !important;
+            color: white !important;
+            border-color: var(--brown) !important;
+        }
+        /* Alerts and badges in dark mode */
+        body.dark-mode .alert {
+            background-color: #3a3a3a !important;
+            border-color: #555 !important;
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode .alert-success {
+            background-color: #1a3a1a !important;
+            border-color: #2d5a2d !important;
+            color: #8dc98d !important;
+        }
+        body.dark-mode .alert-danger {
+            background-color: #3a1a1a !important;
+            border-color: #5a2d2d !important;
+            color: #c98d8d !important;
+        }
+        body.dark-mode .alert-warning {
+            background-color: #3a3a1a !important;
+            border-color: #5a5a2d !important;
+            color: #c9c98d !important;
+        }
+        body.dark-mode .badge {
+            background-color: #3a3a3a !important;
+            color: #e8e8e8 !important;
+        }
+        /* Tables in dark mode */
+        body.dark-mode table,
+        body.dark-mode .table {
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode table thead th,
+        body.dark-mode .table thead th {
+            background-color: #252525 !important;
+            border-color: #3a3a3a !important;
+        }
+        body.dark-mode table tbody td,
+        body.dark-mode .table tbody td {
+            border-color: #3a3a3a !important;
+        }
+        body.dark-mode table tbody tr:hover,
+        body.dark-mode .table tbody tr:hover {
+            background-color: rgba(255,255,255,0.05) !important;
+        }
+        /* Links in dark mode */
+        body.dark-mode a {
+            color: #a58b74 !important;
+        }
+        body.dark-mode a:hover {
+            color: #c9b8a8 !important;
+        }
+        /* Borders and dividers */
+        body.dark-mode .border,
+        body.dark-mode .border-top,
+        body.dark-mode .border-bottom,
+        body.dark-mode .border-left,
+        body.dark-mode .border-right,
+        body.dark-mode hr {
+            border-color: #3a3a3a !important;
+        }
+        /* Inventory and profile items */
+        body.dark-mode .inventory-item,
+        body.dark-mode .profile-card {
+            background-color: #2d2d2d !important;
+            border-color: #4a4a4a !important;
+        }
+        body.dark-mode .inventory-item-equipped {
+            background-color: #3a2d2a !important;
+        }
+        /* Progress bars */
+        body.dark-mode .progress {
+            background-color: #333 !important;
+        }
+        body.dark-mode .progress-bar {
+            background-color: var(--brown) !important;
+        }
+        /* Dropdown menus */
+        body.dark-mode .dropdown-item {
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode .dropdown-item:hover {
+            background-color: #3a3a3a !important;
+            color: #fff !important;
+        }
+        /* Search and filters */
+        body.dark-mode .search-bar,
+        body.dark-mode .filter-bar {
+            background-color: #2d2d2d !important;
+            border-color: #4a4a4a !important;
+        }
+        /* Tooltips */
+        body.dark-mode .tooltip-inner {
+            background-color: #2d2d2d !important;
+            color: #e8e8e8 !important;
+        }
+        /* Buttons - keep primary colors vibrant */
+        body.dark-mode .btn-custom,
+        body.dark-mode .btn-primary,
+        body.dark-mode button[style*="background-color: var(--brown)"] {
+            /* Keep brown buttons as is for contrast */
+        }
+        /* Special cream/tan backgrounds need darkening */
+        body.dark-mode [style*="background-color: var(--cream)"],
+        body.dark-mode [style*="background: var(--cream)"] {
+            background-color: #3a3a3a !important;
+        }
+        body.dark-mode [style*="background-color: var(--cream-dark)"],
+        body.dark-mode [style*="background: var(--cream-dark)"] {
+            background-color: #2d2d2d !important;
+        }
+        body.dark-mode [style*="color: var(--gray)"] {
+            color: #aaa !important;
+        }
+        /* Social Hub specific dark mode fixes */
+        body.dark-mode .post-card,
+        body.dark-mode .community-card,
+        body.dark-mode .member-card {
+            background-color: #2d2d2d !important;
+            border-color: #4a4a4a !important;
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode .post-input,
+        body.dark-mode textarea[placeholder*="happening"],
+        body.dark-mode input[placeholder*="happening"] {
+            background-color: #333 !important;
+            border-color: #555 !important;
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode .post-input::placeholder,
+        body.dark-mode textarea::placeholder,
+        body.dark-mode input::placeholder {
+            color: #888 !important;
+        }
+        /* Sidebar and menu items */
+        body.dark-mode .sidebar,
+        body.dark-mode .menu-section,
+        body.dark-mode [class*="sidebar"] {
+            background-color: #1a1a1a !important;
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode .sidebar-item,
+        body.dark-mode .menu-item {
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode .sidebar-item:hover,
+        body.dark-mode .menu-item:hover {
+            background-color: #2d2d2d !important;
+        }
+        /* Make sure all white backgrounds turn dark */
+        body.dark-mode [style*="background-color: white"],
+        body.dark-mode [style*="background: white"],
+        body.dark-mode [style*="background-color:#fff"],
+        body.dark-mode [style*="background:#fff"] {
+            background-color: #2d2d2d !important;
+        }
+        /* Fix achievement/completion badges in dark mode */
+        body.dark-mode .achievement-badge,
+        body.dark-mode .completion-badge,
+        body.dark-mode [style*="background-color: #e3f2fd"],
+        body.dark-mode [style*="background: #e3f2fd"] {
+            background-color: #2a3f4f !important;
+            color: #a8d5f7 !important;
+        }
+        
+        /* More comprehensive dark mode overrides */
+        body.dark-mode .section-title,
+        body.dark-mode .section-subtitle,
+        body.dark-mode .subsection-label,
+        body.dark-mode .welcome-title,
+        body.dark-mode .welcome-streak,
+        body.dark-mode .empty-state p,
+        body.dark-mode .empty-state i,
+        body.dark-mode .course-title,
+        body.dark-mode .course-instructor,
+        body.dark-mode .course-meta,
+        body.dark-mode .course-category,
+        body.dark-mode .template-title,
+        body.dark-mode .template-category,
+        body.dark-mode .folder-name,
+        body.dark-mode .folder-count,
+        body.dark-mode .item-name,
+        body.dark-mode .item-desc,
+        body.dark-mode .item-price { color: #e8e8e8 !important; }
+        
+        body.dark-mode .course-card,
+        body.dark-mode .template-card,
+        body.dark-mode .folder-card { 
+            background-color: #2d2d2d !important; 
+            border-color: #4a4a4a !important;
+        }
+        body.dark-mode .folder-card { color: #e8e8e8 !important; }
+
+        body.dark-mode .empty-state {
+            background-color: #2d2d2d !important;
+            border-color: #4a4a4a !important;
+        }
+        
+        body.dark-mode .popup-overlay .popup-modal,
+        body.dark-mode .popup-body {
+            background-color: #2d2d2d !important;
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode .popup-category,
+        body.dark-mode .popup-title,
+        body.dark-mode .popup-instructor,
+        body.dark-mode .popup-description { color: #e8e8e8 !important; }
+        
+        body.dark-mode .view-all { color: var(--tan) !important; }
+        
+        /* Social hub dark mode */
+        body.dark-mode .post-input-area,
+        body.dark-mode .post-compose {
+            background-color: #2d2d2d !important;
+            border-color: #4a4a4a !important;
+        }
+        body.dark-mode .online-indicator,
+        body.dark-mode .member-role { color: #aaa !important; }
+        body.dark-mode .member-name { color: #e8e8e8 !important; }
+        body.dark-mode .sidebar-menu-item,
+        body.dark-mode .community-name { color: #e8e8e8 !important; }
+        body.dark-mode .sidebar-menu-item:hover { 
+            background-color: #2d2d2d !important; 
+        }
+        body.dark-mode .community-badge {
+            background-color: #C54B4B !important;
+        }
+        
+        /* Profile page dark mode */
+        body.dark-mode .profile-header,
+        body.dark-mode .profile-stats-card,
+        body.dark-mode .profile-section-card {
+            background-color: #2d2d2d !important;
+            border-color: #4a4a4a !important;
+        }
+        body.dark-mode .stat-value,
+        body.dark-mode .stat-label { color: #e8e8e8 !important; }
+        
+        /* Support page dark mode improvements */
+        body.dark-mode .support-search-bar {
+            background-color: #2d2d2d !important;
+            border-color: #4a4a4a !important;
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode .support-tabs button,
+        body.dark-mode .view-tabs button { color: #e8e8e8 !important; }
+        body.dark-mode .ticket-status { filter: brightness(0.8); }
+        
+        /* Course cards white background fix */
+        body.dark-mode .course-card .course-body,
+        body.dark-mode .template-card .template-body {
+            background-color: #2d2d2d !important;
+            color: #e8e8e8 !important;
+        }
+        
+        /* Navbar dark mode fix */
+        body.dark-mode .navbar-new {
+            background-color: #1a1a1a !important;
+            border-color: #333 !important;
+        }
+        body.dark-mode .navbar-new-brand { color: #e8e8e8 !important; }
+        body.dark-mode .navbar-new-link { color: #d0d0d0 !important; }
+        body.dark-mode .navbar-new-bell i { color: #d0d0d0 !important; }
+        body.dark-mode .navbar-new-bell-dot { border-color: #1a1a1a !important; }
+        body.dark-mode .navbar-new-searchbar { 
+            background-color: #111 !important; 
+        }
+        body.dark-mode .navbar-new-profile-menu {
+            background-color: #1a1a1a !important;
+            border: 1px solid #333 !important;
+        }
+        
+        /* White page backgrounds to dark */
+        body.dark-mode .page-wrapper,
+        body.dark-mode .content-wrapper,
+        body.dark-mode main {
+            background-color: #1a1a1a !important;
+        }
+        
+        /* ==================== HIGH CONTRAST ==================== */
+        body.high-contrast {
+            background-color: #000 !important;
+            color: #fff !important;
+        }
+        body.high-contrast .navbar-landing,
+        body.high-contrast .navbar-new {
+            background-color: #000 !important;
+            border: 2px solid #ff0 !important;
+        }
+        body.high-contrast a,
+        body.high-contrast .navbar-new-link {
+            color: #ff0 !important;
+            text-decoration: underline !important;
+        }
+        body.high-contrast .card,
+        body.high-contrast .settings-card,
+        body.high-contrast .item-card,
+        body.high-contrast .modal-content {
+            background-color: #000 !important;
+            border: 2px solid #fff !important;
+            color: #fff !important;
+        }
+        body.high-contrast .btn,
+        body.high-contrast .btn-custom,
+        body.high-contrast .btn-submit,
+        body.high-contrast .btn-purchase {
+            background-color: #ff0 !important;
+            color: #000 !important;
+            border: 2px solid #fff !important;
+            font-weight: bold !important;
+        }
+        body.high-contrast .form-control,
+        body.high-contrast .form-select {
+            background-color: #000 !important;
+            color: #fff !important;
+            border: 2px solid #fff !important;
+        }
+        body.high-contrast h1, body.high-contrast h2, body.high-contrast h3,
+        body.high-contrast h4, body.high-contrast h5, body.high-contrast h6,
+        body.high-contrast p, body.high-contrast label, body.high-contrast span {
+            color: #fff !important;
+        }
+        
+        /* ==================== FONT SIZE ==================== */
+        body.font-large {
+            font-size: 1.15rem !important;
+        }
+        body.font-large h1 { font-size: 2.8rem !important; }
+        body.font-large h2 { font-size: 2.2rem !important; }
+        body.font-large h3 { font-size: 1.8rem !important; }
+        body.font-large p, body.font-large span, body.font-large label { font-size: 1.15rem !important; }
+        
+        body.font-extra-large {
+            font-size: 1.35rem !important;
+        }
+        body.font-extra-large h1 { font-size: 3.2rem !important; }
+        body.font-extra-large h2 { font-size: 2.6rem !important; }
+        body.font-extra-large h3 { font-size: 2.1rem !important; }
+        body.font-extra-large p, body.font-extra-large span, body.font-extra-large label { font-size: 1.35rem !important; }
+        
+        /* ==================== LANDING NAVBAR ==================== */
+        .navbar-landing {
+            display: flex;
+            align-items: center;
+            padding: 1.25rem 3rem;
+            background-color: var(--cream);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .navbar-landing .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--black);
+            text-decoration: none;
+        }
+        
+        .navbar-landing .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-left: 3rem;
+        }
+        
+        .navbar-landing .nav-links a {
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+        
+        .navbar-landing .nav-links a:hover {
+            color: var(--black);
+        }
+        
+        .navbar-landing .nav-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+        
+        .profile-icon {
+            width: 38px;
+            height: 38px;
+            border: 2px solid var(--gray);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            font-size: 1.1rem;
+            text-decoration: none;
+        }
+        
+        /* ==================== HOMEPAGE NAVBAR ==================== */
+        .navbar-home {
+            display: flex;
+            align-items: center;
+            padding: 1rem 2.5rem;
+            background-color: var(--cream-dark);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .main-content-offset {
+            padding-top: 70px;
+        }
+        
+        .navbar-home .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.35rem;
+            font-weight: 500;
+            color: var(--black);
+            text-decoration: none;
+            margin-right: 2rem;
+        }
+        
+        .navbar-home .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .navbar-home .nav-links a,
+        .navbar-home .nav-links .dropdown-toggle {
+            color: var(--black);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 400;
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .navbar-home .nav-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        /* Dark Search Bar */
+        .search-bar-dark {
+            display: flex;
+            align-items: center;
+            background-color: var(--black);
+            border-radius: 25px;
+            padding: 0.5rem 0.5rem 0.5rem 1.25rem;
+            width: 300px;
+        }
+        
+        .search-bar-dark input {
+            border: none;
+            background: transparent;
+            outline: none;
+            flex: 1;
+            font-size: 0.9rem;
+            color: white;
+        }
+        
+        .search-bar-dark input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .search-bar-dark button {
+            background-color: var(--gray);
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .search-bar-dark button i {
+            color: white;
+            font-size: 0.8rem;
+        }
+        
+        .settings-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            font-size: 1.4rem;
+            text-decoration: none;
+        }
+        
+        /* Dropdown */
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--black);
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            min-width: 140px;
+            z-index: 1000;
+            margin-top: 0.5rem;
+        }
+        
+        .dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid var(--black);
+        }
+        
+        .dropdown-menu a {
+            display: block;
+            padding: 0.6rem 1rem;
+            color: white !important;
+            font-size: 0.85rem;
+        }
+        
+        .dropdown-menu a:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        
+        /* Profile Dropdown */
+        .profile-dropdown {
+            position: relative;
+        }
+        
+        .profile-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            padding: 0.5rem;
+            min-width: 180px;
+            z-index: 1000;
+        }
+        
+        .profile-menu.show {
+            display: block;
+        }
+        
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--black);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .profile-menu-item:hover {
+            background: var(--cream);
+        }
+        
+        .profile-menu-item i {
+            font-size: 1.1rem;
+            color: var(--gray);
+        }
+        
+        .profile-menu-divider {
+            height: 1px;
+            background: var(--cream-dark);
+            margin: 0.5rem 0;
+        }
+        
+        /* Admin Login Popup */
+        .admin-login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .admin-login-overlay.active {
+            display: flex;
+        }
+        
+        .admin-login-popup {
+            background: var(--cream);
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            padding: 2rem;
+            position: relative;
+        }
+        
+        .admin-login-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--gray);
+            cursor: pointer;
+        }
+        
+        .admin-login-close:hover {
+            color: var(--black);
+        }
+        
+        .admin-login-popup h2 {
+            font-family: 'Playfair Display', serif;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .admin-login-popup p {
+            text-align: center;
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+        }
+        
+        .admin-input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border: 1px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+        }
+        
+        .admin-input:focus {
+            outline: none;
+            border-color: var(--brown);
+        }
+        
+        .btn-admin-login {
+            width: 100%;
+            padding: 0.85rem;
+            background: var(--brown);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .btn-admin-login:hover {
+            background: #7A6A5A;
+        }
+        
+        .admin-error {
+            color: #C54B4B;
+            text-align: center;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        /* Flash Messages */
+        .flash-messages {
+            padding: 1rem 3rem;
+        }
+        
+        .flash {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .flash-success {
+            background-color: rgba(74, 124, 89, 0.15);
+            color: #4A7C59;
+        }
+        
+        .flash-error {
+            background-color: rgba(197, 75, 75, 0.15);
+            color: #C54B4B;
+        }
+        
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--black);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--brown);
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-overlay.show {
+            display: flex;
+        }
+        
+        .modal-box {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .modal-box h3 {
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 0.5rem;
+        }
+        
+        .modal-box p {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        
+        .btn-cancel {
+            padding: 0.6rem 1.5rem;
+            background: var(--cream-dark);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .btn-delete {
+            padding: 0.6rem 1.5rem;
+            background: #C54B4B;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        /* ==================== FULLSCREEN SEARCH OVERLAY ==================== */
+        .search-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+        }
+
+        .search-overlay.active {
+            display: flex;
+        }
+
+        .search-overlay-navbar {
+            display: flex;
+            align-items: center;
+            padding: 1.25rem 3rem;
+            background-color: transparent;
+            position: relative;
+            z-index: 10000;
+        }
+
+        .search-overlay-navbar .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .search-overlay-navbar .logo:hover {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .search-overlay-navbar .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-left: 3rem;
+        }
+
+        .search-overlay-navbar .nav-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        .search-overlay-navbar .nav-links a:hover {
+            color: white;
+        }
+
+        .search-overlay-navbar .nav-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .search-close-btn {
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+            z-index: 10001;
+            position: relative;
+        }
+
+        .search-close-btn:hover {
+            color: white;
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .search-close-btn i {
+            pointer-events: none;
+        }
+
+        .search-overlay-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            margin-top: -100px;
+        }
+
+        .search-overlay-input-container {
+            width: 100%;
+            max-width: 700px;
+            position: relative;
+        }
+
+        .search-overlay-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding: 1rem 3rem 1rem 0;
+            font-size: 1.75rem;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+        }
+
+        .search-overlay-input::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+
+        .search-overlay-input:focus {
+            border-bottom-color: rgba(255,255,255,0.6);
+        }
+
+        .search-overlay-submit {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-overlay-submit:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .search-overlay-results {
+            width: 100%;
+            max-width: 700px;
+            margin-top: 2rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .search-overlay-result-item {
+            padding: 1.25rem;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 0.5rem;
+            background: rgba(255,255,255,0.05);
+            transition: background 0.2s;
+        }
+
+        .search-overlay-result-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .search-overlay-result-item .question {
+            font-weight: 500;
+            color: white;
+            margin-bottom: 0.25rem;
+            font-size: 1rem;
+        }
+
+        .search-overlay-result-item .answer {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+            display: none;
+            margin-top: 0.75rem;
+            line-height: 1.6;
+        }
+
+        .search-overlay-result-item.expanded .answer {
+            display: block;
+        }
+
+        .search-overlay-no-results {
+            color: rgba(255,255,255,0.5);
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        /* ==================== SIGNUP PROMPT POPUP ==================== */
+        .signup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 9998;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .signup-overlay.active {
+            display: flex;
+        }
+        
+        .signup-modal {
+            background: var(--cream);
+            border-radius: 16px;
+            padding: 2.5rem 3rem;
+            max-width: 380px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        .signup-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--gray);
+            transition: all 0.2s;
+        }
+        
+        .signup-close-btn:hover {
+            background: var(--cream-dark);
+            color: var(--black);
+        }
+        
+        .signup-modal-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .signup-modal h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--black);
+            margin-bottom: 0.5rem;
+        }
+        
+        .signup-modal .subtitle {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .btn-signup-main {
+            display: inline-block;
+            padding: 0.85rem 2rem;
+            background-color: var(--brown);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+            margin: 0.25rem;
+        }
+        
+        .btn-signup-main:hover {
+            background-color: #7A6A5A;
+        }
+        
+        .signup-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-signup-elder {
+            background-color: var(--tan);
+        }
+        
+        .btn-signup-elder:hover {
+            background-color: #C9A880;
+        }
+        
+        .btn-signup-youth {
+            background-color: var(--brown);
+        }
+        
+        .signup-login-link {
+            margin-top: 1.25rem;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .signup-login-link a {
+            color: var(--brown);
+            font-weight: 500;
+            text-decoration: none;
+        }
+        
+        .signup-login-link a:hover {
+            text-decoration: underline;
+        }
+        /* ==================== NEW UNIFIED NAVBAR (bridgehive_4 inspired) ==================== */
+        .navbar-new {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 2rem;
+            background-color: #bfbfb8;
+            border-bottom: 1px solid var(--tan-light);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 11000;
+        }
+        
+        .navbar-new-brand {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--black);
+            text-decoration: none;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-right: 2.5rem;
+        }
+        .navbar-new-brand:hover { color: var(--black); }
+        
+        .navbar-new-links {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .navbar-new-link {
+            color: var(--black);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 400;
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: color 0.2s;
+        }
+        .navbar-new-link:hover { color: var(--brown); }
+        
+        /* Hover dropdowns */
+        .navbar-new-dropdown {
+            position: relative;
+        }
+        .navbar-new-dropmenu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--black);
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            min-width: 170px;
+            z-index: 11001;
+            margin-top: 0.5rem;
+        }
+        .navbar-new-dropmenu::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid var(--black);
+        }
+        .navbar-new-dropmenu a {
+            display: block;
+            padding: 0.6rem 1rem;
+            color: white !important;
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+        .navbar-new-dropmenu a:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        .navbar-new-dropdown:hover .navbar-new-dropmenu {
+            display: block;
+        }
+        
+        /* Right side */
+        .navbar-new-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        /* Points pill */
+        .navbar-new-points {
+            background-color: var(--tan);
+            color: var(--black);
+            border-radius: 20px;
+            padding: 0.3rem 1rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Search bar (decorative) */
+        .navbar-new-searchbar {
+            display: flex;
+            align-items: center;
+            background-color: var(--black);
+            border-radius: 25px;
+            padding: 0.4rem 0.5rem 0.4rem 1.25rem;
+            width: 280px;
+            border: 1px solid transparent;
+        }
+        .navbar-new-searchbar input {
+            border: none;
+            background: transparent;
+            outline: none;
+            flex: 1;
+            font-size: 0.9rem;
+            color: white;
+            cursor: default;
+        }
+        .navbar-new-searchbar input::placeholder { color: rgba(255,255,255,0.6); }
+        .navbar-new-searchbar button {
+            background-color: var(--gray);
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+        }
+        .navbar-new-searchbar button i { color: white; font-size: 0.8rem; }
+        
+        /* Bell notification */
+        .navbar-new-bell {
+            position: relative;
+            cursor: pointer;
+        }
+        .navbar-new-bell i {
+            color: var(--gray);
+            font-size: 1.2rem;
+        }
+        .navbar-new-bell-dot {
+            position: absolute;
+            top: -2px;
+            right: -4px;
+            width: 8px;
+            height: 8px;
+            background-color: #C54B4B;
+            border-radius: 50%;
+            border: 1.5px solid #bfbfb8;
+        }
+        
+        /* Profile circle + dark dropdown */
+        .navbar-new-profile-wrap {
+            position: relative;
+        }
+        .navbar-new-profile-circle {
+            width: 38px;
+            height: 38px;
+            border: 2px solid var(--gray);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            font-size: 1.1rem;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .navbar-new-profile-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.75rem;
+            background-color: var(--black);
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            min-width: 200px;
+            z-index: 11001;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+        }
+        .navbar-new-profile-menu::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 12px;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid var(--black);
+        }
+        /* Changed from hover to click - menu shown via JS toggle */
+        .navbar-new-profile-menu.show {
+            display: block;
+        }
+        .navbar-new-profile-header {
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            margin-bottom: 0.25rem;
+        }
+        .navbar-new-profile-name {
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .navbar-new-profile-email {
+            color: #aaa;
+            font-size: 0.8rem;
+        }
+        .navbar-new-profile-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.6rem 1rem;
+            color: white !important;
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+        .navbar-new-profile-menu a:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        .navbar-new-profile-menu a i {
+            width: 20px;
+            text-align: center;
+        }
+        .navbar-new-profile-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.15);
+            margin: 0.25rem 0.75rem;
+        }
+        .navbar-new-logout {
+            color: #dc6868 !important;
+        }
+        
+        /* ==================== FOOTER ==================== */
+        .site-footer {
+            margin-top: auto;
+            background-color: var(--black);
+            color: var(--cream);
+            padding: 3rem 0 1.5rem;
+            font-size: 0.9rem;
+        }
+        .site-footer a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .site-footer a:hover {
+            color: var(--tan);
+        }
+        .site-footer h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            margin-bottom: 0.8rem;
+            color: white;
+        }
+        .site-footer .social-icon {
+            width: 36px;
+            height: 36px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
+            transition: background-color 0.2s;
+        }
+        .site-footer .social-icon:hover {
+            background-color: var(--tan);
+            color: var(--black);
+        }
+        .site-footer .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        .site-footer .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            gap: 2rem;
+        }
+        .site-footer .footer-brand p {
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 1rem;
+        }
+        .site-footer .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .site-footer .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+        .site-footer .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .site-footer .footer-bottom p {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+        .site-footer .social-links {
+            display: flex;
+            gap: 0.5rem;
+        }
+        @media (max-width: 768px) {
+            .site-footer .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 1.5rem;
+            }
+            .site-footer .footer-brand {
+                grid-column: span 2;
+            }
+        }
+        @media (max-width: 480px) {
+            .site-footer .footer-grid {
+                grid-template-columns: 1fr;
+            }
+            .site-footer .footer-brand {
+                grid-column: span 1;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{{ body_classes }}" data-tts-enabled="{{ 'true' if tts_enabled else 'false' }}">
+    {% block navbar %}{% endblock %}
+    
+    <!-- Fullscreen Search Overlay -->
+    <div class="search-overlay" id="searchOverlay">
+        <nav class="search-overlay-navbar">
+            <a href="/" class="logo">BridgeHive</a>
+            <div class="nav-links">
+                <a href="/about">about us</a>
+                <a href="/contact">contact us</a>
+            </div>
+            <div class="nav-right">
+                <button type="button" class="search-close-btn" id="searchCloseBtn">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+                <a href="#" class="profile-icon" style="border-color: rgba(255,255,255,0.5); color: rgba(255,255,255,0.7);">
+                    <i class="bi bi-person"></i>
+                </a>
+            </div>
+        </nav>
+        <div class="search-overlay-content">
+            <div class="search-overlay-input-container">
+                <input type="text" class="search-overlay-input" id="searchOverlayInput" placeholder="What would you like to ask?" autocomplete="off">
+                <button class="search-overlay-submit">
+                    <i class="bi bi-arrow-up"></i>
+                </button>
+            </div>
+            <div class="search-overlay-results" id="searchOverlayResults"></div>
+        </div>
+    </div>
+    
+    <!-- Signup Prompt Popup -->
+    <div class="signup-overlay" id="signupOverlay">
+        <div class="signup-modal">
+            <button type="button" class="signup-close-btn" id="signupCloseBtn">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="signup-modal-icon">👋</div>
+            <h2>New here?</h2>
+            <p class="subtitle">Join BridgeHive and start your intergenerational learning journey today!</p>
+            <div class="signup-buttons">
+                <a href="/onboarding/elder" class="btn-signup-main btn-signup-elder">I'm a Senior</a>
+                <a href="/onboarding/youth" class="btn-signup-main btn-signup-youth">I'm a Youth</a>
+            </div>
+            <p class="signup-login-link">Already have an account? <a href="/login">Log in</a></p>
+        </div>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    {% block content %}{% endblock %}
+    
+    <script>
+    // Fullscreen Search Overlay Functions
+    function openSearchOverlay() {
+        var overlay = document.getElementById('searchOverlay');
+        var input = document.getElementById('searchOverlayInput');
+        if (overlay) {
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            if (input) {
+                setTimeout(function() { input.focus(); }, 100);
+            }
+        }
+    }
+
+    function closeSearchOverlay() {
+        var overlay = document.getElementById('searchOverlay');
+        var input = document.getElementById('searchOverlayInput');
+        var results = document.getElementById('searchOverlayResults');
+        if (overlay) {
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+            if (input) input.value = '';
+            if (results) results.innerHTML = '';
+        }
+    }
+    
+    // Signup Popup Functions
+    function openSignupPopup() {
+        var overlay = document.getElementById('signupOverlay');
+        if (overlay) {
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+    
+    function closeSignupPopup() {
+        var overlay = document.getElementById('signupOverlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    // Initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if URL has signup=true parameter - auto open signup popup
+        // This is triggered when user clicks "Sign Up" from login page
+        var urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('signup') === 'true') {
+            openSignupPopup();
+            // Clean up URL without reloading page
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        
+        // Search close button click handler
+        var closeBtn = document.getElementById('searchCloseBtn');
+        if (closeBtn) {
+            closeBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeSearchOverlay();
+                return false;
+            };
+        }
+        
+        // Signup close button click handler
+        var signupCloseBtn = document.getElementById('signupCloseBtn');
+        if (signupCloseBtn) {
+            signupCloseBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeSignupPopup();
+                return false;
+            };
+        }
+        
+        // Signup overlay background click to close
+        var signupOverlay = document.getElementById('signupOverlay');
+        if (signupOverlay) {
+            signupOverlay.addEventListener('click', function(e) {
+                if (e.target === signupOverlay) {
+                    closeSignupPopup();
+                }
+            });
+        }
+        
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeSearchOverlay();
+                closeSignupPopup();
+                closeAdminLogin();
+                var profileMenu = document.getElementById('profileMenu');
+                if (profileMenu) profileMenu.classList.remove('show');
+            }
+        });
+        
+        // Close search overlay when clicking outside the content area
+        var overlay = document.getElementById('searchOverlay');
+        if (overlay) {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    closeSearchOverlay();
+                }
+            });
+        }
+        
+        // Close profile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.profile-dropdown')) {
+                var profileMenu = document.getElementById('profileMenu');
+                if (profileMenu) profileMenu.classList.remove('show');
+            }
+        });
+        
+        // Admin login overlay click to close
+        var adminOverlay = document.getElementById('adminLoginOverlay');
+        if (adminOverlay) {
+            adminOverlay.addEventListener('click', function(e) {
+                if (e.target === adminOverlay) {
+                    closeAdminLogin();
+                }
+            });
+        }
+    });
+    
+    // Profile Dropdown Functions
+    function toggleProfileMenu(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var menu = document.getElementById('profileMenu');
+        if (menu) menu.classList.toggle('show');
+    }
+    
+    // Admin Login Functions
+    function openAdminLogin() {
+        var profileMenu = document.getElementById('profileMenu');
+        if (profileMenu) profileMenu.classList.remove('show');
+        var overlay = document.getElementById('adminLoginOverlay');
+        if (overlay) overlay.classList.add('active');
+        var error = document.getElementById('adminError');
+        if (error) error.style.display = 'none';
+    }
+    
+    function closeAdminLogin() {
+        var overlay = document.getElementById('adminLoginOverlay');
+        if (overlay) overlay.classList.remove('active');
+        var form = document.getElementById('adminLoginForm');
+        if (form) form.reset();
+        var error = document.getElementById('adminError');
+        if (error) error.style.display = 'none';
+    }
+    
+    function submitAdminLogin(e) {
+        e.preventDefault();
+        var form = e.target;
+        var formData = new FormData(form);
+        
+        fetch('/admin/login', {
+            method: 'POST',
+            body: formData
+        })
+        .then(function(response) {
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                return response.text();
+            }
+        })
+        .then(function(html) {
+            if (html && html.includes('Invalid')) {
+                document.getElementById('adminError').style.display = 'block';
+            }
+        })
+        .catch(function(err) {
+            document.getElementById('adminError').style.display = 'block';
+        });
+    }
+    </script>
+    
+    <!-- Admin Login Popup -->
+    <div class="admin-login-overlay" id="adminLoginOverlay">
+        <div class="admin-login-popup">
+            <button class="admin-login-close" onclick="closeAdminLogin()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2>Admin Login</h2>
+            <p>Enter your admin credentials</p>
+            <div class="admin-error" id="adminError">Invalid username or password</div>
+            <form id="adminLoginForm" onsubmit="submitAdminLogin(event)">
+                <input type="text" name="username" class="admin-input" placeholder="Username" required>
+                <input type="password" name="password" class="admin-input" placeholder="Password" required>
+                <button type="submit" class="btn-admin-login">Log In</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Site Footer -->
+    {% block footer %}
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <i class="bi bi-hexagon-fill" style="color: var(--brown); font-size: 1.5rem;"></i>
+                        <span style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.25rem; color: white;">BridgeHive</span>
+                    </div>
+                    <p>{{ t('footer.tagline') }}</p>
+                    <div style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">
+                        <i class="bi bi-envelope me-2"></i>hello@bridgehive.sg
+                    </div>
+                </div>
+                <div>
+                    <h4>{{ t('footer.platform') }}</h4>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('about') }}">{{ t('footer.about') }}</a></li>
+                        <li><a href="{{ url_for('rewards') }}">{{ t('nav.rewards') }}</a></li>
+                        <li><a href="{{ url_for('both_homepage') }}">{{ t('footer.dashboard') }}</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>{{ t('footer.resources') }}</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">{{ t('footer.safety') }}</a></li>
+                        <li><a href="#">{{ t('footer.community') }}</a></li>
+                        <li><a href="#">{{ t('footer.accessibility') }}</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>{{ t('nav.support') }}</h4>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('support') }}">{{ t('footer.help_center') }}</a></li>
+                        <li><a href="{{ url_for('contact') }}">{{ t('footer.contact') }}</a></li>
+                        <li><a href="#">{{ t('footer.feedback') }}</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>{{ t('footer.legal') }}</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">{{ t('footer.privacy') }}</a></li>
+                        <li><a href="#">{{ t('footer.terms') }}</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>{{ t('footer.copyright') }}</p>
+                <div class="social-links">
+                    <a href="#" class="social-icon"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="social-icon"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" class="social-icon"><i class="bi bi-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Text-to-Speech Engine -->
+    <script>
+    (function() {
+        // Global TTS state
+        window.BH = window.BH || {};
+        window.BH.ttsEnabled = (document.body.dataset.ttsEnabled === 'true');
+        
+        // Create floating pill for showing what's being read
+        const pill = document.createElement('div');
+        pill.id = 'tts-reading-pill';
+        pill.innerHTML = '<i class="bi bi-volume-up-fill me-2"></i><span id="tts-pill-text"></span>' +
+                         '<button onclick="window.BH.ttsStop()" style="background:none;border:none;color:white;margin-left:10px;cursor:pointer;font-size:1rem;" title="Stop reading">✕</button>';
+        Object.assign(pill.style, {
+            position: 'fixed', bottom: '100px', left: '50%', transform: 'translateX(-50%) translateY(20px)',
+            background: 'var(--brown)', color: 'white', padding: '0.6rem 1.2rem',
+            borderRadius: '50px', fontSize: '0.85rem', fontWeight: '500',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.25)', zIndex: '9999',
+            display: 'none', alignItems: 'center', gap: '4px',
+            maxWidth: '380px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            transition: 'opacity 0.3s, transform 0.3s', opacity: '0'
+        });
+        document.body.appendChild(pill);
+        
+        function showPill(text) {
+            const display = text.length > 45 ? text.substring(0, 45) + '…' : text;
+            document.getElementById('tts-pill-text').textContent = '"' + display + '"';
+            pill.style.display = 'flex';
+            requestAnimationFrame(() => {
+                pill.style.opacity = '1';
+                pill.style.transform = 'translateX(-50%) translateY(0)';
+            });
+        }
+        
+        function hidePill() {
+            pill.style.opacity = '0';
+            pill.style.transform = 'translateX(-50%) translateY(20px)';
+            setTimeout(() => { pill.style.display = 'none'; }, 300);
+        }
+        
+        // Stop TTS
+        window.BH.ttsStop = function() {
+            window.speechSynthesis.cancel();
+            hidePill();
+        };
+        
+        // Speak text
+        window.BH.ttsSpeak = function(text, lang) {
+            if (!text || !text.trim()) return;
+            const langMap = { 'en': 'en-SG', 'zh': 'zh-CN', 'ms': 'ms-MY', 'ta': 'ta-IN' };
+            const pageLang = document.documentElement.lang || 'en';
+            const speechLang = lang || langMap[pageLang] || pageLang;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text.trim());
+            utterance.lang = speechLang;
+            utterance.rate = 0.92;
+            utterance.pitch = 1.0;
+            utterance.onstart = () => showPill(text.trim());
+            utterance.onend = () => hidePill();
+            utterance.onerror = () => hidePill();
+            window.speechSynthesis.speak(utterance);
+        };
+        
+        // Listen for text selection
+        function handleSelectionEnd() {
+            if (!window.BH.ttsEnabled) return;
+            setTimeout(function() {
+                const selected = window.getSelection().toString().trim();
+                if (selected.length > 1) {
+                    window.BH.ttsSpeak(selected);
+                }
+            }, 120);
+        }
+        
+        document.addEventListener('mouseup', handleSelectionEnd);
+        document.addEventListener('touchend', handleSelectionEnd);
+        
+        // TTS badge in top-right when TTS is active
+        const badge = document.createElement('div');
+        badge.id = 'tts-active-badge';
+        badge.innerHTML = '<i class="bi bi-volume-up-fill"></i> TTS On — highlight text to hear it';
+        Object.assign(badge.style, {
+            position: 'fixed', top: '72px', right: '16px',
+            background: 'var(--brown)', color: 'white',
+            padding: '0.35rem 0.85rem', borderRadius: '20px',
+            fontSize: '0.75rem', fontWeight: '500', zIndex: '9998',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
+            display: 'none', alignItems: 'center', gap: '6px',
+            cursor: 'pointer', userSelect: 'none'
+        });
+        badge.title = 'Click to stop current speech';
+        badge.onclick = () => window.BH.ttsStop();
+        document.body.appendChild(badge);
+        
+        window.BH.updateTTSBadge = function() {
+            badge.style.display = window.BH.ttsEnabled ? 'flex' : 'none';
+        };
+        window.BH.updateTTSBadge();
+    })();
+    
+    // Profile menu click toggle
+    (function() {
+        const profileWrap = document.querySelector('.navbar-new-profile-wrap');
+        const profileCircle = document.querySelector('.navbar-new-profile-circle');
+        const profileMenu = document.querySelector('.navbar-new-profile-menu');
+        
+        if (profileCircle && profileMenu) {
+            profileCircle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                profileMenu.classList.toggle('show');
+            });
+            
+            // Close when clicking outside
+            document.addEventListener('click', function(e) {
+                if (profileMenu && !profileWrap.contains(e.target)) {
+                    profileMenu.classList.remove('show');
+                }
+            });
+            
+            // Close when pressing Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && profileMenu) {
+                    profileMenu.classList.remove('show');
+                }
+            });
+        }
+    })();
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

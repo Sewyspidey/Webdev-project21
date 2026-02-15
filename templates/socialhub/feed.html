@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BridgeHive | Feed</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <link rel="stylesheet" href="{{ url_for('socialhub.static', filename='css/socialhub.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+{% include 'includes/socialhub_navbar_css.html' %}
+{% include 'includes/accessibility_css.html' %}
+</head>
+<body class="{{ body_classes }}" data-tts-enabled="{{ 'true' if tts_enabled else 'false' }}">
+
+{% include 'includes/socialhub_navbar.html' %}
+<style>body { padding-top: 60px; box-sizing: border-box; } .app-navbar { display: none !important; }</style>
+
+<div class="app-container">
+    <aside class="sidebar-left d-none d-lg-block">
+        <h6 class="group-title">Menu</h6>
+        
+        <a href="{{ url_for('socialhub.feed', user=user.username) }}" class="nav-link active"><i class="fas fa-stream"></i> Feed</a>
+        <a href="{{ url_for('socialhub.explore', user=user.username) }}" class="nav-link"><i class="far fa-compass"></i> Explore</a>
+        <a href="{{ url_for('socialhub.saved', user=user.username) }}" class="nav-link"><i class="far fa-bookmark"></i> Saved</a>
+        
+        <div class="d-flex align-items-center justify-content-between mt-4 mb-2 px-2">
+            <h6 class="group-title mb-0 mt-0" style="font-size: 0.75rem;">MY COMMUNITIES</h6>
+            <a href="{{ url_for('socialhub.explore', user=user.username) }}" class="text-muted small text-decoration-none hover-dark">
+                <i class="fas fa-plus"></i>
+            </a>
+        </div>
+
+        <a href="{{ url_for('socialhub.community', name='Dialect Exchange', user=user.username) }}" 
+        class="nav-link community-item mb-1 {{ 'active-community' if community and community.name == 'Dialect Exchange' else '' }}" {% if community and community.name == 'Dialect Exchange' %}style="background-color: #A67C52;"{% endif %}>
+            
+            <span class="hive-icon" style="background:#D4A373;">DE</span> 
+            <span class="text-truncate">Dialect Exchange</span>
+            
+            {% if not (community and community.name == 'Dialect Exchange') %}
+            <span class="community-badge">5</span>
+            {% endif %}
+
+            <div class="community-hover-menu" onclick="event.preventDefault(); alert('Options: Mute, Leave, Pin');">
+                <i class="fas fa-ellipsis-h"></i>
+            </div>
+        </a>
+
+        <a href="{{ url_for('socialhub.community', name='Gardening Pros', user=user.username) }}" 
+        class="nav-link community-item mb-1 {{ 'active-community' if community and community.name == 'Gardening Pros' else '' }}" {% if community and community.name == 'Gardening Pros' %}style="background-color: #7A8B62;"{% endif %}>
+            
+            <span class="hive-icon" style="background:#CCD5AE;">GP</span> 
+            <span class="text-truncate">Gardening Pros</span>
+            
+            <div class="community-hover-menu" onclick="event.preventDefault(); alert('Options: Mute, Leave, Pin');">
+                <i class="fas fa-ellipsis-h"></i>
+            </div>
+        </a>
+
+        <a href="{{ url_for('socialhub.explore', user=user.username) }}" class="btn-join-sleek">
+            <i class="fas fa-search me-2"></i> Join New Hive
+        </a>
+    </aside>
+
+    <main class="feed-content">
+        <div class="composer-card">
+            <div class="d-flex align-items-center mb-3">
+                <div class="avatar-circle me-3" style="background:#8D7F73;">{{ user.username[0] }}</div>
+                <input type="text" id="msgInput" class="composer-input" placeholder="What's happening?">
+            </div>
+            
+            <div id="uploadPreview" class="mb-3 d-none position-relative" style="width: 150px;">
+                <img id="imgPreview" src="" style="width:100%; border-radius:10px;">
+                <video id="vidPreview" src="" style="width:100%; border-radius:10px; display:none;" controls></video>
+                <button onclick="clearUpload()" class="btn-close position-absolute top-0 end-0 bg-white p-1 m-1"></button>
+            </div>
+
+            <div class="d-flex gap-3 text-muted">
+                <input type="file" id="mediaInput" hidden onchange="handleFileSelect()">
+                
+                <div class="action-pill" onclick="document.getElementById('mediaInput').click()"><i class="fas fa-image"></i> Media</div>
+                <div class="action-pill" data-bs-toggle="modal" data-bs-target="#flairModal"><i class="fas fa-award"></i> Achievement</div>
+                <button class="btn-post ms-auto" onclick="sendPost()">Post</button>
+            </div>
+        </div>
+
+        <div id="feedStream">
+            {% for post in posts %}
+            <div class="post-card fade-in-up" id="post-{{ post.id }}">
+                <div class="post-header">
+                    <div class="avatar-circle me-3" style="background:{{ '#8D7F73' if 'Grandma' in post.author.username else '#D9534F' }};">
+                        {{ post.author.username[0] }}
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="author-name">{{ post.author.username }}</div>
+                        <div class="post-time">{{ post.timestamp.strftime('%I:%M %p') }}</div>
+                    </div>
+                    
+                    <div class="dropdown">
+                        <i class="fas fa-ellipsis-h text-muted cursor-pointer" data-bs-toggle="dropdown"></i>
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
+                            {% if post.author.username == user.username %}
+                            <li><a class="dropdown-item" href="#" onclick="enableEditMode({{ post.id }})">Edit Post</a></li>
+                            {% else %}
+                            <li><a class="dropdown-item text-danger" href="#" onclick="reportPost({{ post.id }})">Report Post</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="post-body">
+                    {% if post.post_type != 'general' %}
+                    <div class="achievement-badge badge-completed">
+                        <i class="fas fa-graduation-cap text-primary fs-4"></i>
+                        <div class="ms-3">
+                            <div class="small fw-bold text-uppercase text-muted">Completed Course</div>
+                            <div class="fw-bold">{{ post.related_course }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <p class="mt-2 post-text-content" id="post-text-{{ post.id }}">{{ post.body }}</p>
+                    
+                    {% if post.media_type == 'image' %}
+                    <img src="{{ url_for('socialhub.static', filename='uploads/' + post.media_filename) }}" class="img-fluid rounded mt-2">
+                    {% elif post.media_type == 'video' %}
+                    <video src="{{ url_for('socialhub.static', filename='uploads/' + post.media_filename) }}" controls class="img-fluid rounded mt-2"></video>
+                    {% endif %}
+                </div>
+
+                <div class="post-footer">
+                    <div class="footer-action {{ 'liked-red' if post.id in user_likes else '' }}" id="like-btn-{{ post.id }}" onclick="toggleLike({{ post.id }})">
+                        <i class="{{ 'fas' if post.id in user_likes else 'far' }} fa-heart"></i> 
+                        <span id="like-count-{{ post.id }}">{{ post.likes|length }}</span> Likes
+                    </div>
+                    <div class="footer-action" onclick="toggleComments({{ post.id }})"><i class="far fa-comment"></i> Comments</div>
+                </div>
+
+                <div class="comments-section d-none" id="comments-{{ post.id }}">
+                    <div id="comment-list-{{ post.id }}">
+                        {% for comment in post.comments %}
+                        <div class="comment-row {{ 'own-comment' if comment.username == user.username else '' }}" data-comment-id="{{ comment.id }}">
+                            <div class="comment-avatar" style="background-color: {{ '#8D7F73' if 'Grandma' in comment.username else '#5C6BC0' if 'Uncle' in comment.username else '#D9534F' }};">
+                                {{ comment.username[0] | upper }}
+                            </div>
+                            <div class="comment-bubble">
+                                <span class="comment-author">{{ comment.username }}</span>
+                                <span class="comment-text">{{ comment.body }}</span>
+                            </div>
+                            {% if comment.username == user.username %}
+                            <div class="comment-delete-btn" onclick="deleteComment({{ comment.id }}, this)">
+                                <i class="fas fa-trash-alt"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="comment-input-wrapper mt-3">
+                        <div class="avatar-circle xsmall me-2" style="width:32px; height:32px; background: #999;">{{ user.username[0] }}</div>
+                        <input type="text" class="form-control rounded-pill" placeholder="Write a comment..." 
+                            onkeypress="if(event.key === 'Enter') sendComment({{ post.id }}, this)">
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <aside class="sidebar-right d-none d-xl-block">
+        <h6 class="widget-title">Members Online</h6>
+        <div class="member-list">
+            {% for community_user in community_users %}
+            <div class="member-item position-relative">
+                <div class="avatar-circle small position-relative" style="background:{{ '#8D7F73' if 'Grandma' in community_user.username else '#5C6BC0' if 'Uncle' in community_user.username else '#D9534F' }};">
+                    {{ community_user.username[0] }}
+                    <div class="status-dot"></div>
+                    <div id="notif-{{ community_user.username }}" class="notification-dot"></div>
+                </div>
+                <div class="member-details">
+                    <div class="name">{{ community_user.username }}</div>
+                    <div class="role">Member</div>
+                </div>
+                <i class="fas fa-comment-dots ms-auto text-primary cursor-pointer fs-5" 
+                onclick="openChat('{{ community_user.username }}')"></i>
+            </div>
+            {% endfor %}
+        </div>
+    </aside>
+</div>
+
+<div class="chat-widget collapsed" id="chatWidget">
+    <div class="chat-widget-header" onclick="document.getElementById('chatWidget').classList.toggle('collapsed')">
+        <div class="d-flex align-items-center"><span id="chatHeaderName">Chat</span></div><i class="fas fa-chevron-up"></i>
+    </div>
+    <div class="chat-widget-body" id="privateChatBody"><div id="chatStream"></div></div>
+    <div class="chat-widget-footer">
+        <input type="text" id="chatInput" placeholder="Type..." onkeypress="if(event.key === 'Enter') sendPrivateMessage()">
+        <i class="fas fa-paper-plane text-primary cursor-pointer" onclick="sendPrivateMessage()"></i>
+    </div>
+</div>
+
+<script>
+    const socket = io();
+    const currentUser = "{{ user.username }}";
+    let currentRecipient = null;
+    let uploadedFilename = null;
+    let uploadedType = null;
+
+    // --- 1. MEDIA UPLOAD LOGIC ---
+    async function handleFileSelect() {
+        const fileInput = document.getElementById('mediaInput');
+        const file = fileInput.files[0];
+        if(!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch('/socialhub/upload', {method:'POST', body:formData});
+            const data = await res.json();
+            
+            if(data.filename) {
+                uploadedFilename = data.filename;
+                uploadedType = data.type;
+                
+                // Show Preview
+                document.getElementById('uploadPreview').classList.remove('d-none');
+                if(data.type === 'image') {
+                    document.getElementById('imgPreview').src = `/socialhub/static/uploads/${data.filename}`;
+                    document.getElementById('imgPreview').style.display = 'block';
+                    document.getElementById('vidPreview').style.display = 'none';
+                } else {
+                    document.getElementById('vidPreview').src = `/socialhub/static/uploads/${data.filename}`;
+                    document.getElementById('vidPreview').style.display = 'block';
+                    document.getElementById('imgPreview').style.display = 'none';
+                }
+            }
+        } catch(err) { alert("Upload failed"); }
+    }
+    
+    function clearUpload() {
+        document.getElementById('uploadPreview').classList.add('d-none');
+        document.getElementById('mediaInput').value = '';
+        uploadedFilename = null; uploadedType = null;
+    }
+
+    // --- 2. SEND POST ---
+    function sendPost() {
+        const input = document.getElementById('msgInput');
+        if(input.value || uploadedFilename) {
+            socket.emit('send_message', { 
+                username: currentUser, 
+                body: input.value, 
+                media_type: uploadedType,
+                media_filename: uploadedFilename
+            });
+            input.value = ''; clearUpload();
+        }
+    }
+    
+    // --- 3. LIKES ---
+    async function toggleLike(postId) {
+        const res = await fetch('/socialhub/api/like_post', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({post_id: postId, username: currentUser})
+        });
+        const data = await res.json();
+        
+        // Update UI
+        const btn = document.getElementById(`like-btn-${postId}`);
+        const count = document.getElementById(`like-count-${postId}`);
+        count.innerText = data.count;
+        if(data.action === 'liked') {
+            btn.classList.add('liked-red'); btn.querySelector('i').classList.replace('far', 'fas');
+        } else {
+            btn.classList.remove('liked-red'); btn.querySelector('i').classList.replace('fas', 'far');
+        }
+    }
+
+    // --- 4. COMMENTS ---
+    function toggleComments(postId) {
+        const section = document.getElementById(`comments-${postId}`);
+        section.classList.toggle('d-none');
+    }
+    
+    function sendComment(postId, input) {
+        const text = input.value.trim();
+        if(text) {
+            socket.emit('send_comment', {post_id: postId, username: currentUser, body: text});
+            input.value = '';
+        }
+    }
+
+    async function deleteComment(commentId, btn) {
+        if(!confirm('Delete this comment?')) return;
+        try {
+            const res = await fetch('/socialhub/api/delete_comment', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({comment_id: commentId, username: currentUser})
+            });
+            const data = await res.json();
+            if(data.status === 'success') {
+                const row = btn.closest('.comment-row');
+                row.style.transition = 'opacity 0.3s';
+                row.style.opacity = '0';
+                setTimeout(() => row.remove(), 300);
+            }
+        } catch(e) { console.error(e); }
+    }
+    
+    socket.on('receive_comment', (data) => {
+        const list = document.getElementById(`comment-list-${data.post_id}`);
+        if(list) {
+            let color = '#D9534F';
+            if(data.username.includes('Grandma')) color = '#8D7F73';
+            if(data.username.includes('Uncle')) color = '#5C6BC0';
+
+            const isOwn = data.username === currentUser;
+            const html = `
+            <div class="comment-row ${isOwn ? 'own-comment' : ''}" data-comment-id="${data.comment_id}">
+                <div class="comment-avatar" style="background-color: ${color};">${data.username[0]}</div>
+                <div class="comment-bubble">
+                    <span class="comment-author">${data.username}</span>
+                    <span class="comment-text">${data.body}</span>
+                </div>
+                ${isOwn ? `<div class="comment-delete-btn" onclick="deleteComment(${data.comment_id}, this)"><i class="fas fa-trash-alt"></i></div>` : ''}
+            </div>`;
+            
+            list.insertAdjacentHTML('beforeend', html);
+            document.getElementById(`comments-${data.post_id}`).classList.remove('d-none');
+        }
+    });
+
+    // --- 5. EDIT & REPORT ---
+    function reportPost(postId) {
+        if(confirm("Report this post for inappropriate content?")) {
+            fetch('/socialhub/api/report_post', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({post_id: postId, username: currentUser})
+            }).then(r=>r.json()).then(d=>alert(d.message));
+        }
+    }
+
+    function enableEditMode(postId) {
+        const pText = document.getElementById(`post-text-${postId}`);
+        const currentText = pText.innerText;
+        const newText = prompt("Edit your post:", currentText);
+        if(newText !== null && newText !== currentText) {
+            fetch('/socialhub/api/edit_post', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({post_id: postId, new_body: newText})
+            }).then(()=>{
+                pText.innerText = newText;
+            });
+        }
+    }
+
+    // --- CHAT LOGIC (Keep existing) ---
+    async function openChat(targetUser) {
+        currentRecipient = targetUser;
+        document.getElementById('chatHeaderName').innerText = targetUser;
+        document.getElementById('chatWidget').classList.remove('collapsed');
+        const chatStream = document.getElementById('chatStream');
+        chatStream.innerHTML = ''; // clear
+        
+        const res = await fetch(`/socialhub/api/chat_history?user1=${currentUser}&user2=${targetUser}`);
+        const msgs = await res.json();
+        msgs.forEach(m => appendChatMsg(m.sender, m.body));
+    }
+    
+    function sendPrivateMessage() {
+        const input = document.getElementById('chatInput');
+        if(input.value && currentRecipient) {
+            socket.emit('private_chat_event', {username: currentUser, recipient: currentRecipient, message: input.value});
+            input.value = '';
+        }
+    }
+    
+    socket.on('receive_private_message', (data) => {
+        // CASE 1: I am the Sender (Show my own message)
+        if (data.username === currentUser && data.recipient === currentRecipient) {
+            appendChatMsg(data.username, data.message);
+            scrollToBottom();
+        }
+        
+        // CASE 2: I am the Recipient
+        else if (data.recipient === currentUser) {
+            
+            // If I have the sender's chat OPEN right now
+            if (currentRecipient === data.username && !document.getElementById('chatWidget').classList.contains('collapsed')) {
+                appendChatMsg(data.username, data.message);
+                scrollToBottom();
+            } 
+            // If chat is CLOSED or I'm talking to someone else -> Show Notification
+            else {
+                const notifDot = document.getElementById(`notif-${data.username}`);
+                if (notifDot) {
+                    notifDot.style.display = 'block'; // Show red dot
+                    
+                    // Optional: Play a sound
+                    // const audio = new Audio('/static/ping.mp3'); audio.play(); 
+                }
+            }
+        }
+    });
+
+    // Update openChat to clear the notification when clicked
+    async function openChat(targetUser) {
+        currentRecipient = targetUser;
+        
+        // Clear Notification
+        const notifDot = document.getElementById(`notif-${targetUser}`);
+        if(notifDot) notifDot.style.display = 'none';
+
+        document.getElementById('chatHeaderName').innerText = targetUser;
+        document.getElementById('chatWidget').classList.remove('collapsed');
+        
+        const chatStream = document.getElementById('chatStream');
+        chatStream.innerHTML = '<div class="text-center small text-muted my-3">Loading history...</div>';
+        
+        try {
+            const res = await fetch(`/socialhub/api/chat_history?user1=${currentUser}&user2=${targetUser}`);
+            const msgs = await res.json();
+            chatStream.innerHTML = ''; // Clear loader
+            msgs.forEach(m => appendChatMsg(m.sender, m.body));
+            scrollToBottom();
+        } catch(e) { console.error(e); }
+    }
+
+    function appendChatMsg(sender, msg) {
+        const isMe = sender === currentUser;
+        const html = `<div class="chat-bubble-row ${isMe?'row-me':'row-them'}"><div class="chat-bubble ${isMe?'bubble-me':'bubble-them'}">${msg}</div></div>`;
+        document.getElementById('chatStream').insertAdjacentHTML('beforeend', html);
+    }
+
+    function scrollToBottom() {
+        const body = document.getElementById('privateChatBody');
+        body.scrollTop = body.scrollHeight;
+    }
+    
+    socket.on('receive_message', (data) => { location.reload(); });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% include 'includes/tts_js.html' %}
+</body>
+</html>

@@ -1,0 +1,518 @@
+{% extends "base.html" %}
+{% block title %}{{ t('settings.title') }} - BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-page {
+        padding: 2rem 3rem;
+        padding-top: 100px;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+    
+    .settings-header {
+        margin-bottom: 2.5rem;
+    }
+    
+    .settings-header h1 {
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 0.5rem;
+    }
+    
+    .settings-sidebar .list-group-item {
+        border: none !important;
+        margin-bottom: 8px;
+        border-radius: 8px !important;
+        font-weight: 500;
+        transition: all 0.2s;
+        color: var(--black) !important;
+        background: transparent;
+        padding: 0.875rem 1.25rem;
+    }
+    
+    .settings-sidebar .list-group-item:hover {
+        background: rgba(143,123,106,0.1);
+    }
+    
+    .settings-sidebar .list-group-item.active {
+        background: var(--brown) !important;
+        color: white !important;
+    }
+    
+    .settings-card {
+        background: white;
+        border: 1px solid var(--tan-light);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .section-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.75rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--cream-dark);
+    }
+    
+    .setting-item {
+        padding: 1.5rem 0;
+        border-bottom: 1px solid var(--cream-dark);
+    }
+    
+    .setting-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .setting-item:first-child {
+        padding-top: 0;
+    }
+    
+    .form-check-input {
+        width: 3rem;
+        height: 1.5rem;
+        cursor: pointer;
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--brown);
+        border-color: var(--brown);
+    }
+    
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.25rem rgba(143,123,106,0.25);
+        border-color: var(--brown);
+    }
+    
+    .form-select, .form-control {
+        border: 1px solid var(--tan-light);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+    }
+    
+    .form-select:focus, .form-control:focus {
+        border-color: var(--brown);
+        box-shadow: 0 0 0 0.2rem rgba(143,123,106,0.15);
+    }
+    
+    .btn-custom {
+        background: var(--brown);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .btn-custom:hover {
+        background: #7a6859;
+        color: white;
+    }
+    
+    #save-indicator {
+        position: fixed;
+        bottom: 30px;
+        left: 30px;
+        background: var(--brown);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 50px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        z-index: 9999;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    #save-indicator.show {
+        opacity: 1;
+    }
+    
+    .btn-group .btn-check:checked + .btn {
+        background-color: var(--brown);
+        border-color: var(--brown);
+        color: white;
+    }
+    
+    .tts-test-area {
+        margin-top: 1rem;
+        padding: 0.75rem 1rem;
+        background: var(--cream-dark);
+        border-radius: 8px;
+    }
+    
+    @media (max-width: 768px) {
+        .settings-page {
+            padding: 1.5rem;
+            padding-top: 90px;
+        }
+        .settings-sidebar {
+            margin-bottom: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block content %}
+<div id="save-indicator">
+    <i class="bi bi-check2 me-2"></i>{{ t('settings.success') }}
+</div>
+
+<div class="settings-page">
+    <div class="settings-header">
+        <h1>{{ t('settings.title') }}</h1>
+        <p class="text-muted">{{ t('settings.subtitle') }}</p>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="list-group settings-sidebar">
+                <a href="#language" class="list-group-item active" data-bs-toggle="list">
+                    <i class="bi bi-translate me-2"></i>{{ t('settings.language') }}
+                </a>
+                <a href="#privacy" class="list-group-item" data-bs-toggle="list">
+                    <i class="bi bi-shield-lock me-2"></i>{{ t('settings.privacy') }}
+                </a>
+                <a href="#security" class="list-group-item" data-bs-toggle="list">
+                    <i class="bi bi-lock me-2"></i>{{ t('settings.security') }}
+                </a>
+                <a href="#audio" class="list-group-item" data-bs-toggle="list">
+                    <i class="bi bi-volume-up me-2"></i>{{ t('settings.audio') }}
+                </a>
+                <a href="#visual" class="list-group-item" data-bs-toggle="list">
+                    <i class="bi bi-eye me-2"></i>{{ t('settings.visual') }}
+                </a>
+                <a href="#system" class="list-group-item" data-bs-toggle="list">
+                    <i class="bi bi-exclamation-triangle me-2"></i>{{ t('settings.system') }}
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="tab-content">
+                <!-- LANGUAGE -->
+                <div class="tab-pane fade show active" id="language">
+                    <div class="settings-card">
+                        <h2 class="section-title">{{ t('settings.language') }}</h2>
+                        
+                        <div class="setting-item">
+                            <label class="form-label fw-bold">{{ t('settings.display_lang') }}</label>
+                            <p class="text-muted small mb-3">{{ t('settings.lang_desc') }}</p>
+                            <select name="language" class="form-select" onchange="autoSave(this)" style="max-width: 300px;">
+                                <option value="en" {% if user.settings.language == 'en' %}selected{% endif %}>English</option>
+                                <option value="zh" {% if user.settings.language == 'zh' %}selected{% endif %}>中文 (Chinese)</option>
+                                <option value="ms" {% if user.settings.language == 'ms' %}selected{% endif %}>Bahasa Melayu</option>
+                                <option value="ta" {% if user.settings.language == 'ta' %}selected{% endif %}>தமிழ் (Tamil)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PRIVACY -->
+                <div class="tab-pane fade" id="privacy">
+                    <div class="settings-card">
+                        <h2 class="section-title">{{ t('settings.privacy') }}</h2>
+                        
+                        <div class="setting-item">
+                            <label class="form-label fw-bold">{{ t('settings.profile_vis') }}</label>
+                            <p class="text-muted small mb-3">Control who can see your profile information.</p>
+                            <select name="profile_visibility" class="form-select" onchange="autoSave(this)" style="max-width: 300px;">
+                                <option value="public" {% if user.settings.profile_visibility == 'public' %}selected{% endif %}>{{ t('settings.public') }}</option>
+                                <option value="friends" {% if user.settings.profile_visibility == 'friends' %}selected{% endif %}>{{ t('settings.friends') }}</option>
+                                <option value="private" {% if user.settings.profile_visibility == 'private' %}selected{% endif %}>{{ t('settings.private') }}</option>
+                            </select>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="fw-bold mb-1">{{ t('settings.activity') }}</h6>
+                                    <small class="text-muted">{{ t('settings.activity_desc') }}</small>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="show_activity"
+                                           {% if user.settings.show_activity %}checked{% endif %} onchange="autoSave(this)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECURITY -->
+                <div class="tab-pane fade" id="security">
+                    <div class="settings-card">
+                        <h2 class="section-title">{{ t('settings.security') }}</h2>
+                        
+                        <div class="setting-item">
+                            <h6 class="fw-bold mb-3">{{ t('settings.change_pw') }}</h6>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">{{ t('settings.curr_pw') }}</label>
+                                    <input type="password" class="form-control" id="pw_current" style="max-width: 400px;">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">{{ t('settings.new_pw') }}</label>
+                                    <input type="password" class="form-control" id="pw_new">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">{{ t('settings.conf_pw') }}</label>
+                                    <input type="password" class="form-control" id="pw_confirm">
+                                </div>
+                                <div class="col-12">
+                                    <button class="btn-custom" onclick="updatePassword()">
+                                        {{ t('settings.update_pw') }}
+                                    </button>
+                                    <span id="pw-feedback" class="ms-3 small" style="display:none;"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AUDIO -->
+                <div class="tab-pane fade" id="audio">
+                    <div class="settings-card">
+                        <h2 class="section-title">{{ t('settings.audio') }}</h2>
+                        
+                        <div class="setting-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="fw-bold mb-1">{{ t('settings.sfx') }}</h6>
+                                    <small class="text-muted">{{ t('settings.sfx_desc') }}</small>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="sound_effects"
+                                           {% if user.settings.sound_effects %}checked{% endif %} onchange="autoSave(this)">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="fw-bold mb-1">{{ t('settings.tts') }}</h6>
+                                    <small class="text-muted">{{ t('settings.tts_desc') }}<br>
+                                        <span style="color:var(--brown); font-weight:500;">
+                                            <i class="bi bi-info-circle me-1"></i>Select / highlight any text on any page to hear it read aloud.
+                                        </span>
+                                    </small>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="text_to_speech"
+                                           {% if user.settings.text_to_speech %}checked{% endif %} onchange="autoSave(this)">
+                                </div>
+                            </div>
+                            <!-- Live TTS test area -->
+                            <div id="tts-test-area" class="tts-test-area" style="display:{% if user.settings.text_to_speech %}block{% else %}none{% endif %};">
+                                <small class="text-muted d-block mb-2"><i class="bi bi-cursor-text me-1"></i>TTS is <strong>ON</strong> — try highlighting this sentence to hear it spoken aloud.</small>
+                                <p style="margin:0; color:var(--brown); font-weight:500; user-select:text;">Welcome to BridgeHive. Highlight this text to test text-to-speech.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VISUAL -->
+                <div class="tab-pane fade" id="visual">
+                    <div class="settings-card">
+                        <h2 class="section-title">{{ t('settings.visual') }}</h2>
+                        
+                        <div class="setting-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="fw-bold mb-1">{{ t('settings.dark_mode') }}</h6>
+                                    <small class="text-muted">{{ t('settings.dark_desc') }}</small>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="dark_mode"
+                                           {% if user.settings.dark_mode %}checked{% endif %} onchange="autoSave(this)">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="fw-bold mb-1">{{ t('settings.high_contrast') }}</h6>
+                                    <small class="text-muted">{{ t('settings.high_desc') }}</small>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="high_contrast"
+                                           {% if user.settings.high_contrast %}checked{% endif %} onchange="autoSave(this)">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <label class="form-label fw-bold">{{ t('settings.font_size') }}</label>
+                            <div class="btn-group" role="group" style="max-width: 400px;">
+                                <input type="radio" class="btn-check" name="font_size" id="fs_std" value="standard"
+                                       {% if user.settings.font_size == 'standard' %}checked{% endif %} onchange="autoSave(this)">
+                                <label class="btn btn-outline-secondary" for="fs_std">{{ t('settings.fs_std') }}</label>
+                                
+                                <input type="radio" class="btn-check" name="font_size" id="fs_lg" value="large"
+                                       {% if user.settings.font_size == 'large' %}checked{% endif %} onchange="autoSave(this)">
+                                <label class="btn btn-outline-secondary" for="fs_lg">{{ t('settings.fs_lg') }}</label>
+                                
+                                <input type="radio" class="btn-check" name="font_size" id="fs_xl" value="extra-large"
+                                       {% if user.settings.font_size == 'extra-large' %}checked{% endif %} onchange="autoSave(this)">
+                                <label class="btn btn-outline-secondary" for="fs_xl">{{ t('settings.fs_xl') }}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SYSTEM -->
+                <div class="tab-pane fade" id="system">
+                    <div class="settings-card">
+                        <h2 class="section-title">{{ t('settings.system') }}</h2>
+                        
+                        <div class="setting-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-danger">{{ t('settings.reset') }}</h6>
+                                    <small class="text-muted">{{ t('settings.reset_desc') }}</small>
+                                </div>
+                                <form action="{{ url_for('reset_settings') }}" method="POST">
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        {{ t('settings.reset_btn') }}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Save a setting to server via AJAX
+function autoSave(element) {
+    const fd = new FormData();
+    if (element.type === 'checkbox') {
+        fd.append(element.name, element.checked ? 'true' : 'false');
+    } else {
+        fd.append(element.name, element.value);
+    }
+
+    // Apply visuals immediately
+    applyStyles(element);
+
+    fetch("{{ url_for('settings') }}", {
+        method: 'POST',
+        body: fd
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showSaveIndicator();
+            if (element.name === 'language') {
+                // Full reload so server re-renders translated text
+                setTimeout(() => window.location.reload(), 600);
+            }
+        }
+    })
+    .catch(() => showSaveIndicator('error'));
+}
+
+// Apply setting effects instantly in the browser
+function applyStyles(element) {
+    const body = document.body;
+    const name = element.name;
+
+    if (name === 'dark_mode') {
+        if (element.checked) {
+            body.classList.add('dark-mode');
+            body.classList.remove('high-contrast');
+            const hcToggle = document.querySelector('[name="high_contrast"]');
+            if (hcToggle) hcToggle.checked = false;
+        } else {
+            body.classList.remove('dark-mode');
+        }
+    }
+
+    if (name === 'high_contrast') {
+        if (element.checked) {
+            body.classList.add('high-contrast');
+            body.classList.remove('dark-mode');
+            const dmToggle = document.querySelector('[name="dark_mode"]');
+            if (dmToggle) dmToggle.checked = false;
+        } else {
+            body.classList.remove('high-contrast');
+        }
+    }
+
+    if (name === 'font_size') {
+        body.classList.remove('font-large', 'font-extra-large');
+        if (element.value === 'large') body.classList.add('font-large');
+        if (element.value === 'extra-large') body.classList.add('font-extra-large');
+    }
+
+    if (name === 'text_to_speech') {
+        if (window.BH) {
+            window.BH.ttsEnabled = element.checked;
+            window.BH.updateTTSBadge();
+            document.body.dataset.ttsEnabled = element.checked ? 'true' : 'false';
+        }
+        const testArea = document.getElementById('tts-test-area');
+        if (testArea) testArea.style.display = element.checked ? 'block' : 'none';
+    }
+}
+
+// Save indicator
+function showSaveIndicator(type) {
+    const el = document.getElementById('save-indicator');
+    if (type === 'error') {
+        el.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>Could not save';
+        el.style.background = '#dc3545';
+    } else {
+        el.innerHTML = '<i class="bi bi-check2 me-2"></i>{{ t("settings.success") }}';
+        el.style.background = 'var(--brown)';
+    }
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// Password change
+function updatePassword() {
+    const curr = document.getElementById('pw_current').value;
+    const newPw = document.getElementById('pw_new').value;
+    const conf = document.getElementById('pw_confirm').value;
+    const fb = document.getElementById('pw-feedback');
+
+    const fd = new FormData();
+    fd.append('current_password', curr);
+    fd.append('new_password', newPw);
+    fd.append('confirm_password', conf);
+
+    fetch("{{ url_for('update_password') }}", { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(data => {
+        fb.style.display = 'inline';
+        fb.style.color = data.status === 'success' ? '#198754' : '#dc3545';
+        fb.textContent = data.message;
+        if (data.status === 'success') {
+            ['pw_current','pw_new','pw_confirm'].forEach(id => document.getElementById(id).value = '');
+        }
+        setTimeout(() => fb.style.display = 'none', 4000);
+    });
+}
+
+// Sidebar active highlight
+document.querySelectorAll('.settings-sidebar .list-group-item').forEach(item => {
+    item.addEventListener('click', function() {
+        document.querySelectorAll('.settings-sidebar .list-group-item').forEach(el => el.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+</script>
+{% endblock %}

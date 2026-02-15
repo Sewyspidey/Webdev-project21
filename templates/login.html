@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% block title %}Log In - BridgeHive{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    .login-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        z-index: 10000;
+        overflow-y: auto;       
+        display: flex;          
+        padding: 20px;
+        box-sizing: border-box;
+        margin: 0;
+    }
+    
+    .login-card {
+        background-color: #FDFBF7;
+        padding: 50px;
+        border-radius: 16px;
+        width: 450px;
+        max-width: 100%;
+        margin: auto; 
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        font-family: 'Georgia', serif;
+        position: relative;
+    }
+    
+    .close-btn {
+        position: absolute;
+        top: 20px;
+        right: 25px;
+        font-size: 1.5rem;
+        color: #999;
+        cursor: pointer;
+        transition: color 0.2s, transform 0.2s;
+        z-index: 10;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        text-decoration: none;
+    }
+    
+    .close-btn:hover {
+        color: #333;
+        background-color: #f0f0f0;
+        transform: rotate(90deg);
+    }
+    
+    .login-title {
+        font-size: 2.5rem;
+        color: #1a1a1a;
+        margin-bottom: 10px;
+        text-align: center;
+        margin-top: 0;
+        font-family: 'Playfair Display', serif;
+    }
+    
+    .login-subtitle {
+        text-align: center;
+        color: #555;
+        margin-bottom: 40px;
+        font-family: sans-serif;
+        font-size: 1.1rem;
+    }
+    
+    .form-section {
+        margin-bottom: 20px;
+    }
+    
+    .input-field {
+        width: 100%;
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 2px solid #E6E6E1;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-family: sans-serif;
+        background-color: #FAFAFA;
+        box-sizing: border-box;
+    }
+    
+    .input-field:focus {
+        outline: none;
+        border-color: #8D7F73;
+        background-color: #fff;
+    }
+    
+    .btn-login {
+        width: 100%;
+        padding: 15px;
+        background-color: #8D7F73;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        font-family: sans-serif;
+        transition: background 0.2s;
+    }
+    
+    .btn-login:hover {
+        background-color: #7A6A5A;
+    }
+    
+    .signup-link {
+        text-align: center;
+        margin-top: 25px;
+        color: #555;
+        font-family: sans-serif;
+    }
+    
+    .signup-link a {
+        color: #8D7F73;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .signup-link a:hover {
+        text-decoration: underline;
+    }
+    
+    .flash-message {
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-family: sans-serif;
+    }
+    
+    .flash-error {
+        background-color: #FFE5E5;
+        color: #C54B4B;
+    }
+    
+    .flash-success {
+        background-color: #E5FFE5;
+        color: #4BC54B;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-overlay">
+    <div class="login-card">
+        <a href="{{ url_for('landing') }}" class="close-btn">
+            <i class="fas fa-times"></i>
+        </a>
+        
+        <h1 class="login-title">Welcome back! 👋</h1>
+        <p class="login-subtitle">Log in to continue your journey</p>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form action="{{ url_for('login') }}" method="POST">
+            <div class="form-section">
+                <input type="email" name="email" class="input-field" placeholder="Email" required>
+                <input type="password" name="password" class="input-field" placeholder="Password" required>
+            </div>
+            
+            <button type="submit" class="btn-login">Log In</button>
+        </form>
+        
+        <p class="signup-link">
+            Don't have an account? <a href="{{ url_for('landing') }}?signup=true">Sign up</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+<!-- No footer on login page -->
+{% endblock %}

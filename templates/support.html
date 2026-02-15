@@ -1,0 +1,578 @@
+{% extends "base.html" %}
+{% block title %}Support - BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Main content wrapper with navbar offset */
+    .support-page {
+        padding: 2rem 3rem;
+        padding-top: 100px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    /* Header section */
+    .support-header {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+    
+    .support-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 18px;
+        background: var(--cream-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .support-icon i {
+        font-size: 2.5rem;
+        color: var(--brown);
+    }
+    
+    .support-header-text h1 {
+        margin-bottom: 0.5rem;
+        font-family: 'Playfair Display', serif;
+        color: var(--black);
+    }
+    
+    .support-header-text p {
+        color: var(--gray);
+        margin: 0;
+    }
+    
+    /* Tabs */
+    .support-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 2.5rem;
+        border-bottom: 2px solid var(--tan-light);
+        padding-bottom: 0;
+    }
+    
+    .s-tab {
+        background: none;
+        border: none;
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--gray);
+        cursor: pointer;
+        position: relative;
+        transition: all 0.2s;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .s-tab:hover {
+        color: var(--brown);
+    }
+    
+    .s-tab.active {
+        color: var(--brown);
+    }
+    
+    .s-tab.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--brown);
+        border-radius: 2px 2px 0 0;
+    }
+    
+    /* Panels */
+    .s-panel {
+        display: none;
+    }
+    
+    .s-panel.active {
+        display: block;
+    }
+    
+    /* FAQ Search */
+    .faq-search {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+    
+    .faq-search input {
+        width: 100%;
+        padding: 1rem 1rem 1rem 3rem;
+        border: 1px solid var(--tan-light);
+        border-radius: 12px;
+        font-size: 1rem;
+        background: white;
+        font-family: 'Inter', sans-serif;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .faq-search input:focus {
+        outline: none;
+        border-color: var(--brown);
+        box-shadow: 0 0 0 3px rgba(143, 123, 106, 0.1);
+    }
+    
+    .faq-search > i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-light);
+        font-size: 1.1rem;
+    }
+    
+    /* FAQ Accordion */
+    .faq-accordion {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .faq-item {
+        background: white;
+        border: 1px solid var(--tan-light);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: box-shadow 0.2s;
+    }
+    
+    .faq-item:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+    
+    .faq-question {
+        width: 100%;
+        background: white;
+        border: none;
+        padding: 1.25rem 1.5rem;
+        text-align: left;
+        font-weight: 500;
+        font-size: 1rem;
+        color: var(--black);
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: 'Inter', sans-serif;
+        transition: background 0.2s;
+    }
+    
+    .faq-question:hover {
+        background: var(--cream);
+    }
+    
+    .faq-question.active {
+        background: var(--cream-dark);
+        color: var(--brown);
+    }
+    
+    .faq-question i {
+        font-size: 0.85rem;
+        transition: transform 0.2s;
+        color: var(--gray-light);
+    }
+    
+    .faq-question.active i {
+        transform: rotate(180deg);
+        color: var(--brown);
+    }
+    
+    .faq-answer {
+        display: none;
+        padding: 0 1.5rem 1.5rem;
+        color: var(--gray);
+        line-height: 1.7;
+        font-size: 0.95rem;
+    }
+    
+    .faq-answer.show {
+        display: block;
+    }
+    
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 16px;
+        border: 1px solid var(--tan-light);
+    }
+    
+    .empty-state > i {
+        font-size: 4rem;
+        color: var(--tan-light);
+        display: block;
+        margin-bottom: 1.5rem;
+    }
+    
+    .empty-state h4 {
+        font-family: 'Playfair Display', serif;
+        color: var(--gray);
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-state p {
+        color: var(--gray-light);
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Help CTA */
+    .help-cta {
+        background: var(--cream-dark);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        margin-top: 2.5rem;
+    }
+    
+    .help-cta p {
+        font-weight: 600;
+        color: var(--black);
+        margin-bottom: 1rem;
+    }
+    
+    /* Ticket Form */
+    .ticket-form-card {
+        background: white;
+        border: 1px solid var(--tan-light);
+        border-radius: 16px;
+        padding: 2.5rem;
+    }
+    
+    .ticket-form-card h4 {
+        font-family: 'Playfair Display', serif;
+        color: var(--black);
+        margin-bottom: 0.5rem;
+    }
+    
+    .ticket-form-card > p {
+        color: var(--gray);
+        margin-bottom: 2rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: var(--black);
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 1px solid var(--tan-light);
+        border-radius: 10px;
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        background: white;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--brown);
+        box-shadow: 0 0 0 3px rgba(143, 123, 106, 0.1);
+    }
+    
+    .form-group textarea {
+        resize: vertical;
+        min-height: 150px;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    
+    @media (max-width: 600px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        .support-page {
+            padding: 1.5rem;
+            padding-top: 90px;
+        }
+    }
+    
+    /* Button */
+    .btn-submit {
+        background: var(--brown);
+        color: white;
+        border: none;
+        padding: 0.875rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .btn-submit:hover {
+        background: #7a6859;
+    }
+    
+    .btn-submit:active {
+        transform: scale(0.98);
+    }
+    
+    /* Ticket Cards */
+    .ticket-card {
+        background: white;
+        border: 1px solid var(--tan-light);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: box-shadow 0.2s;
+    }
+    
+    .ticket-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .ticket-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+    }
+    
+    .ticket-header h6 {
+        font-weight: 600;
+        color: var(--black);
+        margin: 0;
+        font-size: 1rem;
+    }
+    
+    .ticket-status {
+        padding: 0.3rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .ticket-status.open {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .ticket-status.closed {
+        background: var(--cream-dark);
+        color: var(--gray);
+    }
+    
+    .ticket-meta {
+        color: var(--gray-light);
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .ticket-meta i {
+        margin-right: 0.25rem;
+    }
+    
+    .ticket-preview {
+        color: var(--gray);
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin: 0;
+    }
+    
+    /* Badge */
+    .ticket-count-badge {
+        background: var(--brown);
+        color: white;
+        padding: 0.15rem 0.5rem;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="support-page">
+    <!-- Header -->
+    <div class="support-header">
+        <div class="support-icon">
+            <i class="bi bi-headset"></i>
+        </div>
+        <div class="support-header-text">
+            <h1>{{ t('support.title') }}</h1>
+            <p>{{ t('support.subtitle') }}</p>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="support-tabs">
+        <button class="s-tab active" onclick="switchTab('faq', this)">
+            <i class="bi bi-question-circle me-2"></i>{{ t('support.faq') }}
+        </button>
+        <button class="s-tab" onclick="switchTab('submit', this)">
+            <i class="bi bi-envelope-plus me-2"></i>{{ t('support.submit') }}
+        </button>
+        <button class="s-tab" onclick="switchTab('history', this)">
+            <i class="bi bi-clock-history me-2"></i>{{ t('support.history') }}
+            {% if tickets %}<span class="ticket-count-badge">{{ tickets|length }}</span>{% endif %}
+        </button>
+    </div>
+
+    <!-- FAQ Panel -->
+    <div class="s-panel active" id="panel-faq">
+        <div class="faq-search">
+            <i class="bi bi-search"></i>
+            <input type="text" placeholder="{{ t('support.search_faq') }}" id="faqSearch" oninput="filterFaqs()">
+        </div>
+
+        {% if faqs %}
+            <div class="faq-accordion">
+                {% for faq in faqs %}
+                <div class="faq-item" data-faq>
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>{{ faq.question }}</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">{{ faq.answer }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="bi bi-question-circle"></i>
+                <h4>No FAQs available yet</h4>
+                <p>Check back later or submit a ticket below</p>
+            </div>
+        {% endif %}
+
+        <div class="help-cta">
+            <p>Still need help?</p>
+            <button class="btn-submit" onclick="switchTab('submit', document.querySelectorAll('.s-tab')[1])">
+                Submit a Ticket
+            </button>
+        </div>
+    </div>
+
+    <!-- Submit Ticket Panel -->
+    <div class="s-panel" id="panel-submit">
+        <div class="ticket-form-card">
+            <h4>Submit a Ticket</h4>
+            <p>We'll get back to you as soon as possible.</p>
+            
+            <form method="POST" action="{{ url_for('support') }}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select name="category" required>
+                            <option value="">Select a category</option>
+                            <option value="Account">Account</option>
+                            <option value="Technical">Technical Issue</option>
+                            <option value="Billing">Points / Billing</option>
+                            <option value="Content">Course Content</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Subject</label>
+                        <input type="text" name="subject" placeholder="Brief description" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea name="message" placeholder="Describe your issue in detail..." required></textarea>
+                </div>
+                <button type="submit" class="btn-submit">Submit Ticket</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Ticket History Panel -->
+    <div class="s-panel" id="panel-history">
+        {% if tickets %}
+            {% for ticket in tickets %}
+            <div class="ticket-card">
+                <div class="ticket-header">
+                    <h6>{{ ticket.subject }}</h6>
+                    <span class="ticket-status {{ ticket.status.lower() }}">{{ ticket.status }}</span>
+                </div>
+                <div class="ticket-meta">
+                    <i class="bi bi-tag"></i>{{ ticket.category }}
+                    <span style="margin: 0 0.5rem;">•</span>
+                    <i class="bi bi-calendar"></i>{{ ticket.created_at.strftime('%d %b %Y') }}
+                </div>
+                <p class="ticket-preview">{{ ticket.message[:150] }}{% if ticket.message|length > 150 %}...{% endif %}</p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <h4>No tickets yet</h4>
+                <p>You haven't submitted any support tickets</p>
+                <button class="btn-submit" onclick="switchTab('submit', document.querySelectorAll('.s-tab')[1])">
+                    Submit Your First Ticket
+                </button>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function switchTab(id, button) {
+    document.querySelectorAll('.s-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.s-tab').forEach(b => b.classList.remove('active'));
+    
+    document.getElementById('panel-' + id).classList.add('active');
+    button.classList.add('active');
+}
+
+function toggleFaq(btn) {
+    const answer = btn.nextElementSibling;
+    const isOpen = btn.classList.contains('active');
+    
+    // Close all others
+    document.querySelectorAll('.faq-question').forEach(q => {
+        q.classList.remove('active');
+        q.nextElementSibling.classList.remove('show');
+    });
+    
+    // Toggle current
+    if (!isOpen) {
+        btn.classList.add('active');
+        answer.classList.add('show');
+    }
+}
+
+function filterFaqs() {
+    const query = document.getElementById('faqSearch').value.toLowerCase();
+    document.querySelectorAll('.faq-item').forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(query) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

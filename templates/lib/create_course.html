@@ -1,0 +1,2232 @@
+{% extends "lib/base.html" %}
+
+{% block title %}Create Course | BridgeHive Studio{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #2C3E50; --secondary: #B5B0A1; --accent: #F8B4B4;
+        --glass-bg: rgba(255, 255, 255, 0.85); --glass-border: 1px solid rgba(255,255,255,0.6);
+        --shadow-lg: 0 15px 40px rgba(0,0,0,0.1);
+        --success: #28a745; --warning: #ffc107; --danger: #dc3545; --info: #17a2b8;
+    }
+    * { box-sizing: border-box; }
+    body {
+        background-color: #F0F1EB;
+        background-image: radial-gradient(at 0% 0%, rgba(44,62,80,0.05) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(248,180,180,0.1) 0, transparent 50%);
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+    }
+
+    .studio-panel {
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        border: var(--glass-border);
+        border-radius: 24px;
+        box-shadow: var(--shadow-lg);
+        padding: 3rem;
+        margin-top: 2rem;
+        animation: slideInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .wizard-step {
+        display: none;
+        opacity: 0;
+        transform: translateX(20px);
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .wizard-step.active {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .form-control-lg-custom,
+        .form-select.form-control-lg-custom {
+            width: 100%;
+            border: 2px solid #e0e8f0;
+            border-radius: 12px;
+            padding: 0.875rem 1.125rem;
+            height: 52px;
+            background: #f5f8fc;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1a2236;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            line-height: 1.5;
+        }
+
+        /* Enhanced Select Dropdown Styling */
+        select.form-control-lg-custom {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafb 100%);
+            border: 2px solid #d0dae8;
+            border-radius: 14px;
+            padding: 0.875rem 2.5rem 0.875rem 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: 
+                linear-gradient(135deg, #ffffff 0%, #f8fafb 100%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath fill='%232C3E50' d='M1 0.5l6 6.5l6-6.5' stroke='%232C3E50' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat, no-repeat;
+            background-position: left top, right 1rem center;
+            background-size: auto, 14px 9px;
+            box-shadow: 0 4px 16px rgba(44, 62, 80, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.95);
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        select.form-control-lg-custom:hover:not(:focus) {
+            border-color: #48B0FF;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f5ff 100%);
+            background-image: 
+                linear-gradient(135deg, #ffffff 0%, #f0f5ff 100%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath fill='%2348B0FF' d='M1 0.5l6 6.5l6-6.5' stroke='%2348B0FF' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat, no-repeat;
+            background-position: left top, right 1rem center;
+            background-size: auto, 15px 10px;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(72, 176, 255, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.95);
+        }
+
+        select.form-control-lg-custom:focus {
+            border-color: #48B0FF;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f5ff 100%);
+            background-image: 
+                linear-gradient(135deg, #ffffff 0%, #f0f5ff 100%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath fill='%2348B0FF' d='M13 7.5l-6-6.5l-6 6.5' stroke='%2348B0FF' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat, no-repeat;
+            background-position: left top, right 1rem center;
+            background-size: auto, 15px 10px;
+            box-shadow: 0 0 0 5px rgba(72, 176, 255, 0.15), 0 10px 28px rgba(72, 176, 255, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.95);
+            outline: none;
+            transform: translateY(-3px);
+            animation: selectPulse 0.5s ease;
+        }
+
+        @keyframes selectPulse {
+            0%, 100% { transform: translateY(-3px) scale(1); }
+            50% { transform: translateY(-3px) scale(1.01); }
+        }
+
+        select.form-control-lg-custom option {
+            padding: 14px 18px;
+            font-weight: 500;
+            background: white;
+            color: #1a2236;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        select.form-control-lg-custom option:hover {
+            background: #f0f8ff;
+            color: #48B0FF;
+        }
+
+        select.form-control-lg-custom option:checked {
+            background: linear-gradient(135deg, #48B0FF 0%, #4A9EFF 100%);
+            color: white;
+            font-weight: 700;
+        }
+
+        /* Text inputs styling */
+        input.form-control-lg-custom {
+            background: linear-gradient(135deg, #ffffff 0%, #f5f8fc 100%);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9);
+        }
+
+        input.form-control-lg-custom:hover:not(:focus),
+        textarea.form-control-lg-custom:hover:not(:focus) {
+            border-color: #2C3E50;
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44,62,80,0.1);
+        }
+
+        input.form-control-lg-custom:focus,
+        textarea.form-control-lg-custom:focus {
+            border-color: #2C3E50;
+            box-shadow: 0 0 0 4px rgba(44,62,80,0.1), 0 4px 16px rgba(44,62,80,0.15);
+            background: white;
+            outline: none;
+            transform: translateY(-2px);
+        }
+
+        .form-control-lg-custom::placeholder {
+            color: #667b94;
+            font-weight: 400;
+        }
+
+        textarea.form-control-lg-custom {
+            resize: vertical;
+            min-height: 120px;
+            height: auto;
+            padding: 0.875rem 1.125rem;
+            line-height: 1.6;
+        }
+
+        input[type="number"].form-control-lg-custom {
+            appearance: textfield;
+            -moz-appearance: textfield;
+        }
+
+        input[type="number"].form-control-lg-custom::-webkit-outer-spin-button,
+        input[type="number"].form-control-lg-custom::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            appearance: none;
+            margin: 0;
+        }
+
+
+    .upload-zone {
+        border: 3px dashed #ccc;
+        border-radius: 16px;
+        padding: 3rem 2rem;
+        text-align: center;
+        background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(248,180,180,0.05) 100%);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        min-height: 280px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .upload-zone:hover,
+    .upload-zone.dragover {
+        border-color: var(--primary);
+        background: linear-gradient(135deg, rgba(44,62,80,0.08) 0%, rgba(248,180,180,0.1) 100%);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(44,62,80,0.12);
+    }
+
+    .upload-zone i {
+        transition: all 0.3s ease;
+    }
+
+    .upload-zone:hover i {
+        transform: scale(1.2);
+        color: var(--primary);
+    }
+
+        .btn-ent {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%);
+            color: white;
+            border-radius: 24px;
+            padding: 12px 30px;
+            font-weight: 700;
+            border: none;
+            letter-spacing: 0.5px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-ent:hover:not(:disabled):not(.disabled) {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 28px rgba(255, 107, 107, 0.4);
+            background: linear-gradient(135deg, #FF8E8E 0%, #FF6B6B 100%);
+            color: white;
+        }
+
+        .btn-ent:active:not(:disabled):not(.disabled) {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .btn-outline-secondary {
+            border-width: 2px;
+            padding: 10px 24px;
+            border-radius: 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .btn-outline-secondary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(44,62,80,0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-outline-secondary:hover::before {
+            left: 100%;
+        }
+
+        .btn-outline-secondary:hover:not(:disabled):not(.disabled) {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 6px 16px rgba(44,62,80,0.2);
+        }
+
+        .btn-ent.disabled,
+        .btn-ent:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary-ent {
+            background: transparent;
+            border: 2px solid #48B0FF;
+            color: #48B0FF;
+            border-radius: 24px;
+            padding: 12px 28px;
+            font-weight: 700;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(72, 176, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-secondary-ent::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(72, 176, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.5s ease, height 0.5s ease;
+        }
+
+        .btn-secondary-ent:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-secondary-ent:hover:not(.disabled) {
+            background: #48B0FF;
+            color: white;
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 8px 20px rgba(72, 176, 255, 0.4);
+        }
+
+        .btn-ent:disabled,
+        .btn-secondary-ent:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .btn-ent.disabled,
+        .btn-secondary-ent.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ERROR MESSAGE STYLING */
+        small.text-danger {
+            display: block;
+            margin-top: 0.5rem;
+            font-weight: 500;
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        small.text-danger:not(.d-none) {
+            color: #dc3545 !important;
+        }
+
+        small.text-danger.show {
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .progress-bar-custom {
+            height: 4px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 2px 8px rgba(44,62,80,0.15);
+        }
+
+        .step-indicator {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            position: absolute;
+            backdrop-filter: blur(10px);
+        }
+
+        .step-indicator.completed {
+            background: linear-gradient(135deg, var(--success), #20b963);
+            color: white;
+            transform: scale(1.15);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.25);
+        }
+
+        .step-indicator.active {
+            background: linear-gradient(135deg, var(--primary), #34495e);
+            color: white;
+            box-shadow: 0 8px 25px rgba(44,62,80,0.3);
+            transform: scale(1.1);
+        }
+
+        .step-indicator.inactive {
+            background: #f0f0f0;
+            color: #aaa;
+            border: 2px solid #e5e7eb;
+        }
+
+        /* FORM CARD STYLES */
+        .form-card {
+            background: white;
+            border: 2px solid rgba(44,62,80,0.08);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideInUp 0.4s ease-out;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+
+        .form-card:hover {
+            border-color: rgba(44,62,80,0.2);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            transform: translateY(-4px);
+        }
+
+        .form-card-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            font-weight: 700;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-card-header i {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .form-card-body {
+            padding: 1.5rem 1.5rem 2rem 1.5rem;
+        }
+
+        /* AUDIENCE CHECK STYLES */
+        .audience-check {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%);
+            border: 2px solid #e0e8f0;
+            border-radius: 16px;
+            padding: 1rem 1.25rem;
+            min-height: 60px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .audience-check::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(44,62,80,0.05), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .audience-check:hover::before {
+            left: 100%;
+        }
+
+        .audience-check:hover {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f4ff 100%);
+            border-color: #48B0FF;
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 8px 24px rgba(72, 176, 255, 0.2);
+        }
+
+        .audience-check:has(input[type="checkbox"]:checked) {
+            background: linear-gradient(135deg, #48B0FF 0%, #4A9EFF 100%);
+            border-color: #3A8FE8;
+            box-shadow: 0 6px 20px rgba(72, 176, 255, 0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .audience-check:has(input[type="checkbox"]:checked):hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 28px rgba(72, 176, 255, 0.5);
+        }
+
+        .audience-check input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border: 2.5px solid #cbd5e1;
+            border-radius: 8px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: white;
+            flex-shrink: 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .audience-check input[type="checkbox"]:hover {
+            border-color: #48B0FF;
+            box-shadow: 0 0 0 3px rgba(72, 176, 255, 0.1), inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .audience-check input[type="checkbox"]:checked {
+            background: white;
+            border-color: white;
+            animation: checkBounce 0.4s ease;
+        }
+
+        .audience-check input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            color: #48B0FF;
+            font-size: 16px;
+            font-weight: bold;
+            animation: checkPop 0.3s ease 0.1s forwards;
+        }
+
+        @keyframes checkBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        @keyframes checkPop {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(-45deg); }
+            50% { transform: translate(-50%, -50%) scale(1.3) rotate(5deg); }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+        }
+
+        .audience-check label {
+            margin: 0;
+            cursor: pointer;
+            flex: 1;
+            font-weight: 600;
+            color: #1a2236;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .audience-check:has(input[type="checkbox"]:checked) label {
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .audience-check label i {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1.1rem;
+        }
+
+        .audience-check:hover label i {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        .audience-check:has(input[type="checkbox"]:checked) label i {
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+            animation: iconBounce 0.6s ease;
+        }
+
+        @keyframes iconBounce {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.2) rotate(-10deg); }
+            75% { transform: scale(1.2) rotate(10deg); }
+        }
+
+        /* Target Audience Section Spacing */
+        .form-card-body > div:has(> label:contains("Target")) {
+            margin-top: 0.5rem;
+        }
+
+        .form-card-body > div > label.form-label {
+            margin-bottom: 1.25rem;
+        }
+
+        /* PRO TIPS CARD STYLES */
+        .pro-tips-card {
+            background: linear-gradient(135deg, rgba(44,62,80,0.03) 0%, rgba(248,180,180,0.05) 100%);
+            border: 2px solid rgba(44,62,80,0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            animation: slideInRight 0.5s ease-out;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .pro-tips-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            border-color: rgba(44,62,80,0.18);
+        }
+
+        .pro-tips-header {
+            background: linear-gradient(135deg, #FFC107 0%, #FF9800 100%);
+            color: #2C3E50;
+            padding: 1.75rem 2rem;
+            font-weight: 700;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .pro-tips-header i {
+            font-size: 1.6rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .pro-tips-body {
+            padding: 2rem;
+        }
+
+        .tip-item {
+            display: flex;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(44,62,80,0.08);
+            animation: fadeInUp 0.5s ease-out backwards;
+        }
+
+        .tip-item:nth-child(1) { animation-delay: 0.1s; }
+        .tip-item:nth-child(2) { animation-delay: 0.2s; }
+        .tip-item:nth-child(3) { animation-delay: 0.3s; }
+        .tip-item:nth-child(4) { animation-delay: 0.4s; }
+
+        .tip-item.mb-0 {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .tip-icon {
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(44,62,80,0.2);
+        }
+
+        .tip-content {
+            flex: 1;
+        }
+
+        .tip-content strong {
+            display: block;
+            color: var(--primary);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .tip-content p {
+            margin: 0;
+            font-size: 1rem;
+            color: #6c757d;
+            line-height: 1.6;
+        }
+
+        /* CHECKLIST CARD STYLES */
+        .quick-checklist-card {
+            background: linear-gradient(135deg, rgba(248, 180, 180, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%);
+            border: 2px solid rgba(255, 127, 80, 0.15);
+            border-radius: 16px;
+            overflow: hidden;
+            animation: slideInUp 0.5s ease-out 0.2s backwards;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .quick-checklist-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(255, 127, 80, 0.15);
+            border-color: rgba(255, 127, 80, 0.25);
+        }
+
+        .checklist-header {
+            background: linear-gradient(135deg, #FF9800 0%, #FFB74D 100%);
+            color: white;
+            padding: 1.75rem 2rem;
+            font-weight: 700;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .checklist-header i {
+            font-size: 1.6rem;
+        }
+
+        .checklist-body {
+            padding: 2rem;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(44,62,80,0.05);
+        }
+
+        .checklist-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .checklist-checkbox {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: #FF9800;
+            flex-shrink: 0;
+        }
+
+        .checklist-item label {
+            margin: 0;
+            cursor: pointer;
+            flex: 1;
+            font-weight: 500;
+            color: #2C3E50;
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        /* ANIMATIONS */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .pro-tips ul li i {
+            color: #28a745;
+            font-size: 1rem;
+            margin-top: 0.15rem;
+            flex-shrink: 0;
+        }
+
+        .badge {
+            font-weight: 700;
+            padding: 0.5rem 0.8rem !important;
+            font-size: 0.75rem !important;
+            border-radius: 20px !important;
+        }
+
+        .badge.bg-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333) !important;
+        }
+
+        .badge.bg-info {
+            background: linear-gradient(135deg, #17a2b8, #117a8b) !important;
+        }
+
+        .badge.bg-warning {
+            background: linear-gradient(135deg, #ffc107, #e0a800) !important;
+            color: #333 !important;
+        }
+
+        .success-animation {
+            animation: successBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes successBounce {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .success-message {
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .form-floating > label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .hero-title {
+            background: linear-gradient(135deg, var(--primary), #B5B0A1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        .breadcrumb {
+            background: transparent;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .char-counter {
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 0.5rem;
+        }
+
+        .review-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            border: 2px solid #f0f0f0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .review-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+
+        .step-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+            z-index: 9999;
+            animation: slideInUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 450px;
+            border: 2px solid #f0f0f0;
+        }
+
+        .notification.success {
+            border-left: 5px solid var(--success);
+        }
+
+        .notification.error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .input-group-text {
+            background: white !important;
+            border: 2px solid #e8ecf1 !important;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .input-group .form-control-lg-custom {
+            border: 2px solid #e8ecf1;
+        }
+
+        .input-group .form-control-lg-custom:focus {
+            border-color: var(--primary);
+        }
+
+        .select-btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: -1rem;
+        }
+
+        .select-btn {
+            flex: 1;
+            min-width: 140px;
+            padding: 1rem 0.875rem;
+            height: 52px;
+            border: 2px solid #e8ecf1;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            text-align: center;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .select-btn:hover {
+            border-color: var(--primary);
+            background: rgba(44,62,80,0.05);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 6px 16px rgba(44,62,80,0.15);
+        }
+
+        .select-btn.selected {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(44,62,80,0.95), rgba(44,62,80,0.85));
+            color: white;
+            box-shadow: 0 6px 20px rgba(44,62,80,0.25);
+            transform: translateY(-4px) scale(1.02);
+        }
+
+        .form-label,
+        .form-label.fw-semibold {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.625rem;
+            display: block;
+            line-height: 1.4;
+        }
+
+        .form-text {
+            font-size: 0.85rem;
+            color: #777;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        @media (max-width: 768px) {
+            .studio-panel {
+                padding: 2rem 1.5rem;
+            }
+
+            .hero-title {
+                font-size: 1.8rem;
+            }
+
+            .step-indicator {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container pb-5">
+        <div class="row mt-5 align-items-end">
+            <div class="col-md-8">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-2">
+                        <li class="breadcrumb-item"><a href="/lib/library" class="text-muted text-decoration-none">Library</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{% if editing_draft %}Edit Draft{% else %}Create New Course{% endif %}</li>
+                    </ol>
+                </nav>
+                <h1 class="display-4 font-serif fw-bold hero-title">{% if editing_draft %}Resume Your Course{% else %}Create Experience{% endif %}</h1>
+                <p class="lead text-muted">{% if editing_draft %}Continue editing your saved course draft.{% else %}Design a meaningful learning journey for intergenerational connection.{% endif %}</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="d-inline-flex align-items-center bg-white rounded-pill p-2 shadow-sm border">
+                    <span class="badge rounded-pill bg-warning px-3 py-2 me-2"><i class="fas fa-pencil-alt me-1"></i>Draft</span>
+                    <span class="small text-muted pe-3">Step <span id="stepNum">1</span> of 3</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROGRESS INDICATOR -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="position-relative mb-5" style="height: 60px;">
+                    <div class="progress mt-4" style="height: 3px;">
+                        <div class="progress-bar-custom" id="progressBar" role="progressbar" style="width: 33.33%;"></div>
+                    </div>
+                    <div class="step-indicator active" style="top: 5px; left: 0%; transform: translateX(-50%);">1</div>
+                    <div class="step-indicator inactive" id="step2Indicator" style="top: 5px; left: 50%; transform: translateX(-50%);">2</div>
+                    <div class="step-indicator inactive" id="step3Indicator" style="top: 5px; left: 100%; transform: translateX(-50%);">3</div>
+                </div>
+                <div class="d-flex justify-content-between text-muted small fw-bold text-uppercase" style="padding: 0 1rem;">
+                    <span>Fundamentals</span>
+                    <span>Media & Logistics</span>
+                    <span>Review & Launch</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- FORM -->
+        <form action="{% if editing_draft %}/draft/{{ draft_uuid }}/edit{% else %}/create{% endif %}" method="POST" id="courseForm" enctype="multipart/form-data">
+            <div class="studio-panel">
+                
+                <!-- STEP 1: FUNDAMENTALS -->
+                <div class="wizard-step active" id="step1">
+                    <h3 class="step-header"><i class="fas fa-rocket me-2"></i>Course Fundamentals</h3>
+                    <div class="row g-4">
+                        <div class="col-lg-7">
+                            
+                            <!-- BASIC INFO CARD -->
+                            <div class="form-card mb-4">
+                                <div class="form-card-header">
+                                    <i class="fas fa-edit me-2"></i>Basic Information
+                                </div>
+                                <div class="form-card-body">
+                                    <!-- COURSE TITLE -->
+                                    <div class="mb-4">
+                                        <label for="courseTitle" class="form-label fw-semibold">Course Title <span class="text-danger">*</span> <span class="badge bg-info ms-1">Min 10 chars</span></label>
+                                        <input type="text" class="form-control-lg-custom" id="courseTitle" name="title" placeholder="E.g., 'Mastering Peranakan Cooking with Grandma'" value="{{ draft.title if draft else '' }}" required minlength="10">
+                                        <div class="form-text"><i class="fas fa-info-circle me-1"></i>Must be clear, engaging, and capture the essence of your course</div>
+                                        <small class="text-danger d-none" id="titleError"></small>
+                                    </div>
+
+                                    <!-- COURSE DESCRIPTION -->
+                                    <div class="mb-4">
+                                        <label for="courseDesc" class="form-label fw-semibold">Course Description <span class="text-danger">*</span> <span class="badge bg-info ms-1">50-500 chars</span></label>
+                                        <textarea class="form-control-lg-custom" id="courseDesc" name="description" placeholder="Tell the story of what learners will experience..." required minlength="50" maxlength="500">{{ draft.description if draft else '' }}</textarea>
+                                        <div class="d-flex justify-content-between align-items-center mt-2">
+                                            <div class="form-text"><i class="fas fa-lightbulb"></i> Explain learning outcomes and real-world applications</div>
+                                            <span class="char-counter"><span id="charCount">0</span> / 500</span>
+                                        </div>
+                                        <small class="text-danger d-none" id="descError"></small>
+                                    </div>
+
+                                    <!-- LEARNING OBJECTIVES -->
+                                    <div class="mb-0">
+                                        <label for="courseObjectives" class="form-label fw-semibold">Learning Objectives <span class="text-danger">*</span></label>
+                                        <textarea class="form-control-lg-custom" id="courseObjectives" name="objectives" placeholder="What will students learn? E.g., 'Learn authentic recipes, preserve cultural heritage, connect across generations'" required minlength="30">{{ draft.objectives if draft else '' }}</textarea>
+                                        <div class="form-text"><i class="fas fa-lightbulb"></i> List 2-3 main learning outcomes</div>
+                                        <small class="text-danger d-none" id="objectivesError"></small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- INSTRUCTOR INFO CARD -->
+                            <div class="form-card mb-4">
+                                <div class="form-card-header">
+                                    <i class="fas fa-user-tie me-2"></i>Instructor Information
+                                </div>
+                                <div class="form-card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="instructorName" class="form-label fw-semibold">Your Name <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control-lg-custom" id="instructorName" name="instructor_name" placeholder="Your full name" value="{{ draft.instructor_name if draft else '' }}" required minlength="3">
+                                            <small class="text-danger d-none" id="nameError"></small>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label for="instructorRole" class="form-label fw-semibold">Your Title/Role <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control-lg-custom" id="instructorRole" name="instructor_role" placeholder="e.g., Senior Chef, Community Elder" value="{{ draft.instructor_role if draft else '' }}" required minlength="3">
+                                            <small class="text-danger d-none" id="roleError"></small>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label for="creatorAgeCategory" class="form-label fw-semibold">Your Age Category <span class="text-danger">*</span></label>
+                                            <select class="form-control-lg-custom" id="creatorAgeCategory" name="creator_age_category" required>
+                                                <option value="">Select...</option>
+                                                <option value="Youth" {% if draft and draft.creator_age_category == 'Youth' %}selected{% endif %}>Youth</option>
+                                                <option value="Elderly" {% if draft and draft.creator_age_category == 'Elderly' %}selected{% endif %}>Elderly</option>
+                                            </select>
+                                            <small class="text-danger d-none" id="ageCategoryError"></small>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label for="creatorStatus" class="form-label fw-semibold">Your Status <span class="text-danger">*</span></label>
+                                            <select class="form-control-lg-custom" id="creatorStatus" name="creator_status" required>
+                                                <option value="">Select...</option>
+                                                <option value="Student" {% if draft and draft.creator_status == 'Student' %}selected{% endif %}>Student</option>
+                                                <option value="Working" {% if draft and draft.creator_status == 'Working' %}selected{% endif %}>Working</option>
+                                                <option value="Retired" {% if draft and draft.creator_status == 'Retired' %}selected{% endif %}>Retired</option>
+                                            </select>
+                                            <small class="text-danger d-none" id="statusError"></small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- COURSE SETTINGS CARD -->
+                            <div class="form-card">
+                                <div class="form-card-header">
+                                    <i class="fas fa-cog me-2"></i>Course Settings
+                                </div>
+                                <div class="form-card-body">
+                                    <div class="row g-3" style="margin-bottom: -1.5rem;">
+                                        <div class="col-md-6">
+                                            <label for="courseCategory" class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
+                                            <select class="form-control-lg-custom" id="courseCategory" name="category" required>
+                                                <option value="">Choose...</option>
+                                                <option value="Cooking" {% if draft and draft.category == 'Cooking' %}selected{% endif %}>Cooking & Heritage</option>
+                                                <option value="Technology" {% if draft and draft.category == 'Technology' %}selected{% endif %}>Digital Literacy</option>
+                                                <option value="Language" {% if draft and draft.category == 'Language' %}selected{% endif %}>Language Exchange</option>
+                                                <option value="Arts" {% if draft and draft.category == 'Arts' %}selected{% endif %}>Arts & Crafts</option>
+                                                <option value="Health" {% if draft and draft.category == 'Health' %}selected{% endif %}>Health & Wellness</option>
+                                            </select>
+                                            <small class="text-danger d-none" id="categoryError"></small>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Difficulty Level <span class="text-danger">*</span></label>
+                                            <div class="select-btn-group">
+                                                <button type="button" class="select-btn {% if not draft or draft.skill_level == 'Beginner' %}selected{% endif %}" data-level="Beginner" onclick="selectLevel(this, 'Beginner')">
+                                                    <i class="fas fa-seedling"></i> Beginner
+                                                </button>
+                                                <button type="button" class="select-btn {% if draft and draft.skill_level == 'Intermediate' %}selected{% endif %}" data-level="Intermediate" onclick="selectLevel(this, 'Intermediate')">
+                                                    <i class="fas fa-layer-group"></i> Intermediate
+                                                </button>
+                                                <button type="button" class="select-btn {% if draft and draft.skill_level == 'Advanced' %}selected{% endif %}" data-level="Advanced" onclick="selectLevel(this, 'Advanced')">
+                                                    <i class="fas fa-mountain"></i> Advanced
+                                                </button>
+                                            </div>
+                                            <input type="hidden" name="skill_level" id="skillLevel" value="{% if draft and draft.skill_level %}{{ draft.skill_level }}{% else %}Beginner{% endif %}" required>
+                                        </div>
+                                    </div>
+
+                                    <!-- TARGET AUDIENCE -->
+                                    <div style="margin-top: -0.75rem;">
+                                        <label class="form-label fw-semibold">Target Audience <span class="text-danger">*</span></label>
+                                        <div class="row g-2">
+                                            <div class="col-md-6">
+                                                <div class="audience-check">
+                                                    <input class="form-check-input" type="checkbox" name="target_audience" value="Seniors" id="audienceSeniors">
+                                                    <label class="form-check-label" for="audienceSeniors">
+                                                        <i class="fas fa-user-friends me-2"></i>Seniors (60+)
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="audience-check">
+                                                    <input class="form-check-input" type="checkbox" name="target_audience" value="Young Adults" id="audienceYoung">
+                                                    <label class="form-check-label" for="audienceYoung">
+                                                        <i class="fas fa-user me-2"></i>Young Adults (18-35)
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="audience-check">
+                                                    <input class="form-check-input" type="checkbox" name="target_audience" value="All Ages" id="audienceAll">
+                                                    <label class="form-check-label" for="audienceAll">
+                                                        <i class="fas fa-users me-2"></i>All Ages (Family)
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="audience-check">
+                                                    <input class="form-check-input" type="checkbox" name="target_audience" value="Children" id="audienceChildren">
+                                                    <label class="form-check-label" for="audienceChildren">
+                                                        <i class="fas fa-child me-2"></i>Children (under 18)
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <small class="text-danger d-none" id="audienceError"></small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-5">
+                            <div class="pro-tips-card">
+                                <div class="pro-tips-header">
+                                    <i class="fas fa-lightbulb me-2"></i>Expert Tips
+                                </div>
+                                <div class="pro-tips-body">
+                                    <div class="tip-item">
+                                        <div class="tip-icon">
+                                            <i class="fas fa-magic"></i>
+                                        </div>
+                                        <div class="tip-content">
+                                            <strong>Use Action Verbs</strong>
+                                            <p>"Master", "Build", "Create" make your course engaging</p>
+                                        </div>
+                                    </div>
+                                    <div class="tip-item">
+                                        <div class="tip-icon">
+                                            <i class="fas fa-hands-helping"></i>
+                                        </div>
+                                        <div class="tip-content">
+                                            <strong>Intergenerational Focus</strong>
+                                            <p>Highlight how different ages learn together</p>
+                                        </div>
+                                    </div>
+                                    <div class="tip-item">
+                                        <div class="tip-icon">
+                                            <i class="fas fa-heart"></i>
+                                        </div>
+                                        <div class="tip-content">
+                                            <strong>Be Inclusive</strong>
+                                            <p>Make it welcoming for all skill levels</p>
+                                        </div>
+                                    </div>
+                                    <div class="tip-item mb-0">
+                                        <div class="tip-icon">
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                        <div class="tip-content">
+                                            <strong>Show Impact</strong>
+                                            <p>Showcase real community benefits</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- QUICK CHECKLIST CARD -->
+                            <div class="quick-checklist-card" style="margin-top: 2rem;">
+                                <div class="checklist-header">
+                                    <i class="fas fa-check-circle me-2"></i>Pre-Launch Checklist
+                                </div>
+                                <div class="checklist-body">
+                                    <div class="checklist-item">
+                                        <input type="checkbox" id="check1" class="checklist-checkbox">
+                                        <label for="check1">Course title is clear & engaging</label>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" id="check2" class="checklist-checkbox">
+                                        <label for="check2">Description highlights learning outcomes</label>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" id="check3" class="checklist-checkbox">
+                                        <label for="check3">Course objectives are specific</label>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" id="check4" class="checklist-checkbox">
+                                        <label for="check4">Target audience is defined</label>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" id="check5" class="checklist-checkbox">
+                                        <label for="check5">Difficulty level selected</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="wizard-step" id="step2">
+                    <h3 class="step-header"><i class="fas fa-image me-2"></i>Media & Course Details</h3>
+                    
+                    <!-- THUMBNAIL CARD -->
+                    <div class="form-card mb-4">
+                        <div class="form-card-header">
+                            <i class="fas fa-camera me-2"></i>Course Thumbnail
+                        </div>
+                        <div class="form-card-body">
+                            <label for="fileInput" class="form-label fw-semibold">Upload Cover Image <span class="text-danger">*</span></label>
+                            <div class="upload-zone" id="dropZone">
+                                <input type="file" name="image" id="fileInput" accept="image/*">
+                                <div id="uploadContent">
+                                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                    <h5>Drag & Drop or Click to Upload</h5>
+                                    <p class="text-muted small">Recommended: 1200×800px | JPG/PNG | Max 5MB</p>
+                                </div>
+                                <div id="previewContainer" class="d-none">
+                                    <img id="imgPreview" src="" class="img-fluid rounded shadow" style="max-height: 250px;">
+                                    <button type="button" id="removeImg" class="btn btn-danger btn-sm mt-2" onclick="removeImage(event)">
+                                        <i class="fas fa-times"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LOGISTICS CARD -->
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <i class="fas fa-calendar-alt me-2"></i>Course Logistics
+                        </div>
+                        <div class="form-card-body">
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    <label for="duration" class="form-label fw-semibold">Course Duration (days) <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control-lg-custom" id="duration" name="duration" placeholder="e.g., 7" value="{{ draft.duration_days if draft else '' }}" required min="1" max="365">
+                                    <div class="form-text"><i class="fas fa-info-circle me-1"></i>Total course duration</div>
+                                    <small class="text-danger d-none" id="durationError"></small>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="sessionHours" class="form-label fw-semibold">Session Hours <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control-lg-custom" id="sessionHours" name="session_hours" placeholder="e.g., 2" value="{{ draft.session_hours if draft else '' }}" required min="1" max="24">
+                                    <div class="form-text"><i class="fas fa-info-circle me-1"></i>Hours per session</div>
+                                    <small class="text-danger d-none" id="hoursError"></small>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="maxParticipants" class="form-label fw-semibold">Max Participants <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control-lg-custom" id="maxParticipants" name="max_participants" placeholder="e.g., 20" value="{{ draft.max_participants if draft else '' }}" required min="1" max="500">
+                                    <div class="form-text"><i class="fas fa-info-circle me-1"></i>Class size limit</div>
+                                    <small class="text-danger d-none" id="participantsError"></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3: REVIEW & LAUNCH -->
+                <div class="wizard-step" id="step3">
+                    <h3 class="step-header"><i class="fas fa-star"></i> 03. Review & Launch</h3>
+                    
+                    <div class="text-center mb-4">
+                        <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                            <i class="fas fa-rocket fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold">Ready to Launch Your Course?</h4>
+                        <p class="text-muted">Review all details before publishing</p>
+                    </div>
+
+                    <div class="review-card mb-4">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h4 id="reviewTitle" class="fw-bold text-primary">Course Title</h4>
+                                <p id="reviewDesc" class="text-muted">Description preview...</p>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <span class="badge bg-light text-dark" id="reviewCat"><i class="fas fa-tag me-1"></i> Category</span>
+                                    <span class="badge bg-light text-dark" id="reviewLvl"><i class="fas fa-signal me-1"></i> Level</span>
+                                    <span class="badge bg-light text-dark"><i class="fas fa-calendar-alt me-1"></i> <span id="reviewDuration">7</span> days</span>
+                                    <span class="badge bg-light text-dark"><i class="fas fa-users me-1"></i> <span id="reviewParticipants">20</span> max</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <img id="reviewImg" src="" alt="Course" class="img-fluid rounded shadow" style="max-height: 180px; display: none;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-check p-3 bg-light rounded">
+                            <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                            <label class="form-check-label" for="termsCheck">
+                                I agree to the <a href="/lib/instructor-guidelines" target="_blank">Instructor Guidelines</a> and confirm this course content is appropriate for all ages.
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> Your course will be published immediately and visible to all learners. You can edit details anytime from your dashboard.
+                    </div>
+                </div>
+
+                <!-- NAVIGATION BUTTONS -->
+                <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top" style="gap: 1rem; flex-wrap: wrap;">
+                    <button type="button" id="prevBtn" class="btn btn-secondary-ent disabled" onclick="previousStep()" disabled style="cursor: not-allowed;">
+                        <i class="fas fa-arrow-left me-2"></i> Previous
+                    </button>
+                    
+                    <div class="d-flex gap-2 align-items-center" style="flex-wrap: wrap;">
+                        <button type="button" id="draftBtn" class="btn btn-outline-secondary" onclick="saveDraft()" style="border-width: 2px; padding: 10px 24px; border-radius: 24px; font-weight: 600; white-space: nowrap;">
+                            <i class="fas fa-save me-2"></i> Save as Draft
+                        </button>
+                        <button type="button" id="nextBtn" class="btn btn-ent" onclick="nextStep()" style="white-space: nowrap;">
+                            Next Step <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- SUCCESS NOTIFICATION -->
+    <div id="successNotification" class="notification success d-none">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-check-circle text-success me-3" style="font-size: 1.8rem;"></i>
+            <div>
+                <h6 class="mb-1 fw-bold">✓ Course Published Successfully!</h6>
+                <p class="mb-0 small text-muted">Redirecting to library...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- DRAFT SAVED NOTIFICATION -->
+    <div id="draftNotification" class="notification success d-none">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-file-alt text-info me-3" style="font-size: 1.8rem;"></i>
+            <div>
+                <h6 class="mb-1 fw-bold">✓ Draft Saved Successfully!</h6>
+                <p class="mb-0 small text-muted">You can continue editing anytime</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENT VALIDATION MODAL -->
+    <div class="modal fade" id="aiReviewModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #2C3E50 0%, #B5B0A1 100%); border: none; padding: 2rem;">
+                    <div>
+                        <h5 class="modal-title text-white fw-bold mb-0">
+                            <i class="fas fa-robot me-2"></i>AI Course Validation
+                        </h5>
+                        <small class="text-white-50">Multi-stage quality analysis in progress...</small>
+                    </div>
+                </div>
+                <div class="modal-body p-4" style="max-height: 70vh; overflow-y: auto;">
+                    <!-- Loader Section -->
+                    <div id="reviewLoader">
+                        <div class="text-center mb-4">
+                            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                                <span class="visually-hidden">Validating...</span>
+                            </div>
+                            <p class="text-muted fw-semibold" id="loaderText">Initializing validation...</p>
+                        </div>
+                        <div class="progress" style="height: 12px; border-radius: 10px; background-color: #e9ecef;">
+                            <div id="validationProgress" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" style="width: 0%; background: linear-gradient(90deg, #2C3E50 0%, #48B0FF 100%);">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Results Section -->
+                    <div id="reviewResults" class="d-none">
+                        <!-- Score Display -->
+                        <div id="reviewScore" class="mb-4 text-center">
+                            <div id="scoreCircle" class="d-inline-flex align-items-center justify-content-center rounded-circle" 
+                                 style="width: 140px; height: 140px; font-size: 2.5rem; font-weight: bold; 
+                                        background: linear-gradient(135deg, #95EE9D 0%, #A7C5EB 100%); 
+                                        color: #2C3E50; box-shadow: 0 8px 24px rgba(0,0,0,0.15); 
+                                        transition: all 0.5s ease;">
+                                <span id="scoreValue">0</span><span style="font-size: 1.8rem;">%</span>
+                            </div>
+                            <p class="mt-3 mb-0 fw-bold fs-5" id="scoreLabel">Analyzing...</p>
+                            <small class="text-muted" id="scoreDesc">Please wait...</small>
+                        </div>
+                        
+                        <!-- Validation Stages -->
+                        <div id="validationStagesContainer" class="mt-4">
+                            <!-- Stages will be dynamically inserted here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Edit
+                    </button>
+                    <button type="button" id="confirmPublishBtn" class="btn btn-success" onclick="confirmPublish()" style="display:none;">
+                        <i class="fas fa-paper-plane me-2"></i>Publish Course
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .validation-stage {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #dee2e6;
+        }
+        
+        .validation-stage:hover {
+            background: #e9ecef;
+            transition: background 0.3s ease;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentStep = 1;
+        const totalSteps = 3;
+
+        // ERROR DISPLAY FUNCTION
+        function showError(elementId, message) {
+            const errorEl = document.getElementById(elementId);
+            if (errorEl) {
+                errorEl.textContent = message;
+                errorEl.classList.remove('d-none');
+                errorEl.classList.add('show');
+                errorEl.style.display = 'block';
+            } else {
+                console.warn('Error element not found:', elementId);
+            }
+        }
+
+        function hideError(elementId) {
+            const errorEl = document.getElementById(elementId);
+            if (errorEl) {
+                errorEl.classList.add('d-none');
+                errorEl.classList.remove('show');
+                errorEl.style.display = 'none';
+                errorEl.textContent = '';
+            }
+        }
+
+        // CHARACTER COUNTER
+        document.getElementById('courseDesc')?.addEventListener('input', (e) => {
+            const count = e.target.value.length;
+            document.getElementById('charCount').textContent = count;
+            if (count > 500) e.target.value = e.target.value.slice(0, 500);
+            hideError('descError');
+        });
+
+        // REAL-TIME VALIDATION
+        document.getElementById('courseTitle')?.addEventListener('blur', (e) => {
+            if (e.target.value.length < 10) {
+                showError('titleError', '❌ Title too short. Need 10+ chars. Currently: ' + e.target.value.length);
+            } else if (e.target.value.length > 100) {
+                showError('titleError', '❌ Title too long. Max 100 chars');
+            } else {
+                hideError('titleError');
+            }
+        });
+
+        document.getElementById('courseDesc')?.addEventListener('blur', (e) => {
+            if (e.target.value.length < 50) {
+                showError('descError', '❌ Description too short. Need 50+ chars. Currently: ' + e.target.value.length);
+            } else if (e.target.value.length > 500) {
+                showError('descError', '❌ Description too long. Max 500 chars');
+            } else {
+                hideError('descError');
+            }
+        });
+
+        document.getElementById('instructorName')?.addEventListener('blur', (e) => {
+            if (e.target.value.length < 3) {
+                showError('nameError', '❌ Name too short. Need 3+ chars. Currently: ' + e.target.value.length);
+            } else if (e.target.value.length > 50) {
+                showError('nameError', '❌ Name too long. Max 50 chars');
+            } else {
+                hideError('nameError');
+            }
+        });
+
+        document.getElementById('instructorRole')?.addEventListener('blur', (e) => {
+            if (e.target.value.length < 3) {
+                showError('roleError', '❌ Role too short. Need 3+ chars. Currently: ' + e.target.value.length);
+            } else if (e.target.value.length > 50) {
+                showError('roleError', '❌ Role too long. Max 50 chars');
+            } else {
+                hideError('roleError');
+            }
+        });
+
+        document.getElementById('courseObjectives')?.addEventListener('blur', (e) => {
+            if (e.target.value.length < 30) {
+                showError('objectivesError', '❌ Objectives too short. Need 30+ chars. Currently: ' + e.target.value.length);
+            } else {
+                hideError('objectivesError');
+            }
+        });
+
+        document.getElementById('courseCategory')?.addEventListener('change', (e) => {
+            if (e.target.value) {
+                hideError('categoryError');
+            }
+        });
+
+        document.getElementById('duration')?.addEventListener('blur', (e) => {
+            const val = parseInt(e.target.value);
+            if (!e.target.value || val < 1 || val > 365) {
+                showError('durationError', '❌ Must be 1-365 days. Currently: ' + e.target.value);
+            } else {
+                hideError('durationError');
+            }
+        });
+
+        document.getElementById('sessionHours')?.addEventListener('blur', (e) => {
+            const val = parseInt(e.target.value);
+            if (!e.target.value || val < 1 || val > 24) {
+                showError('hoursError', '❌ Must be 1-24 hours. Currently: ' + e.target.value);
+            } else {
+                hideError('hoursError');
+            }
+        });
+
+        document.getElementById('maxParticipants')?.addEventListener('blur', (e) => {
+            const val = parseInt(e.target.value);
+            if (!e.target.value || val < 1 || val > 500) {
+                showError('participantsError', '❌ Must be 1-500 people. Currently: ' + e.target.value);
+            } else {
+                hideError('participantsError');
+            }
+        });
+
+        // SKILL LEVEL SELECTION
+        function selectLevel(btn, level) {
+            document.querySelectorAll('.select-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            document.getElementById('skillLevel').value = level;
+        }
+
+        // DRAG & DROP UPLOAD
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadContent = document.getElementById('uploadContent');
+        const previewContainer = document.getElementById('previewContainer');
+        const imgPreview = document.getElementById('imgPreview');
+
+        dropZone?.addEventListener('click', () => fileInput.click());
+        dropZone?.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        dropZone?.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone?.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                displayPreview(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput?.addEventListener('change', (e) => {
+            if (e.target.files.length) displayPreview(e.target.files[0]);
+        });
+
+        function displayPreview(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imgPreview.src = e.target.result;
+                uploadContent.classList.add('d-none');
+                previewContainer.classList.remove('d-none');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeImage(e) {
+            e.preventDefault();
+            fileInput.value = '';
+            uploadContent.classList.remove('d-none');
+            previewContainer.classList.add('d-none');
+        }
+
+        // STEP NAVIGATION
+        function nextStep() {
+            if (currentStep === 1 && !validateStep1()) return;
+            if (currentStep === 2 && !validateStep2()) return;
+            if (currentStep === 3) {
+                submitForm();
+                return;
+            }
+
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateStep();
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStep();
+            }
+        }
+
+        function updateStep() {
+            // Hide all steps
+            document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+            
+            // Show current step
+            document.getElementById(`step${currentStep}`)?.classList.add('active');
+            
+            // Update progress
+            const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            // Update indicators
+            document.querySelectorAll('.step-indicator').forEach((ind, idx) => {
+                ind.classList.remove('active', 'completed', 'inactive');
+                if (idx + 1 < currentStep) {
+                    ind.classList.add('completed');
+                } else if (idx + 1 === currentStep) {
+                    ind.classList.add('active');
+                } else {
+                    ind.classList.add('inactive');
+                }
+            });
+
+            // Update Previous button
+            const prevBtn = document.getElementById('prevBtn');
+            if (currentStep === 1) {
+                prevBtn.classList.add('disabled');
+                prevBtn.disabled = true;
+            } else {
+                prevBtn.classList.remove('disabled');
+                prevBtn.disabled = false;
+            }
+
+            // Update Next button
+            const nextBtn = document.getElementById('nextBtn');
+            nextBtn.disabled = false;
+            nextBtn.classList.remove('disabled');
+            nextBtn.innerHTML = currentStep === totalSteps ? '<i class="fas fa-paper-plane me-2"></i>Publish Course' : 'Next Step <i class="fas fa-arrow-right ms-2"></i>';
+
+            // Update step number
+            document.getElementById('stepNum').textContent = currentStep;
+
+            // Populate review
+            if (currentStep === 3) populateReview();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function validateStep1() {
+            const title = document.getElementById('courseTitle').value.trim();
+            const desc = document.getElementById('courseDesc').value.trim();
+            const cat = document.getElementById('courseCategory').value;
+            const name = document.getElementById('instructorName').value.trim();
+            const role = document.getElementById('instructorRole').value.trim();
+            const objectives = document.getElementById('courseObjectives').value.trim();
+            
+            let hasError = false;
+
+            if (title.length < 10) {
+                showError('titleError', '❌ Title too short. Need 10+ chars. Currently: ' + title.length);
+                hasError = true;
+            } else if (title.length > 100) {
+                showError('titleError', '❌ Title too long. Max 100 chars. Currently: ' + title.length);
+                hasError = true;
+            } else {
+                hideError('titleError');
+            }
+
+            if (desc.length < 50) {
+                showError('descError', '❌ Description too short. Need 50+ chars. Currently: ' + desc.length);
+                hasError = true;
+            } else if (desc.length > 500) {
+                showError('descError', '❌ Description too long. Max 500 chars. Currently: ' + desc.length);
+                hasError = true;
+            } else {
+                hideError('descError');
+            }
+
+            if (name.length < 3) {
+                showError('nameError', '❌ Name too short. Need 3+ chars. Currently: ' + name.length);
+                hasError = true;
+            } else if (name.length > 50) {
+                showError('nameError', '❌ Name too long. Max 50 chars');
+                hasError = true;
+            } else {
+                hideError('nameError');
+            }
+
+            if (role.length < 3) {
+                showError('roleError', '❌ Role too short. Need 3+ chars. Currently: ' + role.length);
+                hasError = true;
+            } else if (role.length > 50) {
+                showError('roleError', '❌ Role too long. Max 50 chars');
+                hasError = true;
+            } else {
+                hideError('roleError');
+            }
+
+            if (objectives.length < 30) {
+                showError('objectivesError', '❌ Learning objectives too short. Need 30+ chars. Currently: ' + objectives.length);
+                hasError = true;
+            } else {
+                hideError('objectivesError');
+            }
+
+            if (!cat) {
+                showError('categoryError', '❌ Please select a course category');
+                hasError = true;
+            } else {
+                hideError('categoryError');
+            }
+
+            if (hasError && typeof UIController !== 'undefined') {
+                UIController.showToast('⚠️ Please fix the errors above before continuing', 'danger');
+            }
+            return !hasError;
+        }
+
+        function validateStep2() {
+            const duration = parseInt(document.getElementById('duration').value) || 0;
+            const hours = parseInt(document.getElementById('sessionHours').value) || 0;
+            const participants = parseInt(document.getElementById('maxParticipants').value) || 0;
+            
+            let hasError = false;
+
+            if (!duration || duration < 1 || duration > 365) {
+                showError('durationError', '❌ Duration must be 1-365 days. Currently: ' + (duration || 'empty'));
+                hasError = true;
+            } else {
+                hideError('durationError');
+            }
+
+            if (!hours || hours < 1 || hours > 24) {
+                showError('hoursError', '❌ Session hours must be 1-24 hours. Currently: ' + (hours || 'empty'));
+                hasError = true;
+            } else {
+                hideError('hoursError');
+            }
+
+            if (!participants || participants < 1 || participants > 500) {
+                showError('participantsError', '❌ Participants must be 1-500. Currently: ' + (participants || 'empty'));
+                hasError = true;
+            } else {
+                hideError('participantsError');
+            }
+
+            if (hasError) {
+                UIController.showToast('⚠️ Please correct all logistics details', 'danger');
+            }
+            return !hasError;
+        }
+
+        function populateReview() {
+            document.getElementById('reviewTitle').textContent = document.getElementById('courseTitle').value;
+            document.getElementById('reviewDesc').textContent = document.getElementById('courseDesc').value.substring(0, 150) + '...';
+            document.getElementById('reviewCat').textContent = document.getElementById('courseCategory').value;
+            document.getElementById('reviewLvl').textContent = document.getElementById('skillLevel').value;
+            document.getElementById('reviewDuration').textContent = document.getElementById('duration').value;
+            
+            if (imgPreview.src && !previewContainer.classList.contains('d-none')) {
+                document.getElementById('reviewImg').src = imgPreview.src;
+                document.getElementById('reviewImg').style.display = 'block';
+            }
+        }
+
+        function submitForm() {
+            const form = document.getElementById('courseForm');
+            
+            if (!document.getElementById('termsCheck').checked) {
+                if (typeof UIController !== 'undefined') {
+                    UIController.showToast('⚠️ Please accept the instructor guidelines to continue', 'danger');
+                } else {
+                    alert('Please accept the instructor guidelines');
+                }
+                return false;
+            }
+
+            // Show Validation Modal
+            const modal = new bootstrap.Modal(document.getElementById('aiReviewModal'));
+            modal.show();
+            
+            // Reset validation UI
+            document.getElementById('reviewLoader').classList.remove('d-none');
+            document.getElementById('reviewResults').classList.add('d-none');
+            document.getElementById('validationStagesContainer').innerHTML = '';
+            document.getElementById('validationProgress').style.width = '0%';
+            
+            // Prepare form data for validation
+            const formData = {
+                title: document.getElementById('courseTitle').value,
+                description: document.getElementById('courseDesc').value,
+                category: document.getElementById('courseCategory').value,
+                instructor_name: document.getElementById('instructorName').value,
+                objectives: document.getElementById('courseObjectives').value || ''
+            };
+            
+            // Perform multi-stage validation with progress updates
+            performMultiStageValidation(formData);
+            
+            return false;
+        }
+
+        function performMultiStageValidation(formData) {
+            const stagesContainer = document.getElementById('validationStagesContainer');
+            const progressBar = document.getElementById('validationProgress');
+            const loaderText = document.getElementById('loaderText');
+            
+            // Animation stages
+            const stageNames = [
+                'Analyzing content structure...',
+                'Checking safety & appropriateness...',
+                'Evaluating educational quality...',
+                'Assessing readability & clarity...',
+                'Measuring intergenerational value...'
+            ];
+            
+            let currentStageIndex = 0;
+            
+            // Simulate progressive loading
+            const progressInterval = setInterval(() => {
+                if (currentStageIndex < stageNames.length) {
+                    const progress = ((currentStageIndex + 1) / stageNames.length) * 50; // First 50%
+                    progressBar.style.width = progress + '%';
+                    loaderText.textContent = stageNames[currentStageIndex];
+                    currentStageIndex++;
+                } else {
+                    clearInterval(progressInterval);
+                }
+            }, 600);
+            
+            // Call validation API
+            fetch('/lib/api/v1/validate-course', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                loaderText.textContent = 'Validation complete!';
+                
+                setTimeout(() => {
+                    displayValidationResults(data);
+                }, 500);
+            })
+            .catch(err => {
+                clearInterval(progressInterval);
+                console.error('Validation error:', err);
+                displayValidationError();
+            });
+        }
+
+        function displayValidationResults(data) {
+            // Hide loader, show results
+            document.getElementById('reviewLoader').classList.add('d-none');
+            document.getElementById('reviewResults').classList.remove('d-none');
+            
+            // Update score display
+            const scoreValue = document.getElementById('scoreValue');
+            const scoreLabel = document.getElementById('scoreLabel');
+            const scoreDesc = document.getElementById('scoreDesc');
+            const scoreCircle = document.getElementById('scoreCircle');
+            
+            // Animate score counting up
+            animateScore(0, data.finalScore, 1000, scoreValue);
+            
+            // Update score styling based on score
+            if (data.finalScore >= 90) {
+                scoreLabel.textContent = '🌟 Outstanding Quality!';
+                scoreDesc.textContent = 'Exceeds all platform standards';
+                scoreCircle.style.background = 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)';
+            } else if (data.finalScore >= 80) {
+                scoreLabel.textContent = '✨ Excellent Quality!';
+                scoreDesc.textContent = 'Meets high quality standards';
+                scoreCircle.style.background = 'linear-gradient(135deg, #95EE9D 0%, #6BCF7F 100%)';
+            } else if (data.finalScore >= 70) {
+                scoreLabel.textContent = '✓ Great Quality!';
+                scoreDesc.textContent = 'Meets quality standards';
+                scoreCircle.style.background = 'linear-gradient(135deg, #95EE9D 0%, #A7C5EB 100%)';
+            } else if (data.finalScore >= 65) {
+                scoreLabel.textContent = '✓ Acceptable Quality';
+                scoreDesc.textContent = 'Meets minimum requirements';
+                scoreCircle.style.background = 'linear-gradient(135deg, #A7C5EB 0%, #FFE66D 100%)';
+            } else {
+                scoreLabel.textContent = '⚠ Needs Improvement';
+                scoreDesc.textContent = 'Below quality threshold';
+                scoreCircle.style.background = 'linear-gradient(135deg, #FF6B6B 0%, #EE5A6F 100%)';
+            }
+            
+            // Display stage results
+            const stagesContainer = document.getElementById('validationStagesContainer');
+            stagesContainer.innerHTML = '';
+            
+            data.stages.forEach((stage, index) => {
+                const stagePercentage = Math.round((stage.score / stage.maxScore) * 100);
+                const stageColor = stage.passed ? '#28a745' : (stagePercentage >= 50 ? '#ffc107' : '#dc3545');
+                const stageIcon = stage.passed ? 'fa-check-circle' : (stagePercentage >= 50 ? 'fa-exclamation-circle' : 'fa-times-circle');
+                
+                const stageHTML = `
+                    <div class="validation-stage mb-3" style="animation: slideInUp 0.5s ease ${index * 0.1}s both;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="d-flex align-items-center">
+                                <i class="fas ${stageIcon} me-2" style="color: ${stageColor}; font-size: 1.2rem;"></i>
+                                <strong>${stage.name}</strong>
+                            </div>
+                            <span class="badge" style="background-color: ${stageColor};">${stage.score}/${stage.maxScore}</span>
+                        </div>
+                        <div class="progress mb-2" style="height: 8px; border-radius: 10px;">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: ${stagePercentage}%; background: ${stageColor}; transition: width 1s ease;"
+                                 aria-valuenow="${stagePercentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <small class="text-muted">${stage.message}</small>
+                        ${stage.issues.length > 0 ? `<div class="mt-1"><small class="text-danger">• ${stage.issues.join('<br>• ')}</small></div>` : ''}
+                    </div>
+                `;
+                stagesContainer.innerHTML += stageHTML;
+            });
+            
+            // Show critical issues if any
+            if (data.criticalIssues && data.criticalIssues.length > 0) {
+                const criticalHTML = `
+                    <div class="alert alert-danger mt-3" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Critical Issues:</strong>
+                        <ul class="mb-0 mt-2 ps-3">
+                            ${data.criticalIssues.map(issue => `<li>${issue}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                stagesContainer.innerHTML += criticalHTML;
+            }
+            
+            // Show recommendations
+            if (data.recommendations && data.recommendations.length > 0) {
+                const recommendHTML = `
+                    <div class="alert alert-info mt-3" role="alert">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Recommendations:</strong>
+                        <ul class="mb-0 mt-2 ps-3">
+                            ${data.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                stagesContainer.innerHTML += recommendHTML;
+            }
+            
+            // Show/hide publish button based on approval
+            const publishBtn = document.getElementById('confirmPublishBtn');
+            if (data.approved) {
+                publishBtn.style.display = 'inline-block';
+            } else {
+                publishBtn.style.display = 'none';
+            }
+        }
+
+        function displayValidationError() {
+            document.getElementById('reviewLoader').classList.add('d-none');
+            document.getElementById('reviewResults').classList.remove('d-none');
+            
+            const stagesContainer = document.getElementById('validationStagesContainer');
+            stagesContainer.innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Validation Error</strong>
+                    <p class="mb-0 mt-2">Unable to validate course. Please check your connection and try again.</p>
+                </div>
+            `;
+            
+            document.getElementById('confirmPublishBtn').style.display = 'none';
+        }
+
+        function animateScore(start, end, duration, element) {
+            const startTime = performance.now();
+            const range = end - start;
+            
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing function (easeOutCubic)
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                const currentValue = Math.round(start + (range * easeProgress));
+                
+                element.textContent = currentValue;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+
+        function confirmPublish() {
+            const form = document.getElementById('courseForm');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('aiReviewModal'));
+            modal.hide();
+
+            const nextBtn = document.getElementById('nextBtn');
+            nextBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Publishing...';
+            nextBtn.disabled = true;
+
+            setTimeout(() => {
+                document.getElementById('successNotification').classList.remove('d-none');
+                setTimeout(() => {
+                    form.submit();
+                }, 1500);
+            }, 500);
+        }
+
+        function saveDraft() {
+            const form = document.getElementById('courseForm');
+            const formData = new FormData(form);
+            formData.append('status', 'draft');
+            formData.append('action', 'save_draft');
+
+            const draftBtn = document.getElementById('draftBtn');
+            const originalHTML = draftBtn.innerHTML;
+            draftBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+            draftBtn.disabled = true;
+
+            fetch('/lib/create', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => {
+                if (!res.ok) {
+                    // If response is not OK, try to get error message
+                    return res.json().then(data => {
+                        throw new Error(data.message || 'Failed to save draft');
+                    });
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('draftNotification').classList.remove('d-none');
+                    if (typeof UIController !== 'undefined') {
+                        UIController.showToast('✓ Draft saved successfully!', 'success');
+                    }
+                    setTimeout(() => {
+                        draftBtn.innerHTML = originalHTML;
+                        draftBtn.disabled = false;
+                        document.getElementById('draftNotification').classList.add('d-none');
+                    }, 3000);
+                } else {
+                    const errorMsg = data.message || 'Error saving draft';
+                    if (typeof UIController !== 'undefined') {
+                        UIController.showToast(errorMsg, 'danger');
+                    } else {
+                        alert('Error: ' + errorMsg);
+                    }
+                    console.error('Save draft error:', data);
+                    draftBtn.innerHTML = originalHTML;
+                    draftBtn.disabled = false;
+                }
+            })
+            .catch(err => {
+                console.error('Draft save error:', err);
+                const errorMsg = err.message || 'Error saving draft';
+                if (typeof UIController !== 'undefined') {
+                    UIController.showToast(errorMsg, 'danger');
+                } else {
+                    alert('Error: ' + errorMsg);
+                }
+                draftBtn.innerHTML = originalHTML;
+                draftBtn.disabled = false;
+            });
+        }
+
+        // MODAL RESET LISTENER
+        document.getElementById('aiReviewModal')?.addEventListener('hide.bs.modal', () => {
+            document.getElementById('reviewLoader').classList.remove('d-none');
+            document.getElementById('reviewResults').classList.add('d-none');
+            document.getElementById('confirmPublishBtn').style.display = 'none';
+        });
+
+        // PREVENT FORM SUBMISSION ON ENTER
+        document.getElementById('courseForm')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                nextStep();
+            }
+        });
+
+        // INITIALIZE CHARACTER COUNTER WITH DRAFT DATA
+        function updateCharCounter() {
+            const desc = document.getElementById('courseDesc');
+            if (desc) {
+                const count = desc.value.length;
+                const counter = document.getElementById('charCount');
+                if (counter) {
+                    counter.textContent = count;
+                }
+            }
+        }
+
+        // INITIALIZE
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStep();
+            updateCharCounter();
+            // Course creation wizard initialized (debug log removed)
+        });
+    </script>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+{% endblock %}

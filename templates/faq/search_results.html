@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}FAQ Search - BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-content { padding: 3rem; max-width: 800px; margin: 0 auto; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: #454545; margin-bottom: 0.5rem; }
+    .search-query { color: #8F7B6A; font-weight: 600; }
+    .search-box { margin: 1.5rem 0 2rem; display: flex; gap: 0.75rem; }
+    .search-input { flex: 1; padding: 0.75rem 1rem; border: 1px solid #B7B7B7; border-radius: 8px; font-size: 0.95rem; }
+    .btn-search { background: #8F7B6A; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; }
+    .result-item { background: white; border-radius: 10px; padding: 1.25rem; margin-bottom: 0.75rem; cursor: pointer; border-left: 3px solid transparent; }
+    .result-item:hover { border-left-color: #8F7B6A; }
+    .result-question { font-weight: 600; color: #454545; margin-bottom: 0.25rem; }
+    .result-answer { display: none; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #EDEDE5; color: #555; line-height: 1.7; }
+    .result-item.expanded .result-answer { display: block; }
+    .no-results { text-align: center; padding: 3rem; color: #555; }
+    .no-results i { font-size: 3rem; opacity: 0.5; }
+    .back-link { display: inline-block; margin-top: 1.5rem; color: #555; text-decoration: none; }
+</style>
+{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <h1 class="page-title">FAQ Search Results</h1>
+    <p>{% if results %}Found <strong>{{ results|length }}</strong> result(s) for "<span class="search-query">{{ query }}</span>"{% else %}No results for "<span class="search-query">{{ query }}</span>"{% endif %}</p>
+    
+    <div class="search-box">
+        <form action="{{ url_for('faq_search') }}" method="GET" style="display: flex; gap: 0.75rem; width: 100%;">
+            <input type="text" name="q" class="search-input" value="{{ query }}" placeholder="Search...">
+            <button type="submit" class="btn-search"><i class="bi bi-search"></i> Search</button>
+        </form>
+    </div>
+    
+    {% if results %}
+    {% for result in results %}
+    <div class="result-item" onclick="this.classList.toggle('expanded')">
+        <div class="result-question">{{ result.faq.question }}</div>
+        <div class="result-answer">{{ result.faq.answer }}</div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="no-results">
+        <i class="bi bi-search d-block mb-3"></i>
+        <h4>No matching questions found</h4>
+        <p>Try different keywords</p>
+    </div>
+    {% endif %}
+    
+    <a href="{{ url_for('landing') }}" class="back-link">← Back to Home</a>
+</div>
+{% endblock %}

@@ -1,0 +1,395 @@
+{% extends "base.html" %}
+{% block title %}Profile - BridgeHive{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/Profile.css') }}">
+
+<style>
+    .profile-page-wrapper {
+        padding-top: 80px;
+        padding-left: 2rem;
+        padding-right: 2rem;
+        padding-bottom: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .inventory-item-equipped {
+        background-color: var(--cream) !important;
+    }
+    .title-item-locked {
+        background-color: var(--cream-dark) !important;
+        opacity: 0.75;
+        border-style: dashed !important;
+    }
+    .title-lock-note {
+        color: var(--gray);
+        font-size: 0.75rem;
+        line-height: 1.3;
+    }
+    
+    /* Profile picture container with effects */
+    .profile-pic-container {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 178px;
+        height: 178px;
+    }
+    
+    /* Cherry Blossom Wreath - 178px square behind profile pic */
+    .cherry-wreath-effect {
+        position: absolute;
+        width: 178px !important;
+        height: 178px !important;
+        top: 0;
+        left: 0;
+        background-image: url('{{ url_for("static", filename="shop/Decorations/Cherry blossom wreath.png") }}') !important;
+        background-size: cover !important;
+        background-position: center !important;
+        background-repeat: no-repeat !important;
+        z-index: 0;
+    }
+    
+    /* Golden Dust - fills entire card background */
+    .golden-dust-bg {
+        position: absolute;
+        inset: 0;
+        background-image: url('{{ url_for("static", filename="shop/effects/Golden dust background.png") }}');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 0.3;
+        z-index: 0;
+        border-radius: 12px;
+        pointer-events: none;
+    }
+    
+    .card-custom {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    
+    .min-vh-50 {
+        min-height: 50vh;
+    }
+    
+    /* Settings button hover effect */
+    .btn-settings-custom:hover {
+        background-color: #7a6859 !important;
+    }
+</style>
+
+<div class="profile-page-wrapper">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <!-- Check if Golden Dust is equipped -->
+            {% set ns = namespace(golden_equipped=false) %}
+            {% for ui in user.inventory %}
+                {% if ui.is_equipped and ui.item.category == 'profile-effect' %}
+                    {% set ns.golden_equipped = true %}
+                {% endif %}
+            {% endfor %}
+            
+            <div class="card-custom p-5 text-center position-relative" style="padding-top: 2.5rem; overflow: hidden;">
+                <!-- Golden Dust Background Effect -->
+                {% if ns.golden_equipped %}
+                    <div class="golden-dust-bg"></div>
+                {% endif %}
+                
+                {% if viewing_own_profile %}
+                <a href="{{ url_for('edit_profile') }}" class="position-absolute top-0 end-0 p-3" style="z-index: 10;">
+                    <button class="btn btn-sm" style="background-color: var(--brown); color: white; border: none; padding: 0.35rem 0.7rem; font-size: 0.85rem;">Edit</button>
+                </a>
+                {% endif %}
+                <div class="profile-vertical d-flex flex-column align-items-center" style="position: relative; z-index: 1;">
+                    <div class="profile-pic-container">
+                        <!-- Cherry Blossom Wreath (if equipped) -->
+                        {% set ns2 = namespace(cherry_equipped=false) %}
+                        {% for ui in user.inventory %}
+                            {% if ui.is_equipped and ui.item.category == 'avatar-decoration' %}
+                                {% set ns2.cherry_equipped = true %}
+                            {% endif %}
+                        {% endfor %}
+                        {% if ns2.cherry_equipped %}
+                            <div class="cherry-wreath-effect"></div>
+                        {% endif %}
+                        
+                        <!-- Profile Picture -->
+                        <div class="rounded-circle d-flex align-items-center justify-content-center" 
+                             style="width: 120px; height: 120px; background-color: var(--cream-dark); color: var(--gray); overflow: hidden; position: relative; z-index: 1;">
+                            {% if user.profile_pic and user.profile_pic != 'DefaultPFP.png' %}
+                                <img src="{{ url_for('static', filename='uploads/' + user.profile_pic) }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                                <i class="bi bi-person-fill display-1"></i>
+                            {% endif %}
+                            
+                            <!-- Other Avatar Decorations (border effect) -->
+                            {% for ui in user.inventory %}
+                                {% if ui.is_equipped and ui.item.category == 'avatar-decoration' and ui.item.name != 'Cherry Blossom Wreath' %}
+                                    <div class="position-absolute top-0 start-0 w-100 h-100 rounded-circle border border-4" style="border-color: var(--tan); pointer-events: none; z-index: 2;"></div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mt-3 text-center">
+                        <h2 class="playfair fw-bold mb-1">{{ user.username }}</h2>
+                        <p style="color: var(--gray); margin-bottom:0;">
+                            {% if equipped_title %}
+                                <span class="item-rarity-{{ equipped_title.title_rarity }}">{{ equipped_title.title_name }}</span>
+                            {% else %}
+                                {{ (user.role | capitalize) if user.role else 'Member' }}
+                            {% endif %}
+                            ({{ (user.user_type | capitalize) if user.user_type else 'User' }})
+                        </p>
+                        
+                        <!-- Activity Status Indicator -->
+                        {% if show_activity_status %}
+                        <div class="mt-2">
+                            <span class="badge" style="background-color: #28a745; color: white; font-size: 0.75rem; padding: 0.35rem 0.75rem;">
+                                <i class="bi bi-circle-fill" style="font-size: 0.5rem; margin-right: 0.25rem;"></i>Active Now
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-2 mt-3 mb-3">
+                        <div class="p-3 rounded" style="background-color: var(--cream); width: 100px;">
+                            <div class="fw-bold fs-4" style="color: var(--brown);">{{ user.hive_points }}</div>
+                            <div class="small text-muted">Points</div>
+                        </div>
+                        <div class="p-3 rounded" style="background-color: var(--cream); width: 100px;">
+                            <div class="fw-bold fs-4" style="color: var(--brown);">{{ user.streak_days }}</div>
+                            <div class="small text-muted">Streak</div>
+                        </div>
+                    </div>
+
+                    {% if viewing_own_profile %}
+                    <a href="{{ url_for('settings') }}" class="btn btn-settings-custom w-100" style="background-color: var(--brown); color: white; border: none; padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 8px; text-decoration: none; display: inline-block; transition: background 0.2s;">
+                        <i class="bi bi-gear-fill me-2"></i>Settings
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card-custom p-4 min-vh-50">
+                <h3 class="playfair mb-4 pb-3 border-bottom" style="border-color: var(--cream-dark) !important;">My Inventory</h3>
+
+                <!-- Title Category -->
+                <h5 class="inventory-category-header">Title</h5>
+                {% if title_inventory %}
+                    <div class="row g-3 mb-4">
+                        {% for title in title_inventory %}
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <div class="inventory-item p-3 rounded text-center d-flex flex-column h-100 {% if title.is_equipped %}inventory-item-equipped{% endif %} {% if title.is_locked %}title-item-locked{% endif %}" 
+                                 style="border: 1px solid var(--tan-light); background-color: white;">
+                                <div class="inventory-item-icon">
+                                    <i class="bi {% if title.is_locked %}bi-lock-fill{% else %}bi-unlock-fill{% endif %}"></i>
+                                </div>
+                                <h6 class="inventory-item-name">{{ title.title_name }}</h6>
+                                <div class="inventory-item-rarity text-center item-rarity-{{ title.title_rarity or 'common' }}">
+                                    ★ {{ (title.title_rarity or 'common').upper() }}
+                                </div>
+                                <div class="mt-auto">
+                                    {% if title.is_locked %}
+                                        <div class="title-lock-note mb-2">
+                                            Unlock at {{ title.required_streak }} streak days
+                                        </div>
+                                        <button class="btn btn-sm w-100" disabled style="background-color: var(--gray-light); color: white; border: 1px solid var(--gray-light); cursor: not-allowed;">
+                                            <i class="bi bi-lock me-1"></i>Locked
+                                        </button>
+                                    {% elif title.is_equipped %}
+                                        <button class="btn btn-sm w-100" style="background-color: var(--brown); color: white; border: 1px solid var(--brown); cursor: default; opacity: 0.9;">
+                                            <i class="bi bi-check-circle me-1"></i>Equipped
+                                        </button>
+                                    {% else %}
+                                        <form action="{{ url_for('equip_title', title_id=title.id) }}" method="POST" style="display: block;">
+                                            <button type="submit" class="btn btn-sm btn-outline-custom w-100">Equip</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center rounded" style="background-color: var(--cream-dark); border: 1px dashed var(--tan-light); margin-bottom: 2rem;">
+                        <p style="color: var(--gray); margin: 0;">You have no Titles.</p>
+                        <a href="{{ url_for('rewards') }}" style="color: var(--brown); font-weight: 600; text-decoration: none;">Browse Shop →</a>
+                    </div>
+                {% endif %}
+
+                <!-- Avatar Decoration Category -->
+                <h5 class="inventory-category-header">Avatar Decoration</h5>
+                {% set avatar_items = user.inventory|selectattr('item.category', 'equalto', 'avatar-decoration')|list %}
+                {% if avatar_items %}
+                    <div class="row g-3 mb-4">
+                        {% for ui in avatar_items %}
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <div class="inventory-item p-3 rounded d-flex flex-column h-100 {% if ui.is_equipped %}inventory-item-equipped{% endif %}" 
+                                 style="border: 1px solid var(--tan-light); background-color: white;">
+                                <div class="inventory-item-icon text-center">
+                                    <i class="{{ ui.item.icon_class }}"></i>
+                                </div>
+                                <h6 class="inventory-item-name text-center">{{ ui.item.name }}</h6>
+                                <div class="inventory-item-rarity text-center item-rarity-{{ ui.item.rarity or 'common' }}">
+                                    ★ {{ (ui.item.rarity or 'common').upper() }}
+                                </div>
+                                <div class="mt-auto">
+                                    {% if ui.is_equipped %}
+                                        <form action="{{ url_for('equip_item', user_item_id=ui.id) }}" method="POST" style="display: block;">
+                                            <button type="submit" class="btn btn-sm w-100" style="background-color: var(--cream-dark); color: var(--brown); border: 1px solid var(--tan);">
+                                                <i class="bi bi-x-circle me-1"></i>Unequip
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <form action="{{ url_for('equip_item', user_item_id=ui.id) }}" method="POST" style="display: block;">
+                                            <button type="submit" class="btn btn-sm btn-outline-custom w-100">Equip</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center rounded" style="background-color: var(--cream-dark); border: 1px dashed var(--tan-light);">
+                        <p style="color: var(--gray); margin: 0;">You have no Avatar Decoration.</p>
+                        <a href="{{ url_for('rewards') }}?category=avatar-decoration" style="color: var(--brown); font-weight: 600; text-decoration: none;">Browse Shop →</a>
+                    </div>
+                {% endif %}
+
+                <!-- Profile Effects Category -->
+                <h5 class="inventory-category-header">Profile Effects</h5>
+                {% set profile_effect_items = user.inventory|selectattr('item.category', 'equalto', 'profile-effect')|list %}
+                {% if profile_effect_items %}
+                    <div class="row g-3 mb-4">
+                        {% for ui in profile_effect_items %}
+                        <div class="col-lg-4 col-md-5 col-sm-6">
+                            <div class="inventory-item p-3 rounded d-flex flex-column h-100 {% if ui.is_equipped %}inventory-item-equipped{% endif %}" 
+                                 style="border: 1px solid var(--tan-light); background-color: white;">
+                                <div class="inventory-item-icon text-center">
+                                    <i class="{{ ui.item.icon_class }}"></i>
+                                </div>
+                                <h6 class="inventory-item-name text-center">{{ ui.item.name }}</h6>
+                                <div class="inventory-item-rarity text-center item-rarity-{{ ui.item.rarity or 'common' }}">
+                                    ★ {{ (ui.item.rarity or 'common').upper() }}
+                                </div>
+                                <div class="mt-auto">
+                                    {% if ui.is_equipped %}
+                                        <form action="{{ url_for('equip_item', user_item_id=ui.id) }}" method="POST" style="display: block;">
+                                            <button type="submit" class="btn btn-sm w-100" style="background-color: var(--cream-dark); color: var(--brown); border: 1px solid var(--tan);">
+                                                <i class="bi bi-x-circle me-1"></i>Unequip
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <form action="{{ url_for('equip_item', user_item_id=ui.id) }}" method="POST" style="display: block;">
+                                            <button type="submit" class="btn btn-sm btn-outline-custom w-100">Equip</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center rounded" style="background-color: var(--cream-dark); border: 1px dashed var(--tan-light); margin-bottom: 2rem;">
+                        <p style="color: var(--gray); margin: 0;">You have no Profile Effects.</p>
+                        <a href="{{ url_for('rewards') }}?category=profile-effect" style="color: var(--brown); font-weight: 600; text-decoration: none;">Browse Shop →</a>
+                    </div>
+                {% endif %}
+
+                <!-- Chat Effects Category -->
+                <h5 class="inventory-category-header">Chat Effects</h5>
+                {% set chat_effect_items = user.inventory|selectattr('item.category', 'equalto', 'chat-effect')|list %}
+                {% if chat_effect_items %}
+                    <div class="row g-3 mb-4">
+                        {% for ui in chat_effect_items %}
+                        <div class="col-lg-4 col-md-5 col-sm-6">
+                            <div class="inventory-item p-3 rounded d-flex flex-column h-100 {% if ui.is_equipped %}inventory-item-equipped{% endif %}" 
+                                 style="border: 1px solid var(--tan-light); background-color: white;">
+                                <div class="inventory-item-icon text-center">
+                                    <i class="{{ ui.item.icon_class }}"></i>
+                                </div>
+                                <h6 class="inventory-item-name text-center">{{ ui.item.name }}</h6>
+                                <div class="inventory-item-rarity text-center item-rarity-{{ ui.item.rarity or 'common' }}">
+                                    ★ {{ (ui.item.rarity or 'common').upper() }}
+                                </div>
+                                <div class="mt-auto">
+                                    {% if ui.is_equipped %}
+                                        <form action="{{ url_for('equip_item', user_item_id=ui.id) }}" method="POST" style="display: block;">
+                                            <button type="submit" class="btn btn-sm w-100" style="background-color: var(--cream-dark); color: var(--brown); border: 1px solid var(--tan);">
+                                                <i class="bi bi-x-circle me-1"></i>Unequip
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <form action="{{ url_for('equip_item', user_item_id=ui.id) }}" method="POST" style="display: block;">
+                                            <button type="submit" class="btn btn-sm btn-outline-custom w-100">Equip</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center rounded" style="background-color: var(--cream-dark); border: 1px dashed var(--tan-light); margin-bottom: 2rem;">
+                        <p style="color: var(--gray); margin: 0;">You have no Chat Effects.</p>
+                        <a href="{{ url_for('rewards') }}?category=chat-effect" style="color: var(--brown); font-weight: 600; text-decoration: none;">Browse Shop →</a>
+                    </div>
+                {% endif %}
+
+                <!-- Nameplates Category -->
+                <h5 class="inventory-category-header">Nameplates</h5>
+                {% set nameplate_items = user.inventory|selectattr('item.category', 'equalto', 'nameplate')|list %}
+                {% if nameplate_items %}
+                    <div class="row g-3 mb-4">
+                        {% for ui in nameplate_items %}
+                        <div class="col-lg-5 col-md-6 col-sm-12">
+                            <div class="inventory-item p-3 rounded d-flex flex-column h-100 {% if ui.is_equipped %}inventory-item-equipped{% endif %}" 
+                                 style="border: 1px solid var(--tan-light); background-color: white;">
+                                <div class="inventory-item-icon text-center">
+                                    <i class="{{ ui.item.icon_class }}"></i>
+                                </div>
+                                <h6 class="inventory-item-name text-center">{{ ui.item.name }}</h6>
+                                <div class="inventory-item-rarity text-center item-rarity-{{ ui.item.rarity or 'common' }}">
+                                    ★ {{ (ui.item.rarity or 'common').upper() }}
+                                </div>
+                                <div class="mt-auto">
+                                    {% if ui.is_equipped %}
+                                        <form action="{{ url_for('equip_item', user_item_id=ui.id) }}" method="POST" style="display: block;">
+                                            <button type="submit" class="btn btn-sm w-100" style="background-color: var(--cream-dark); color: var(--brown); border: 1px solid var(--tan);">
+                                                <i class="bi bi-x-circle me-1"></i>Unequip
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <form action="{{ url_for('equip_item', user_item_id=ui.id) }}" method="POST" style="display: block;">
+                                            <button type="submit" class="btn btn-sm btn-outline-custom w-100">Equip</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center rounded" style="background-color: var(--cream-dark); border: 1px dashed var(--tan-light); margin-bottom: 2rem;">
+                        <p style="color: var(--gray); margin: 0;">You have no Nameplates.</p>
+                        <a href="{{ url_for('rewards') }}?category=nameplate" style="color: var(--brown); font-weight: 600; text-decoration: none;">Browse Shop →</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

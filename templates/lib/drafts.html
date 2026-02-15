@@ -1,0 +1,414 @@
+{% extends "lib/base.html" %}
+
+{% block title %}My Drafts | BridgeHive Studio{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #2C3E50;
+        --secondary: #B5B0A1;
+        --accent: #F8B4B4;
+        --glass-bg: rgba(255, 255, 255, 0.85);
+        --glass-border: 1px solid rgba(255,255,255,0.6);
+        --shadow-lg: 0 15px 40px rgba(0,0,0,0.1);
+    }
+
+    .hero-section {
+        background: linear-gradient(135deg, var(--primary), #B5B0A1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideInDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .draft-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        border: 2px solid #e5e7eb;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        animation: fadeInUp 0.6s ease-out backwards;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+        word-wrap: break-word;
+        position: relative;
+    }
+
+    .draft-card:nth-child(1) { animation-delay: 0.1s; }
+    .draft-card:nth-child(2) { animation-delay: 0.2s; }
+    .draft-card:nth-child(3) { animation-delay: 0.3s; }
+    .draft-card:nth-child(4) { animation-delay: 0.4s; }
+    .draft-card:nth-child(5) { animation-delay: 0.5s; }
+    .draft-card:nth-child(6) { animation-delay: 0.6s; }
+
+    .draft-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        border-radius: 16px;
+    }
+
+    .draft-card:hover::before {
+        opacity: 1;
+    }
+
+    .draft-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 16px 40px rgba(44, 62, 80, 0.2);
+        transform: translateY(-8px) scale(1.01);
+    }
+
+    .draft-header {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .draft-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+        flex: 1;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        line-height: 1.4;
+        transition: color 0.3s ease;
+    }
+
+    .draft-card:hover .draft-title {
+        color: #1a252f;
+    }
+
+    .draft-meta {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 2;
+    }
+
+    .draft-meta .badge {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        animation: slideInDown 0.4s ease-out backwards;
+
+        max-width: 150px;
+    }
+
+    .draft-desc {
+        color: #666;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        flex: 1;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        max-height: 4.8em;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+    }
+
+    .draft-footer {
+        display: flex;
+        gap: 1rem;
+        margin-top: auto;
+        padding-top: 1rem;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .btn-continue {
+        flex: 1;
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        text-align: center;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-continue:hover {
+        background: #1a252f;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(44, 62, 80, 0.2);
+        color: white;
+    }
+
+    .btn-delete {
+        background: transparent;
+        border: 2px solid #dc3545;
+        color: #dc3545;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-delete:hover {
+        background: #dc3545;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: #ccc;
+        margin-bottom: 1rem;
+    }
+
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-desc {
+        color: #666;
+        margin-bottom: 2rem;
+    }
+
+    .btn-new-course {
+        background: var(--primary);
+        color: white;
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 24px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-new-course:hover {
+        background: #1a252f;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(44, 62, 80, 0.2);
+    }
+
+    .draft-time {
+        font-size: 0.8rem;
+        color: #999;
+        margin-top: 0.5rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .progress-indicator {
+        display: inline-block;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.6rem;
+        background: #fff3cd;
+        color: #856404;
+        border-radius: 12px;
+        font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+        .draft-card {
+            padding: 1.5rem;
+        }
+
+        .draft-title {
+            font-size: 1.1rem;
+        }
+
+        .draft-footer {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .btn-continue,
+        .btn-delete {
+            width: 100%;
+        }
+
+        .draft-meta .badge {
+            max-width: 120px;
+            font-size: 0.7rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container pb-5">
+    <div class="row mt-5 align-items-end">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-2">
+                    <li class="breadcrumb-item"><a href="/lib/library" class="text-muted text-decoration-none">Library</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">My Drafts</li>
+                </ol>
+            </nav>
+            <h1 class="display-4 font-serif fw-bold hero-section">My Drafts</h1>
+            <p class="lead text-muted">Continue editing your saved course drafts or start fresh.</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/lib/create" class="btn btn-new-course">
+                <i class="fas fa-plus me-2"></i>New Course
+            </a>
+        </div>
+    </div>
+
+    {% if drafts %}
+        <div class="row g-4 mt-4">
+            {% for draft in drafts %}
+                <div class="col-lg-6">
+                    <div class="draft-card">
+                        <div class="draft-header">
+                            <div style="flex: 1;">
+                                <h3 class="draft-title">
+                                    {% if draft.title %}
+                                        {{ draft.title[:50] }}{% if draft.title|length > 50 %}...{% endif %}
+                                    {% else %}
+                                        <em class="text-muted">Untitled Draft</em>
+                                    {% endif %}
+                                </h3>
+                                <div class="progress-indicator">
+                                    <i class="fas fa-edit me-1"></i>In Progress
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="draft-meta">
+                            {% if draft.category %}
+                                <span class="badge bg-light text-dark border">{{ draft.category }}</span>
+                            {% endif %}
+                            {% if draft.skill_level %}
+                                <span class="badge bg-light text-dark border">{{ draft.skill_level }}</span>
+                            {% endif %}
+                            {% if draft.duration_days %}
+                                <span class="badge bg-info text-white">
+                                    <i class="fas fa-calendar-alt me-1"></i>{{ draft.duration_days }} days
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        {% if draft.description %}
+                            <p class="draft-desc">
+                                {{ draft.description[:120] }}{% if draft.description|length > 120 %}...{% endif %}
+                            </p>
+                        {% else %}
+                            <p class="draft-desc text-muted"><em>No description yet</em></p>
+                        {% endif %}
+
+                        <div class="draft-time">
+                            <i class="fas fa-clock me-1"></i>
+                            Last updated: {{ draft.updated_at.split()[0] if draft.updated_at else 'Unknown' }}
+                        </div>
+
+                        <div class="draft-footer">
+                            <a href="/lib/draft/{{ draft.uuid }}/edit" class="btn-continue">
+                                <i class="fas fa-edit me-1"></i>Continue Editing
+                            </a>
+                            <button type="button" class="btn-delete" onclick="deleteDraft('{{ draft.uuid }}')">
+                                <i class="fas fa-trash me-1"></i>Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="glass-panel mt-5">
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h2 class="empty-title">No Drafts Yet</h2>
+                <p class="empty-desc">Start creating a new course or save your progress as a draft.</p>
+                <a href="/lib/create" class="btn-new-course">
+                    <i class="fas fa-pen-fancy me-1"></i>Create New Course
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    function deleteDraft(draftUuid) {
+        if (confirm('Are you sure you want to delete this draft? This action cannot be undone.')) {
+            fetch(`/lib/draft/${draftUuid}/delete`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (typeof UIController !== 'undefined') {
+                        UIController.showToast('Draft deleted successfully!', 'success');
+                    } else {
+                        alert('Draft deleted successfully!');
+                    }
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                }
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                if (typeof UIController !== 'undefined') {
+                    UIController.showToast('Error deleting draft', 'danger');
+                } else {
+                    alert('Error deleting draft');
+                }
+            });
+        }
+    }
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+{% endblock %}

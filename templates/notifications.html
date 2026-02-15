@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Notifications - BridgeHive{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block content %}
+<style>
+    .notifications-wrapper {
+        padding-top: 80px;
+        padding-left: 2rem;
+        padding-right: 2rem;
+        padding-bottom: 2rem;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .notifications-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .admin-compose-card {
+        background: white;
+        border: 1px solid var(--tan-light);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .admin-compose-card input,
+    .admin-compose-card textarea {
+        width: 100%;
+        border: 1px solid var(--tan-light);
+        border-radius: 8px;
+        padding: 0.65rem 0.8rem;
+        margin-bottom: 0.7rem;
+    }
+
+    .admin-compose-card button {
+        background: var(--brown);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.55rem 1rem;
+        font-weight: 600;
+    }
+
+    .notifications-card {
+        background: white;
+        border: 1px solid var(--tan-light);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 0.9rem;
+        transition: box-shadow 0.2s;
+    }
+
+    .notifications-card.unread {
+        background: var(--cream);
+        border-color: var(--brown);
+    }
+
+    .notifications-title {
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .notifications-message {
+        color: var(--gray);
+        margin-bottom: 0.4rem;
+        font-size: 0.95rem;
+    }
+
+    .notifications-time {
+        font-size: 0.8rem;
+        color: var(--gray-light);
+    }
+
+    .notifications-source {
+        font-size: 0.78rem;
+        color: var(--brown);
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+    }
+    
+    /* Dark mode for notifications */
+    body.dark-mode .notifications-card,
+    body.dark-mode .admin-compose-card {
+        background: #2d2d2d !important;
+        border-color: #4a4a4a !important;
+        color: #e8e8e8 !important;
+    }
+    body.dark-mode .notifications-card.unread {
+        background: #3a3020 !important;
+        border-color: var(--brown) !important;
+    }
+    body.dark-mode .notifications-message { color: #aaa !important; }
+    body.dark-mode .notifications-time { color: #888 !important; }
+    body.dark-mode .notifications-title { color: #e8e8e8 !important; }
+    body.dark-mode .admin-compose-card h5 { color: #e8e8e8 !important; }
+</style>
+
+<div class="notifications-wrapper">
+    <div class="notifications-header">
+        <h2 class="playfair mb-1">{{ t('notif.title') }}</h2>
+        <p class="text-muted mb-0">{{ t('notif.subtitle') }}</p>
+    </div>
+
+    {% if notifications %}
+        {% for item in notifications %}
+            <div class="notifications-card {% if item.is_unread %}unread{% endif %}">
+                <div class="notifications-title">{{ item.title }}</div>
+                {% if item.source %}
+                    <div class="notifications-source">{{ item.source }}</div>
+                {% endif %}
+                <div class="notifications-message">{{ item.message }}</div>
+                <div class="notifications-time">{{ item.time }}</div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="notifications-card">
+            <div class="notifications-message mb-0">{{ t('notif.no_notifications') }}</div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

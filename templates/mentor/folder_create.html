@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+{% block title %}Create Folder - BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    body { background-color: var(--cream-dark); }
+    
+    .page-content {
+        padding: 2.5rem 3rem;
+        padding-top: 90px;
+        max-width: 550px;
+        margin: 0 auto;
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--gray);
+        text-decoration: none;
+        margin-bottom: 1.5rem;
+    }
+    
+    .back-link:hover {
+        color: var(--brown);
+    }
+    
+    .page-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        color: var(--black);
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+    
+    .page-subtitle {
+        text-align: center;
+        color: var(--gray);
+        margin-bottom: 2rem;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .form-group { margin-bottom: 1.5rem; }
+    
+    .form-label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: var(--black);
+    }
+    
+    .form-label .required { color: #C54B4B; }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--gray-light);
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-family: inherit;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--brown);
+    }
+    
+    .option-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+    
+    .option-item {
+        width: 48px;
+        height: 48px;
+        border: 2px solid var(--cream-dark);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 1.1rem;
+        color: var(--gray);
+    }
+    
+    .option-item:hover {
+        border-color: var(--brown);
+    }
+    
+    .option-item.selected {
+        border-color: var(--brown);
+        background: var(--brown);
+        color: white;
+    }
+    
+    .option-item input { display: none; }
+    
+    .color-option {
+        border-radius: 10px;
+    }
+    
+    .color-option.selected {
+        border-color: var(--black);
+        transform: scale(1.1);
+    }
+    
+    .btn-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .btn-submit {
+        flex: 1;
+        background: var(--brown);
+        color: white;
+        padding: 0.85rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+    
+    .btn-submit:hover {
+        background: #7A6A5A;
+    }
+    
+    .btn-cancel-link {
+        background: var(--cream-dark);
+        color: var(--black);
+        padding: 0.85rem 2rem;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        text-align: center;
+    }
+    
+    .btn-cancel-link:hover {
+        background: #E0E0D8;
+    }
+    
+    /* Preview */
+    .preview-section {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--cream-dark);
+    }
+    
+    .preview-label {
+        font-size: 0.85rem;
+        color: var(--gray);
+        margin-bottom: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .preview-card {
+        border-radius: 12px;
+        padding: 1.25rem;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .preview-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .preview-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+    
+    .preview-desc {
+        font-size: 0.8rem;
+        opacity: 0.8;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <a href="{{ url_for('mentor_folder_list_page') }}" class="back-link">
+        <i class="bi bi-arrow-left"></i> Back to Collections
+    </a>
+    
+    <h1 class="page-title">Create New Folder</h1>
+    <p class="page-subtitle">Organize your courses into collections</p>
+    
+    <div class="form-card">
+        <form method="POST" id="folderForm">
+            <div class="form-group">
+                <label class="form-label">Folder Name <span class="required">*</span></label>
+                <input type="text" name="folder_name" id="folderName" class="form-control" minlength="2" maxlength="100" required placeholder="e.g., My Cooking Skills">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea name="description" id="folderDesc" class="form-control" rows="3" maxlength="500" placeholder="What's this folder for?"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Icon</label>
+                <div class="option-group" id="iconGroup">
+                    {% for icon in icons %}
+                    <label class="option-item {% if loop.first %}selected{% endif %}" data-icon="{{ icon }}">
+                        <input type="radio" name="icon" value="{{ icon }}" {% if loop.first %}checked{% endif %}>
+                        {% if icon == 'folder' %}<i class="bi bi-folder-fill"></i>
+                        {% elif icon == 'heart' %}<i class="bi bi-heart-fill"></i>
+                        {% elif icon == 'bookmark' %}<i class="bi bi-bookmark-fill"></i>
+                        {% elif icon == 'star' %}<i class="bi bi-star-fill"></i>
+                        {% elif icon == 'book' %}<i class="bi bi-book-fill"></i>{% endif %}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Color</label>
+                <div class="option-group" id="colorGroup">
+                    {% for color in colors %}
+                    <label class="option-item color-option {% if loop.first %}selected{% endif %}" style="background-color: {{ color }};" data-color="{{ color }}">
+                        <input type="radio" name="color" value="{{ color }}" {% if loop.first %}checked{% endif %}>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Live Preview -->
+            <div class="preview-section">
+                <div class="preview-label"><i class="bi bi-eye"></i> Preview</div>
+                <div class="preview-card" id="previewCard" style="background-color: #ECD9B9; color: #454545;">
+                    <div class="preview-icon" id="previewIcon"><i class="bi bi-folder-fill"></i></div>
+                    <div class="preview-name" id="previewName">Untitled Folder</div>
+                    <div class="preview-desc" id="previewDesc">No description</div>
+                </div>
+            </div>
+            
+            <div class="btn-actions">
+                <button type="submit" class="btn-submit">Create Folder</button>
+                <a href="{{ url_for('mentor_folder_list_page') }}" class="btn-cancel-link">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const iconMap = {
+    'folder': 'bi-folder-fill',
+    'heart': 'bi-heart-fill',
+    'bookmark': 'bi-bookmark-fill',
+    'star': 'bi-star-fill',
+    'book': 'bi-book-fill'
+};
+
+const darkColors = ['#8F7B6A', '#C4B4A7'];
+
+document.getElementById('folderName').addEventListener('input', function() {
+    document.getElementById('previewName').textContent = this.value || 'Untitled Folder';
+});
+
+document.getElementById('folderDesc').addEventListener('input', function() {
+    document.getElementById('previewDesc').textContent = this.value || 'No description';
+});
+
+document.querySelectorAll('#iconGroup .option-item').forEach(item => {
+    item.addEventListener('click', function() {
+        document.querySelectorAll('#iconGroup .option-item').forEach(i => i.classList.remove('selected'));
+        this.classList.add('selected');
+        const icon = this.dataset.icon;
+        document.getElementById('previewIcon').innerHTML = '<i class="bi ' + iconMap[icon] + '"></i>';
+    });
+});
+
+document.querySelectorAll('#colorGroup .option-item').forEach(item => {
+    item.addEventListener('click', function() {
+        document.querySelectorAll('#colorGroup .option-item').forEach(i => i.classList.remove('selected'));
+        this.classList.add('selected');
+        const color = this.dataset.color;
+        const preview = document.getElementById('previewCard');
+        preview.style.backgroundColor = color;
+        preview.style.color = darkColors.includes(color) ? 'white' : '#454545';
+    });
+});
+</script>
+{% endblock %}

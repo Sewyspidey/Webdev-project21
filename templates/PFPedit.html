@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile Picture - BridgeHive{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/Profile.css') }}">
+
+<style>
+    .pfp-edit-wrapper {
+        padding-top: 80px;
+        padding-left: 2rem;
+        padding-right: 2rem;
+        padding-bottom: 2rem;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .upload-container {
+        max-width: 500px;
+        margin: 2rem auto;
+        background-color: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .upload-box {
+        text-align: center;
+        padding: 2rem;
+        border: 2px dashed var(--tan-light);
+        border-radius: 8px;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .upload-box:hover {
+        border-color: var(--brown);
+        background-color: var(--cream);
+    }
+
+    .back-button {
+        background-color: var(--brown);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+
+    .back-button:hover {
+        background-color: #7a6859;
+        color: white;
+        text-decoration: none;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .save-btn {
+        background-color: var(--brown);
+        color: white;
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .cancel-btn {
+        background-color: var(--cream);
+        border: 1px solid var(--tan-light);
+        color: var(--brown);
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+
+<div class="pfp-edit-wrapper">
+    <a href="{{ url_for('edit_profile') }}" class="back-button" title="Go back">
+        <i class="bi bi-chevron-left"></i>
+    </a>
+
+    <div class="upload-container">
+        <h2 class="playfair fw-bold text-center mb-4">Upload Profile Picture</h2>
+
+        <div class="position-relative d-flex justify-content-center mb-4">
+            <div class="rounded-circle d-flex align-items-center justify-content-center"
+                 style="width: 150px; height: 150px; background-color: var(--cream-dark); color: var(--gray); overflow: hidden;">
+                {% if user.profile_pic and user.profile_pic != 'DefaultPFP.png' %}
+                    <img src="{{ url_for('static', filename='uploads/' + user.profile_pic) }}" style="width: 100%; height: 100%; object-fit: cover;" id="preview-image">
+                {% else %}
+                    <img id="preview-image" style="display:none; width: 100%; height: 100%; object-fit: cover;">
+                    <i id="preview-icon" class="bi bi-person-fill display-1"></i>
+                {% endif %}
+            </div>
+        </div>
+
+        <form action="{{ url_for('upload_pfp') }}" method="POST" enctype="multipart/form-data" id="pfpForm">
+            <div class="upload-box" id="uploadBoxBtn">
+                <i class="bi bi-cloud-upload" style="font-size: 2rem; color: var(--brown); display: block; margin-bottom: 0.5rem;"></i>
+                <p style="color: var(--gray); margin: 0;"><strong>Click to upload</strong></p>
+                <p style="color: var(--gray-light); font-size: 0.85rem; margin: 0;">PNG, JPG or GIF (max. 5MB)</p>
+            </div>
+            <input type="file" name="pfp" id="pfpInput" accept="image/*" hidden>
+
+            <div class="button-group">
+                <button type="submit" class="save-btn">Upload</button>
+                <a href="{{ url_for('edit_profile') }}" class="cancel-btn">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const uploadBox = document.getElementById('uploadBoxBtn');
+    const input = document.getElementById('pfpInput');
+    const preview = document.getElementById('preview-image');
+    const previewIcon = document.getElementById('preview-icon');
+
+    if (uploadBox && input) {
+        uploadBox.addEventListener('click', () => input.click());
+    }
+
+    if (input) {
+        input.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file || !preview) return;
+
+            const reader = new FileReader();
+            reader.onload = (loadEvent) => {
+                preview.src = loadEvent.target.result;
+                preview.style.display = 'block';
+                if (previewIcon) previewIcon.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+</script>
+{% endblock %}

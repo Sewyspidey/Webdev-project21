@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}FAQ - BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-content { padding: 3rem; max-width: 800px; margin: 0 auto; }
+    .page-header { text-align: center; margin-bottom: 2rem; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #454545; margin-bottom: 0.5rem; }
+    .page-subtitle { color: #555; }
+    .search-box { max-width: 500px; margin: 0 auto 2rem; }
+    .search-input { width: 100%; padding: 0.9rem 1.25rem; border: none; border-radius: 8px; background: #BEBAAF; font-size: 0.95rem; }
+    .search-input:focus { outline: none; }
+    .faq-item { background: white; border-radius: 10px; margin-bottom: 0.75rem; overflow: hidden; }
+    .faq-question { width: 100%; padding: 1.25rem; background: none; border: none; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 1rem; font-weight: 500; color: #454545; }
+    .faq-question:hover { background: #FEFAF1; }
+    .faq-question i { color: #8F7B6A; transition: transform 0.2s; }
+    .faq-item.open .faq-question i { transform: rotate(180deg); }
+    .faq-answer { display: none; padding: 0 1.25rem 1.25rem; color: #555; line-height: 1.7; }
+    .faq-item.open .faq-answer { display: block; }
+</style>
+{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="page-header">
+        <h1 class="page-title">Frequently Asked Questions</h1>
+        <p class="page-subtitle">Find answers about BridgeHive</p>
+    </div>
+    
+    <div class="search-box">
+        <form action="{{ url_for('faq_search') }}" method="GET">
+            <input type="text" name="q" class="search-input" placeholder="Search for answers...">
+        </form>
+    </div>
+    
+    {% for faq in faqs %}
+    <div class="faq-item">
+        <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+            <span>{{ faq.question }}</span>
+            <i class="bi bi-chevron-down"></i>
+        </button>
+        <div class="faq-answer">{{ faq.answer }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

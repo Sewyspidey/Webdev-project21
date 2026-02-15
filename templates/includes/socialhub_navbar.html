@@ -1,0 +1,84 @@
+<nav class="navbar-new">
+    <a href="{{ url_for('both_homepage') }}" class="navbar-new-brand">
+        <i class="bi bi-hexagon-fill" style="color: #8F7B6A;"></i>
+        <span>BridgeHive</span>
+    </a>
+    <div class="navbar-new-links">
+        <div class="navbar-new-dropdown">
+            <span class="navbar-new-link">Learn <i class="bi bi-chevron-down" style="font-size: 0.65rem;"></i></span>
+            <div class="navbar-new-dropmenu">
+                <a href="{{ url_for('in_progress_courses_page') }}">View progress</a>
+                <a href="/lib/library">Browse courses</a>
+                <a href="/mentor/templates/all">View Templates</a>
+            </div>
+        </div>
+        <div class="navbar-new-dropdown">
+            <span class="navbar-new-link">Create <i class="bi bi-chevron-down" style="font-size: 0.65rem;"></i></span>
+            <div class="navbar-new-dropmenu">
+                <a href="/lib/create">Create new course</a>
+                <a href="{{ url_for('both_folder_create') }}">Create folder</a>
+                <a href="/mentor/templates/all">View Templates</a>
+            </div>
+        </div>
+        <a href="/socialhub/" class="navbar-new-link">Chat</a>
+        <a href="{{ url_for('support') }}" class="navbar-new-link">Support</a>
+        <a href="{{ url_for('rewards') }}" class="navbar-new-link">Rewards</a>
+    </div>
+    <div class="navbar-new-right">
+        <div class="navbar-new-points">
+            <i class="bi bi-star-fill"></i> {{ (main_user.hive_points if main_user else navbar_user.hive_points if navbar_user else 0)|default(0) }}
+        </div>
+        <div class="navbar-new-searchbar">
+            <input type="text" placeholder="Search..." readonly>
+            <button type="button"><i class="bi bi-search"></i></button>
+        </div>
+        <div class="navbar-new-bell">
+            <i class="bi bi-bell-fill"></i>
+            <span class="navbar-new-bell-dot"></span>
+        </div>
+        <div class="navbar-new-profile-wrap">
+            <div class="navbar-new-profile-circle">
+                <i class="bi bi-person-fill"></i>
+            </div>
+            <div class="navbar-new-profile-menu">
+                <div class="navbar-new-profile-header">
+                    <div class="navbar-new-profile-name">{{ (main_user.username if main_user else navbar_user.username if navbar_user else 'Guest') }}</div>
+                    <div class="navbar-new-profile-email">{{ (main_user.email if main_user else navbar_user.email if navbar_user else '') }}</div>
+                </div>
+                <a href="#"><i class="bi bi-person"></i> Profile</a>
+                <a href="{{ url_for('settings') }}"><i class="bi bi-gear"></i> Settings</a>
+                <a href="{{ url_for('support') }}"><i class="bi bi-question-circle"></i> Support</a>
+                <a href="#" onclick="openAdminLogin(); return false;"><i class="bi bi-shield-lock"></i> Admin Login</a>
+                <div class="navbar-new-profile-divider"></div>
+                <a href="{{ url_for('logout') }}" class="navbar-new-logout"><i class="bi bi-box-arrow-right"></i> Log Out</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Admin Login Popup -->
+<div class="admin-popup-overlay" id="adminPopup" onclick="if(event.target===this)closeAdminLogin()">
+    <div class="admin-popup-box">
+        <button class="admin-popup-close" onclick="closeAdminLogin()">&times;</button>
+        <h3 style="font-family:'Playfair Display',serif; margin-bottom:1rem;">Admin Login</h3>
+        <form id="adminLoginForm" onsubmit="return handleAdminLogin(event)">
+            <input type="text" id="adminUser" placeholder="Username" style="width:100%;padding:0.6rem;margin-bottom:0.75rem;border:1px solid #ccc;border-radius:6px;">
+            <input type="password" id="adminPass" placeholder="Password" style="width:100%;padding:0.6rem;margin-bottom:0.75rem;border:1px solid #ccc;border-radius:6px;">
+            <div id="adminError" style="color:#c0392b;font-size:0.85rem;margin-bottom:0.5rem;display:none;"></div>
+            <button type="submit" style="width:100%;padding:0.6rem;background:#8F7B6A;color:white;border:none;border-radius:6px;cursor:pointer;">Login</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function openAdminLogin(){document.getElementById('adminPopup').style.display='flex';}
+function closeAdminLogin(){document.getElementById('adminPopup').style.display='none';document.getElementById('adminError').style.display='none';}
+function handleAdminLogin(e){
+    e.preventDefault();
+    var u=document.getElementById('adminUser').value, p=document.getElementById('adminPass').value;
+    fetch('/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})})
+    .then(r=>r.json()).then(d=>{if(d.success){window.location.href='/admin/dashboard';}else{var err=document.getElementById('adminError');err.textContent=d.message||'Invalid credentials';err.style.display='block';}})
+    .catch(()=>{var err=document.getElementById('adminError');err.textContent='Connection error';err.style.display='block';});
+    return false;
+}
+</script>

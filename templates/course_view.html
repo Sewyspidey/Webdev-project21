@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block title %}{{ course.title }} - BridgeHive{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .course-view-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+    
+    .course-view-modal {
+        background: var(--cream);
+        border-radius: 16px;
+        max-width: 800px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+    }
+    
+    .course-view-header {
+        height: 200px;
+        background-color: {{ course.color }};
+        border-radius: 16px 16px 0 0;
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        padding: 2rem;
+    }
+    
+    .course-close-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 40px;
+        height: 40px;
+        background: rgba(255,255,255,0.9);
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: var(--black);
+        transition: all 0.2s;
+    }
+    
+    .course-close-btn:hover {
+        background: white;
+        transform: scale(1.1);
+    }
+    
+    .course-view-category {
+        background: rgba(255,255,255,0.9);
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--black);
+    }
+    
+    .course-view-body {
+        padding: 2rem;
+    }
+    
+    .course-view-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        color: var(--black);
+    }
+    
+    .course-view-instructor {
+        color: var(--gray);
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .course-view-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .course-view-section h3 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+        color: var(--black);
+    }
+    
+    .course-view-section p {
+        color: var(--gray);
+        line-height: 1.7;
+    }
+    
+    .course-modules {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .course-modules li {
+        padding: 1rem;
+        background: var(--cream-dark);
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .course-modules li i {
+        color: var(--brown);
+    }
+    
+    .course-view-footer {
+        padding: 1.5rem 2rem;
+        border-top: 1px solid var(--cream-dark);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .btn-start-course {
+        background: var(--brown);
+        color: white;
+        padding: 0.85rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .btn-start-course:hover {
+        background: #7A6A5A;
+    }
+    
+    .course-meta-info {
+        display: flex;
+        gap: 1.5rem;
+        color: var(--gray);
+        font-size: 0.9rem;
+    }
+    
+    .course-meta-info span {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="course-view-overlay">
+    <div class="course-view-modal">
+        <div class="course-view-header">
+            {% if from_folder %}
+            <a href="{{ url_for('folder_view', folder_id=from_folder) }}" class="course-close-btn">
+                <i class="bi bi-x-lg"></i>
+            </a>
+            {% else %}
+            <a href="{{ url_for('both_homepage') }}" class="course-close-btn">
+                <i class="bi bi-x-lg"></i>
+            </a>
+            {% endif %}
+            <span class="course-view-category">{{ course.category }}</span>
+        </div>
+        
+        <div class="course-view-body">
+            <h1 class="course-view-title">{{ course.title }}</h1>
+            <p class="course-view-instructor">by {{ course.instructor_name }}</p>
+            
+            <div class="course-view-section">
+                <h3>About this course</h3>
+                <p>{{ course.description or 'Learn ' + course.category.lower() + ' skills with ' + course.instructor_name + '. This course covers fundamental concepts and practical applications designed for intergenerational learning.' }}</p>
+            </div>
+            
+            <div class="course-view-section">
+                <h3>What you'll learn</h3>
+                <ul class="course-modules">
+                    <li><i class="bi bi-check-circle-fill"></i> Introduction to {{ course.category }}</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Core concepts and fundamentals</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Practical exercises and activities</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Tips from experienced practitioners</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Real-world applications</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="course-view-footer">
+            <div class="course-meta-info">
+                <span><i class="bi bi-clock"></i> 4-6 hours</span>
+                <span><i class="bi bi-people"></i> 150+ enrolled</span>
+                <span><i class="bi bi-star-fill"></i> 4.8 rating</span>
+            </div>
+            {% if course.library_id %}
+            <a href="/lib/course/{{ course.library_id }}" class="btn-start-course" style="text-decoration: none; text-align: center;">Continue Learning</a>
+            {% else %}
+            <button class="btn-start-course" onclick="alert('Course started! This would begin the first lesson.')">Continue Learning</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+<!-- Text-to-Speech Engine -->
+<script>
+(function() {
+    window.BH = window.BH || {};
+    window.BH.ttsEnabled = (document.body.dataset.ttsEnabled === 'true');
+    
+    const pill = document.createElement('div');
+    pill.id = 'tts-reading-pill';
+    pill.innerHTML = '<i class="bi bi-volume-up-fill me-2"></i><span id="tts-pill-text"></span>' +
+                     '<button onclick="window.BH.ttsStop()" style="background:none;border:none;color:white;margin-left:10px;cursor:pointer;font-size:1rem;">✕</button>';
+    Object.assign(pill.style, {
+        position: 'fixed', bottom: '100px', left: '50%', transform: 'translateX(-50%) translateY(20px)',
+        background: '#8F7B6A', color: 'white', padding: '0.6rem 1.2rem',
+        borderRadius: '50px', fontSize: '0.85rem', fontWeight: '500',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.25)', zIndex: '9999',
+        display: 'none', alignItems: 'center', gap: '4px',
+        maxWidth: '380px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        transition: 'opacity 0.3s, transform 0.3s', opacity: '0'
+    });
+    document.body.appendChild(pill);
+    
+    function showPill(text) {
+        const display = text.length > 45 ? text.substring(0, 45) + '…' : text;
+        document.getElementById('tts-pill-text').textContent = '"' + display + '"';
+        pill.style.display = 'flex';
+        requestAnimationFrame(() => { pill.style.opacity = '1'; pill.style.transform = 'translateX(-50%) translateY(0)'; });
+    }
+    function hidePill() {
+        pill.style.opacity = '0';
+        pill.style.transform = 'translateX(-50%) translateY(20px)';
+        setTimeout(() => { pill.style.display = 'none'; }, 300);
+    }
+    
+    window.BH.ttsStop = function() { window.speechSynthesis.cancel(); hidePill(); };
+    window.BH.ttsSpeak = function(text, lang) {
+        if (!text || !text.trim()) return;
+        const langMap = { 'en': 'en-SG', 'zh': 'zh-CN', 'ms': 'ms-MY', 'ta': 'ta-IN' };
+        const pageLang = document.documentElement.lang || 'en';
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text.trim());
+        utterance.lang = lang || langMap[pageLang] || pageLang;
+        utterance.rate = 0.92;
+        utterance.onstart = () => showPill(text.trim());
+        utterance.onend = () => hidePill();
+        utterance.onerror = () => hidePill();
+        window.speechSynthesis.speak(utterance);
+    };
+    
+    function handleSelectionEnd() {
+        if (!window.BH.ttsEnabled) return;
+        setTimeout(function() {
+            const selected = window.getSelection().toString().trim();
+            if (selected.length > 1) window.BH.ttsSpeak(selected);
+        }, 120);
+    }
+    document.addEventListener('mouseup', handleSelectionEnd);
+    document.addEventListener('touchend', handleSelectionEnd);
+    
+    const badge = document.createElement('div');
+    badge.innerHTML = '<i class="bi bi-volume-up-fill"></i> TTS On';
+    Object.assign(badge.style, {
+        position: 'fixed', top: '72px', right: '16px',
+        background: '#8F7B6A', color: 'white',
+        padding: '0.35rem 0.85rem', borderRadius: '20px',
+        fontSize: '0.75rem', fontWeight: '500', zIndex: '9998',
+        display: 'none', alignItems: 'center', gap: '6px', cursor: 'pointer'
+    });
+    badge.onclick = () => window.BH.ttsStop();
+    document.body.appendChild(badge);
+    
+    window.BH.updateTTSBadge = function() { badge.style.display = window.BH.ttsEnabled ? 'flex' : 'none'; };
+    window.BH.updateTTSBadge();
+})();
+</script>

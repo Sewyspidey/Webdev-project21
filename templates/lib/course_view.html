@@ -1,0 +1,426 @@
+{% extends "lib/base.html" %}
+
+{% block title %}{{ course.title }} | BridgeHive{% endblock %}
+
+{% block content %}
+        
+        <div class="glass-panel mb-5" data-course-id="{{ course.id }}">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge bg-dark rounded-pill px-3 py-2">{{ course.skill_level }}</span>
+                        <span class="badge bg-white text-dark border rounded-pill px-3 py-2">{{ course.category }}</span>
+                    </div>
+                    <h1 class="display-4 fw-bold mb-3">{{ course.title }}</h1>
+                    <p class="lead text-muted">{{ course.description }}</p>
+                    
+                    <div class="d-flex align-items-center mt-4">
+                        <div class="d-flex align-items-center me-5">
+                            <div class="bg-secondary rounded-circle me-3" style="width: 48px; height: 48px;"></div>
+                            <div>
+                                <p class="mb-0 fw-bold text-uppercase small text-muted">Instructor</p>
+                                <p class="mb-0 fw-bold">{{ course.instructor_name }}</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-warning rounded-circle me-3 d-flex align-items-center justify-content-center text-white" style="width: 48px; height: 48px;">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0 fw-bold text-uppercase small text-muted">Rating</p>
+                                <p class="mb-0 fw-bold">4.9 / 5.0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 d-none d-lg-block">
+                    <div class="bg-white rounded-4 p-4 shadow-sm text-center border">
+                        <h5 class="font-serif mb-3">Your Journey</h5>
+                            <div class="progress mb-3" style="height: 12px; border-radius: 6px;">
+                                <div class="progress-bar bg-success" role="progressbar" data-progress="{{ completion_percentage|round(0) }}"></div>
+                            </div>
+                        <p class="small text-muted mb-4">
+                            {{ completed_modules }} / {{ total_modules }} lessons completed
+                        </p>
+                        <div style="display: grid; gap: 0.8rem;">
+                            <a href="{{ url_for('lib.learn_modules', course_id=course.id) }}" class="btn btn-primary-ent w-100 justify-content-center">
+                                Continue Learning <i class="fas fa-play ms-2"></i>
+                            </a>
+                            <a href="{{ url_for('lib.manage_resources', course_id=course.id) }}" class="btn btn-outline-dark w-100 justify-content-center">
+                                <i class="fas fa-book me-2"></i>Learning Resources
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                
+                <div class="player-wrapper ratio ratio-16x9 mb-5">
+                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=1&modestbranding=1" title="Course Video" allowfullscreen></iframe>
+                </div>
+
+                <ul class="nav nav-tabs nav-fill mb-4 border-bottom-0 gap-2" id="courseTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active border rounded-pill" id="curriculum-tab" data-bs-toggle="tab" data-bs-target="#curriculum" type="button">Curriculum</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link border rounded-pill" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button">Overview</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link border rounded-pill" id="discussion-tab" data-bs-toggle="tab" data-bs-target="#discussion" type="button">Discussion</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="courseTabsContent">
+                    <div class="tab-pane fade show active" id="curriculum">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="font-serif m-0">Course Modules</h4>
+                            <span class="badge bg-light text-dark border">{{ modules|length }} Lessons</span>
+                        </div>
+                        
+                        <div class="d-flex flex-column gap-3">
+                            {% for module in modules %}
+                            <a href="{{ url_for('lib.view_module', course_id=course.id, module_id=module.id) }}" class="text-decoration-none">
+                                <div class="module-list-item {% if loop.index == 2 %}active{% endif %}" style="cursor: pointer; transition: all 0.3s ease;">
+                                    <div class="me-3">
+                                        {% if loop.index == 1 %}
+                                            <i class="fas fa-check-circle text-success fs-4"></i>
+                                        {% elif loop.index == 2 %}
+                                            <div class="spinner-grow text-primary spinner-grow-sm" role="status"></div>
+                                        {% else %}
+                                            <i class="fas fa-lock text-muted fs-4"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 fw-bold">{{ module.title }}</h6>
+                                        <small class="text-muted"><i class="far fa-clock me-1"></i> {{ module.duration_mins }} min • Video Lesson</small>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-secondary rounded-circle">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endfor %}
+                            
+                            <a href="/lib/quiz/{{ course.id }}" class="text-decoration-none">
+                                <div class="module-list-item border-warning bg-warning-subtle">
+                                    <div class="me-3">
+                                        <i class="fas fa-trophy text-warning fs-4"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 fw-bold text-dark">Final Certification Assessment</h6>
+                                        <small class="text-dark"><i class="fas fa-star me-1"></i> Pass to earn certificate</small>
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-warning text-dark">Locked</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="overview">
+                        <div class="bg-white p-5 rounded-4 border shadow-sm">
+                            <h4 class="font-serif mb-4">About this Course</h4>
+                            <p class="text-muted mb-4 leading-loose">{{ course.description }}</p>
+                            
+                            <h5 class="font-serif mb-3">What you will learn</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-start">
+                                        <i class="fas fa-check text-success mt-1 me-3"></i>
+                                        <p class="mb-0 small text-muted">Master fundamental techniques step-by-step.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-start">
+                                        <i class="fas fa-check text-success mt-1 me-3"></i>
+                                        <p class="mb-0 small text-muted">Engage with intergenerational community members.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="discussion">
+                        <div class="bg-white p-5 rounded-4 border shadow-sm">
+                            <div class="d-flex gap-3 mb-4">
+                                <div class="bg-light rounded-circle" style="width: 40px; height: 40px;"></div>
+                                <div class="flex-grow-1">
+                                    <input type="text" id="authorName" class="form-control mb-2" placeholder="Your name" value="Anonymous">
+                                    <textarea id="commentText" class="form-control mb-2" rows="2" placeholder="Ask a question..."></textarea>
+                                    <button class="btn btn-primary-ent btn-sm" onclick="postComment()">Post Comment</button>
+                                    <div id="commentFeedback" class="mt-2"></div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div id="commentsList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="glass-panel mb-4">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h5 class="font-serif mb-0">Learning Resources</h5>
+                        <a href="{{ url_for('lib.manage_resources', course_id=course.id) }}" class="btn btn-sm btn-outline-dark" title="Manage resources">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                    </div>
+                    
+    
+                </div>
+                
+                <div class="glass-panel text-center">
+                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-users text-white fs-3"></i>
+                    </div>
+                    <h5 class="font-serif">Community Hub</h5>
+                    <p class="small text-muted mb-3"><span id="memberCount">0</span>+ learners connecting and discussing.</p>
+                    <button class="btn btn-primary-ent w-100 justify-content-center" data-bs-toggle="modal" data-bs-target="#communityHubModal">Join Discussion</button>
+                </div>
+            </div>
+        </div>
+
+<!-- Community Hub Modal -->
+<div class="modal fade" id="communityHubModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <div>
+                    <h5 class="modal-title font-serif">Community Hub</h5>
+                    <p class="small text-muted mb-0">Connect with learners taking this course</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="max-height: 500px; overflow-y: auto;">
+                <div id="communityMessages"></div>
+            </div>
+            <div class="modal-footer border-top">
+                <div class="w-100">
+                    <input type="text" id="communityAuthor" class="form-control mb-2" placeholder="Your name (optional)" value="Anonymous">
+                    <div class="input-group">
+                        <textarea id="communityMessage" class="form-control" placeholder="Share your thoughts..." rows="2"></textarea>
+                        <button class="btn btn-primary-ent" onclick="postCommunityMessage()" type="button">Send</button>
+                    </div>
+                    <div id="communityFeedback" class="mt-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script>
+    const courseId = Number(document.querySelector('[data-course-id]')?.dataset.courseId || 0);
+
+    // Apply progress widths after render to avoid template syntax inside style attributes breaking validation
+    document.querySelectorAll('[data-progress]').forEach(bar => {
+        const pct = Number(bar.dataset.progress) || 0;
+        bar.style.width = `${pct}%`;
+    });
+
+    function loadComments() {
+        fetch(`/lib/course/${courseId}/comments`)
+            .then(response => response.json())
+            .then(comments => {
+                const commentsList = document.getElementById('commentsList');
+                commentsList.innerHTML = '';
+                
+                if (comments.length === 0) {
+                    commentsList.innerHTML = '<p class="text-muted text-center py-4">No comments yet. Be the first to comment!</p>';
+                    return;
+                }
+                
+                comments.forEach(comment => {
+                    const date = new Date(comment.created_at);
+                    const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                    
+                    const commentHtml = `
+                        <div class="d-flex gap-3 mb-3 pb-3 border-bottom">
+                            <img src="https://i.pravatar.cc/150?u=${encodeURIComponent(comment.author_name)}" class="rounded-circle" width="40" height="40">
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold mb-0">${escapeHtml(comment.author_name)}</h6>
+                                <small class="text-muted">${formattedDate}</small>
+                                <p class="mt-2 text-muted small">${escapeHtml(comment.comment_text)}</p>
+                            </div>
+                        </div>
+                    `;
+                    commentsList.innerHTML += commentHtml;
+                });
+            })
+            .catch(error => console.error('Error loading comments:', error));
+    }
+
+    function postComment() {
+        const authorName = document.getElementById('authorName').value.trim() || 'Anonymous';
+        const commentText = document.getElementById('commentText').value.trim();
+        const feedback = document.getElementById('commentFeedback');
+        
+        if (!commentText) {
+            feedback.innerHTML = '<div class="alert alert-warning mb-0">Please write a comment.</div>';
+            return;
+        }
+        
+        if (commentText.length > 500) {
+            feedback.innerHTML = '<div class="alert alert-warning mb-0">Comment must be less than 500 characters.</div>';
+            return;
+        }
+        
+        feedback.innerHTML = '';
+        
+        fetch(`/lib/course/${courseId}/comment`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                author_name: authorName,
+                comment_text: commentText
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('commentText').value = '';
+                feedback.innerHTML = '<div class="alert alert-success mb-0">Comment posted successfully!</div>';
+                setTimeout(() => {
+                    feedback.innerHTML = '';
+                }, 3000);
+                loadComments();
+            } else {
+                feedback.innerHTML = `<div class="alert alert-danger mb-0">${escapeHtml(data.message)}</div>`;
+            }
+        })
+        .catch(error => {
+            feedback.innerHTML = '<div class="alert alert-danger mb-0">Error posting comment.</div>';
+            console.error('Error:', error);
+        });
+    }
+
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    function loadCommunityMessages() {
+        fetch(`/lib/course/${courseId}/community-messages`)
+            .then(response => response.json())
+            .then(messages => {
+                const messagesList = document.getElementById('communityMessages');
+                messagesList.innerHTML = '';
+                
+                if (messages.length === 0) {
+                    messagesList.innerHTML = '<p class="text-muted text-center py-4">No messages yet. Be the first to share!</p>';
+                    return;
+                }
+                
+                messages.forEach(msg => {
+                    const date = new Date(msg.created_at);
+                    const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                    
+                    const msgHtml = `
+                        <div class="d-flex gap-3 mb-3 pb-3 border-bottom">
+                            <img src="https://i.pravatar.cc/150?u=${encodeURIComponent(msg.author_name)}" class="rounded-circle" width="40" height="40">
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold mb-0">${escapeHtml(msg.author_name)}</h6>
+                                <small class="text-muted">${formattedDate}</small>
+                                <p class="mt-2 text-muted small">${escapeHtml(msg.message_text)}</p>
+                            </div>
+                        </div>
+                    `;
+                    messagesList.innerHTML += msgHtml;
+                });
+            })
+            .catch(error => console.error('Error loading messages:', error));
+    }
+
+    function loadCommunityCount() {
+        fetch(`/lib/course/${courseId}/community-members`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('memberCount').textContent = data.count > 0 ? data.count : '120';
+            })
+            .catch(error => console.error('Error loading member count:', error));
+    }
+
+    function postCommunityMessage() {
+        const authorName = document.getElementById('communityAuthor').value.trim() || 'Anonymous';
+        const messageText = document.getElementById('communityMessage').value.trim();
+        const feedback = document.getElementById('communityFeedback');
+        
+        if (!messageText) {
+            feedback.innerHTML = '<div class="alert alert-warning mb-0">Please write a message.</div>';
+            return;
+        }
+        
+        if (messageText.length > 500) {
+            feedback.innerHTML = '<div class="alert alert-warning mb-0">Message must be less than 500 characters.</div>';
+            return;
+        }
+        
+        feedback.innerHTML = '';
+        
+        fetch(`/lib/course/${courseId}/community-message`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                author_name: authorName,
+                message_text: messageText
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('communityMessage').value = '';
+                feedback.innerHTML = '<div class="alert alert-success mb-0">Message posted!</div>';
+                setTimeout(() => {
+                    feedback.innerHTML = '';
+                }, 3000);
+                loadCommunityMessages();
+                loadCommunityCount();
+            } else {
+                feedback.innerHTML = `<div class="alert alert-danger mb-0">${escapeHtml(data.message)}</div>`;
+            }
+        })
+        .catch(error => {
+            feedback.innerHTML = '<div class="alert alert-danger mb-0">Error posting message.</div>';
+            console.error('Error:', error);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadComments();
+        loadCommunityMessages();
+        loadCommunityCount();
+        LearningPlayer.init();
+
+        // Refresh community hub when modal opens
+        const communityModal = document.getElementById('communityHubModal');
+        if (communityModal) {
+            communityModal.addEventListener('show.bs.modal', function() {
+                loadCommunityMessages();
+                loadCommunityCount();
+            });
+        }
+    });
+</script>
+{% endblock %}

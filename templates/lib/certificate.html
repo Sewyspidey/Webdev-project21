@@ -1,0 +1,751 @@
+{% extends "lib/base.html" %}
+
+{% block title %}Certificate of Completion | BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    .certificate-wrapper {
+        max-width: 1000px;
+        margin: 3rem auto;
+        padding: 0 1rem;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .certificate-controls {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border: 2px solid #e5e7eb;
+        animation: slideInDown 0.6s ease-out;
+        display: none;
+    }
+
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .certificate-controls h5 {
+        font-family: 'DM Serif Display', serif;
+        color: #2C3E50;
+        margin-bottom: 1.5rem;
+    }
+
+    .name-input-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .name-input-group input {
+        flex: 1;
+        min-width: 250px;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+    }
+
+    .name-input-group input:focus {
+        border-color: #c41e3a;
+        box-shadow: 0 0 0 4px rgba(196, 30, 58, 0.1);
+        outline: none;
+        transform: scale(1.01);
+        background: white;
+    }
+
+    .preview-toggle {
+        padding: 0.75rem 1.5rem;
+        background: #f3f4f6;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .preview-toggle:hover {
+        background: #e5e7eb;
+        border-color: #c41e3a;
+        transform: translateY(-2px);
+    }
+
+    .preview-toggle.active {
+        background: linear-gradient(135deg, #c41e3a, #a01729);
+        color: white;
+        border-color: #c41e3a;
+        box-shadow: 0 8px 20px rgba(196, 30, 58, 0.25);
+    }
+
+    .certificate-document {
+        background: linear-gradient(135deg, #faf3e0 0%, #fff9f0 50%, #faf3e0 100%);
+        border: 3px solid #c41e3a;
+        border-radius: 12px;
+        padding: 4rem 3rem;
+        position: relative;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15), inset 0 0 100px rgba(196, 30, 58, 0.05);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        overflow: visible;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        width: 100%;
+        height: auto;
+        min-height: auto;
+        max-height: none;
+        animation: zoomInDown 0.8s ease-out;
+    }
+
+    
+
+    @keyframes zoomInDown {
+        from {
+            opacity: 0;
+            transform: scale(0.9) translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    .certificate-document:hover {
+        transform: translateY(-8px) scale(1.01);
+        box-shadow: 0 20px 60px rgba(196, 30, 58, 0.25), inset 0 0 100px rgba(196, 30, 58, 0.05);
+    }
+
+    .certificate-document::before {
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        border: 2px solid #c41e3a;
+        opacity: 0.2;
+        border-radius: 8px;
+        pointer-events: none;
+    }
+
+    .certificate-document::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        transition: left 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        pointer-events: none;
+    }
+
+    .certificate-document:hover::after {
+        left: 100%;
+    }
+
+    .certificate-document:hover::after {
+        left: 100%;
+    }
+
+    .certificate-content {
+        text-align: center;
+        position: relative;
+        z-index: 2;
+        width: 100%;
+    }
+
+    .certificate-logo {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #c41e3a;
+        letter-spacing: 3px;
+        margin-bottom: 0.8rem;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+    }
+
+    .certificate-seal {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #ffd700, #ffed4e);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 16px rgba(255, 215, 0, 0.3), inset 0 -2px 4px rgba(0,0,0,0.1);
+        bottom: 2.5rem;
+        right: 2.5rem;
+        border: 4px solid #c41e3a;
+        z-index: 3;
+        animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .certificate-seal i {
+        color: #c41e3a;
+        font-size: 2rem;
+    }
+
+    .certificate-header {
+        margin-bottom: 1rem;
+    }
+
+    .certificate-title {
+        font-family: 'DM Serif Display', serif;
+        font-size: 2.2rem;
+        color: #1a1a1a;
+        margin: 0.3rem 0;
+        letter-spacing: 2px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .certificate-subtitle {
+        font-size: 0.85rem;
+        color: #666;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+
+    .certificate-statement {
+        font-size: 1rem;
+        color: #333;
+        margin-bottom: 0.3rem;
+        font-style: italic;
+    }
+
+    .recipient-name {
+        font-family: 'DM Serif Display', serif;
+        font-size: 1.8rem;
+        color: #c41e3a;
+        margin: 1rem 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 3px solid #333;
+        letter-spacing: 1.5px;
+        transition: all 0.3s ease;
+    }
+
+    .recipient-name:hover {
+        transform: scale(1.05);
+        text-shadow: 2px 2px 4px rgba(196, 30, 58, 0.2);
+    }
+
+    .course-name {
+        font-family: 'DM Serif Display', serif;
+        font-size: 1.4rem;
+        color: #1a1a1a;
+        margin: 0.8rem 0;
+        font-weight: 600;
+    }
+
+    .certificate-details {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 1.8rem;
+        padding-top: 1.2rem;
+        border-top: 2px solid #c41e3a;
+        font-size: 0.85rem;
+        color: #555;
+        width: 100%;
+        gap: 1rem;
+    }
+
+    .detail-item {
+        flex: 1;
+        text-align: center;
+        padding: 0.5rem;
+    }
+
+    .detail-item label {
+        display: block;
+        font-size: 0.75rem;
+        color: #999;
+        margin-bottom: 0.3rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+    }
+
+    .detail-item .value {
+        font-weight: 700;
+        color: #c41e3a;
+        font-size: 0.95rem;
+    }
+
+    .signature-line {
+        border-top: 2px solid #333;
+        width: 150px;
+        height: 50px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        margin: 1rem auto 0;
+        font-size: 0.8rem;
+        color: #555;
+        font-weight: 600;
+    }
+
+    .certificate-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-certificate {
+        padding: 0.85rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.7rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        font-size: 0.95rem;
+    }
+
+    .btn-download {
+        background: linear-gradient(135deg, #c41e3a, #a01530);
+        color: white;
+    }
+
+    .btn-download:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(196, 30, 58, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-print {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+
+    .btn-print:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(102, 126, 234, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-share {
+        background: white;
+        color: #c41e3a;
+        border: 2px solid #c41e3a;
+    }
+
+    .btn-share:hover {
+        background: #c41e3a;
+        color: white;
+        transform: translateY(-3px);
+        text-decoration: none;
+        box-shadow: 0 12px 24px rgba(196, 30, 58, 0.3);
+    }
+
+    .btn-copy {
+        background: #f3f4f6;
+        color: #333;
+        border: 2px solid #e5e7eb;
+    }
+
+    .btn-copy:hover {
+        background: #e5e7eb;
+        border-color: #333;
+        transform: translateY(-3px);
+        text-decoration: none;
+    }
+
+    .btn-home {
+        background: #f3f4f6;
+        color: #333;
+        border: 2px solid #e5e7eb;
+    }
+
+    .btn-home:hover {
+        background: #333;
+        color: white;
+        border-color: #333;
+        transform: translateY(-3px);
+        text-decoration: none;
+    }
+
+    .certificate-info {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(196, 30, 58, 0.05));
+        border-left: 4px solid #667eea;
+        padding: 1.2rem;
+        border-radius: 12px;
+        margin-top: 2rem;
+        font-size: 0.9rem;
+        color: #555;
+    }
+
+    .certificate-info i {
+        color: #667eea;
+    }
+
+    .stats-bar {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1rem;
+        border-radius: 12px;
+        text-align: center;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        border-color: #c41e3a;
+        box-shadow: 0 4px 12px rgba(196, 30, 58, 0.1);
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #c41e3a;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .certificate-document {
+        animation: slideInUp 0.6s ease-out;
+    }
+
+    .certificate-actions {
+        animation: slideInUp 0.8s ease-out;
+    }
+
+    @media print {
+        .certificate-actions,
+        .certificate-info,
+        .certificate-controls,
+        .stats-bar,
+        body > *:not(.certificate-wrapper),
+        .navbar,
+        footer {
+            display: none !important;
+        }
+        
+        .certificate-wrapper {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .certificate-document {
+            box-shadow: none;
+            aspect-ratio: auto;
+            page-break-after: always;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .certificate-document {
+            padding: 2rem 1.5rem;
+        }
+
+        .certificate-title {
+            font-size: 1.5rem;
+        }
+
+        .recipient-name {
+            font-size: 1.3rem;
+        }
+
+        .course-name {
+            font-size: 1rem;
+        }
+
+        .certificate-details {
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .certificate-seal {
+            width: 70px;
+            height: 70px;
+            bottom: 1.5rem;
+            right: 1.5rem;
+        }
+
+        .certificate-seal i {
+            font-size: 1.4rem;
+        }
+
+        .name-input-group {
+            flex-direction: column;
+        }
+
+        .name-input-group input {
+            min-width: 100%;
+        }
+
+        .stats-bar {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .btn-certificate {
+            padding: 0.7rem 1.5rem;
+            font-size: 0.85rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="certificate-wrapper">
+    <!-- CERTIFICATE DISPLAY -->
+    <div class="certificate-document" id="certificateDocument">
+        <div class="certificate-seal">
+            <i class="fas fa-medal"></i>
+        </div>
+
+        <div class="certificate-content">
+            <div class="certificate-header">
+                <div class="certificate-logo">🌉 BRIDGEHIVE</div>
+                <div class="certificate-subtitle">Certificate of Excellence</div>
+            </div>
+
+            <p class="certificate-statement">
+                This certificate is proudly presented to
+            </p>
+
+            <div class="recipient-name" id="recipientName">
+                {{ user_name }}
+            </div>
+
+            <p style="color: #666; margin: 0.5rem 0; font-size: 0.95rem;">
+                For successfully completing the course
+            </p>
+
+            <div class="course-name" id="courseName">
+                {{ course.title if course else 'Course Title' }}
+            </div>
+
+            <p style="color: #666; font-size: 0.95rem; margin-top: 0.8rem; margin-bottom: 0;">
+                This learner has demonstrated mastery of the subject matter and is hereby recognized for their dedication and achievement in pursuit of lifelong learning.
+            </p>
+
+            <div class="certificate-details">
+                <div class="detail-item">
+                    <label>Date of Completion</label>
+                    <div class="value" id="completionDate">{{ date if date else 'Today' }}</div>
+                </div>
+                <div class="detail-item">
+                    <label>Certificate ID</label>
+                    <div class="value" id="certificateId">NYP-2026-BH-{{ '%04d' % (course.id if course else 1) }}</div>
+                </div>
+                <div class="detail-item">
+                    <label>Instructor</label>
+                    <div class="value" id="instructorName">{{ course.instructor_name if course else 'BridgeHive' }}</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1rem; text-align: center;">
+                <div class="signature-line">
+                    Director, BridgeHive
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATISTICS SECTION -->
+    <div class="stats-bar">
+        <div class="stat-card">
+            <div class="stat-value">{{ score_percentage if score_percentage is defined else 100 }}%</div>
+            <div class="stat-label">Completion</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ grade if grade is defined else 'A+' }}</div>
+            <div class="stat-label">Performance</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ '%d/%d' % (quiz_score, quiz_total) if quiz_score is defined else '10/10' }}</div>
+            <div class="stat-label">Quiz Score</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ now.strftime('%Y') if now else '2026' }}</div>
+            <div class="stat-label">Year Achieved</div>
+        </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="certificate-actions">
+        <button class="btn-certificate btn-download" onclick="downloadCertificate()" title="Download as PDF">
+            <i class="fas fa-download"></i> Download PDF
+        </button>
+        <button class="btn-certificate btn-print" onclick="printCertificate()" title="Print certificate">
+            <i class="fas fa-print"></i> Print
+        </button>
+        <button class="btn-certificate btn-share" onclick="shareCertificate()" title="Share on social media">
+            <i class="fas fa-share-alt"></i> Share
+        </button>
+        <button class="btn-certificate btn-copy" onclick="copyCertificateLink()" title="Copy link to clipboard">
+            <i class="fas fa-link"></i> Copy Link
+        </button>
+        <a href="/lib/library" class="btn-certificate btn-home" title="Back to course library">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <!-- INFO SECTION -->
+    <div class="certificate-info">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Your Certificate:</strong> This certificate is registered to your BridgeHive account and cannot be modified. Download it as PDF, print it, or share your achievement with others!
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    // Print certificate
+    function printCertificate() {
+        window.print();
+    }
+
+    function downloadCertificate() {
+        const element = document.getElementById('certificateDocument');
+        const userName = document.getElementById('recipientName').textContent.trim() || 'Certificate';
+        const courseTitle = document.getElementById('courseName').textContent.trim() || 'Course';
+        const filename = `BridgeHive_Certificate_${userName}_${courseTitle}.pdf`;
+        
+        const opt = {
+            margin: [0.5, 0.5],
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+
+    // Share certificate
+    function shareCertificate() {
+        const courseTitle = document.getElementById('courseName').textContent.trim();
+        const certificateId = document.getElementById('certificateId').textContent.trim();
+        const url = window.location.href;
+        
+        const text = `I just completed "${courseTitle}" on BridgeHive and earned my certificate! 🎓 Certificate ID: ${certificateId}`;
+        
+        if (navigator.share) {
+            navigator.share({
+                title: `BridgeHive Certificate - ${courseTitle}`,
+                text: text,
+                url: url
+            })
+                .then(() => {
+                    if (typeof UIController !== 'undefined' && UIController.showToast) {
+                        UIController.showToast('Certificate shared successfully!', 'success');
+                    }
+                })
+                .catch((err) => {
+                    if (err.name !== 'AbortError') {
+                        console.error('Share error:', err);
+                    }
+                });
+        } else {
+            copyCertificateLink();
+            if (typeof UIController !== 'undefined' && UIController.showToast) {
+                UIController.showToast('Copied to clipboard (Web Share API not supported)', 'info');
+            }
+        }
+    }
+
+    // Copy certificate link
+    function copyCertificateLink() {
+        const certificateId = document.getElementById('certificateId').textContent;
+        const url = window.location.href;
+        const text = `Certificate ID: ${certificateId}\nURL: ${url}`;
+        
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        
+        try {
+            document.execCommand('copy');
+            if (typeof UIController !== 'undefined' && UIController.showToast) {
+                UIController.showToast('Certificate link copied to clipboard!', 'success');
+            }
+        } catch (err) {
+            if (typeof UIController !== 'undefined' && UIController.showToast) {
+                UIController.showToast('Failed to copy to clipboard', 'danger');
+            }
+        }
+        document.body.removeChild(textarea);
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', function() {
+        const courseTitle = document.getElementById('courseName').textContent.trim();
+        if (!courseTitle || courseTitle === 'Course Title') {
+            document.getElementById('courseName').textContent = 'Intergenerational Learning Excellence';
+        }
+
+        const completionDateEl = document.getElementById('completionDate');
+        if (completionDateEl && !completionDateEl.textContent.trim()) {
+            const today = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            completionDateEl.textContent = today.toLocaleDateString('en-US', options);
+        }
+        
+        console.log('✓ Certificate page initialized');
+    });
+</script>
+{% endblock %}

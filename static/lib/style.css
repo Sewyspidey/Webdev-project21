@@ -1,0 +1,818 @@
+/*
+=============================================================================
+BRIDGEHIVE ENTERPRISE VISUAL LANGUAGE SYSTEM v5.0
+Target: High-Performance Hackathon Demo
+Theme: "Neon Glass" (Futuristic & Accessible)
+=============================================================================
+*/
+
+/* --------------------------------------------------------------------------
+   1. DESIGN TOKENS & VARIABLES
+-------------------------------------------------------------------------- */
+:root {
+    /* Core Palette (Benjamin Moore Inspired) */
+    --color-bg-base: #F0F1EB;
+    --color-bg-surface: #ffffff;
+    --color-bg-glass: rgba(255, 255, 255, 0.7);
+    --color-bg-glass-heavy: rgba(255, 255, 255, 0.9);
+    
+    /* Branding */
+    --color-primary: #2C3E50;
+    --color-primary-hover: #1a252f;
+    --color-secondary: #B5B0A1;
+    --color-text-main: #111827;
+    --color-text-muted: #6B7280;
+    
+    /* Accents */
+    --color-accent-pink: #F8B4B4;
+    --color-accent-green: #C9E4CA;
+    --color-accent-blue: #A7C5EB;
+    --color-accent-yellow: #FDE047;
+    
+    /* Effects */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    
+    --blur-glass: blur(12px);
+    --border-glass: 1px solid rgba(255, 255, 255, 0.5);
+    
+    /* Typography */
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-serif: 'DM Serif Display', serif;
+    
+    /* Animation Timing */
+    --ease-out-back: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --------------------------------------------------------------------------
+   2. GLOBAL RESET & BASE STYLES
+-------------------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    background-color: var(--color-bg-base);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(44, 62, 80, 0.05) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(248, 180, 180, 0.1) 0px, transparent 50%);
+    background-attachment: fixed;
+    font-family: var(--font-sans);
+    color: var(--color-text-main);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    letter-spacing: -0.025em;
+    color: var(--color-primary);
+    margin-bottom: 0.75em;
+}
+
+/* --------------------------------------------------------------------------
+   3. ANIMATIONS & KEYFRAMES
+-------------------------------------------------------------------------- */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes pulse-ring {
+    0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(248, 180, 180, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(248, 180, 180, 0); }
+    100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(248, 180, 180, 0); }
+}
+
+/* --------------------------------------------------------------------------
+   4. COMPONENT: GLASS PANEL SYSTEM
+-------------------------------------------------------------------------- */
+.glass-panel {
+    background: var(--color-bg-glass);
+    backdrop-filter: var(--blur-glass);
+    -webkit-backdrop-filter: var(--blur-glass);
+    border: var(--border-glass);
+    border-radius: 24px;
+    box-shadow: var(--shadow-lg);
+    padding: 2rem;
+    transition: transform 0.3s var(--ease-out-back), box-shadow 0.3s ease;
+}
+
+.glass-panel:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-xl);
+    background: var(--color-bg-glass-heavy);
+}
+
+.glass-header {
+    background: white;
+    padding: 3rem 2rem;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+    border-radius: 0 0 24px 24px;
+}
+
+/* --------------------------------------------------------------------------
+   5. COMPONENT: NAVIGATION BAR
+-------------------------------------------------------------------------- */
+.navbar-enterprise {
+    background: var(--color-secondary);
+    padding: 1rem 2rem;
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-brand {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #222 !important;
+    position: relative;
+}
+
+.navbar-brand::after {
+    content: '';
+    position: absolute;
+    width: 8px; height: 8px;
+    background: var(--color-accent-pink);
+    border-radius: 50%;
+    top: 10px; right: -12px;
+    animation: pulse-ring 2s infinite;
+}
+
+.nav-link {
+    font-weight: 500;
+    color: #333 !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 99px;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+    background: rgba(255,255,255,0.25);
+    color: #000 !important;
+    font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   6. COMPONENT: COURSE CARDS
+-------------------------------------------------------------------------- */
+.course-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s var(--ease-out-back);
+    animation: fadeInUp 0.6s backwards;
+    border: 1px solid rgba(0,0,0,0.02);
+}
+
+.course-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: var(--shadow-xl);
+}
+
+.course-img-container {
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+}
+
+.course-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s ease;
+}
+
+.course-card:hover .course-img { transform: scale(1.1); }
+
+.category-badge {
+    position: absolute;
+    top: 12px; left: 12px;
+    background: rgba(255,255,255,0.95);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    box-shadow: var(--shadow-sm);
+    z-index: 2;
+}
+
+/* --------------------------------------------------------------------------
+   7. COMPONENT: BUTTONS & INPUTS
+-------------------------------------------------------------------------- */
+.btn-primary-ent {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary-ent:hover {
+    background: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    color: white;
+}
+
+.form-control {
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1rem;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background-color: #f9fafb;
+}
+
+.form-control:focus {
+    background-color: white;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(44, 62, 80, 0.1);
+}
+
+/* --------------------------------------------------------------------------
+   8. COMPONENT: VIDEO PLAYER WRAPPER
+-------------------------------------------------------------------------- */
+.player-wrapper {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+    background: #000;
+}
+
+.player-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 40%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 2rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.player-wrapper:hover .player-overlay { opacity: 1; }
+
+/* --------------------------------------------------------------------------
+   9. COMPONENT: MODULE LIST
+-------------------------------------------------------------------------- */
+.module-list-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border: 1px solid #f3f4f6;
+    margin-bottom: 0.5rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.module-list-item:hover {
+    border-color: var(--color-accent-blue);
+    transform: translateX(5px);
+}
+
+.module-list-item.active {
+    border-left: 4px solid var(--color-primary);
+    background: #f8fafc;
+    box-shadow: var(--shadow-sm);
+}
+
+/* --------------------------------------------------------------------------
+   10. UTILITIES
+-------------------------------------------------------------------------- */
+.text-gradient {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent-blue));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.h-100 { height: 100%; }
+.w-100 { width: 100%; }
+.object-cover { object-fit: cover; }
+.cursor-pointer { cursor: pointer; }
+
+/* --------------------------------------------------------------------------
+   11. ENHANCED EFFECTS & TRANSITIONS
+-------------------------------------------------------------------------- */
+.btn-primary-ent {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary-ent::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.btn-primary-ent:hover::after {
+    width: 300px;
+    height: 300px;
+}
+
+.glass-panel {
+    position: relative;
+}
+
+.glass-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+    pointer-events: none;
+}
+
+.glass-panel:hover::before {
+    left: 100%;
+}
+
+/* COURSE CARD ENHANCEMENTS */
+.course-card {
+    position: relative;
+}
+
+.course-card::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg, var(--color-accent-pink), var(--color-accent-blue), var(--color-accent-green));
+    opacity: 0;
+    border-radius: 16px;
+    z-index: -1;
+    transition: opacity 0.3s ease;
+}
+
+.course-card:hover::before {
+    opacity: 0.1;
+}
+
+/* SMOOTH SCROLLING */
+html {
+    scroll-behavior: smooth;
+}
+
+/* LOADING ANIMATION */
+@keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+}
+
+.loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+}
+
+/* TEXT REVEAL ANIMATION */
+@keyframes textReveal {
+    0% { opacity: 0; clip-path: inset(0 100% 0 0); }
+    100% { opacity: 1; clip-path: inset(0 0 0 0); }
+}
+
+h1, h2, h3 {
+    animation: textReveal 0.8s ease-out;
+}
+
+/* HOVER GLOW EFFECT */
+.course-card:hover {
+    position: relative;
+    z-index: 1;
+}
+
+.course-card:hover .course-img {
+    filter: brightness(1.1) contrast(1.1);
+}
+
+/* TRANSITION HELPER */
+* {
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* --------------------------------------------------------------------------
+   12. ENHANCED GRADIENTS & THEMES
+-------------------------------------------------------------------------- */
+.gradient-primary {
+    background: linear-gradient(135deg, #2C3E50 0%, #1a252f 100%);
+    color: white;
+}
+
+.gradient-secondary {
+    background: linear-gradient(135deg, #F8B4B4 0%, #C9E4CA 100%);
+}
+
+.gradient-accent {
+    background: linear-gradient(135deg, #A7C5EB 0%, #FDE047 100%);
+}
+
+/* --------------------------------------------------------------------------
+   13. ENHANCED CARD STYLES
+-------------------------------------------------------------------------- */
+.stat-card-enhanced {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.stat-card-enhanced:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    line-height: 1;
+    margin: 1rem 0;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   14. HERO SECTION ENHANCEMENT
+-------------------------------------------------------------------------- */
+.hero-primary {
+    background: linear-gradient(135deg, rgba(44, 62, 80, 0.08) 0%, rgba(248, 180, 180, 0.08) 100%);
+    border-radius: 32px;
+    padding: 4rem 2rem;
+    margin-bottom: 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-primary::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(248, 180, 180, 0.1) 0%, transparent 70%);
+    animation: orbit 20s linear infinite;
+}
+
+@keyframes orbit {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--color-text-muted);
+    margin-bottom: 2rem;
+}
+
+/* --------------------------------------------------------------------------
+   15. CATEGORY COLORS
+-------------------------------------------------------------------------- */
+.category-cooking { --category-color: #FF6B6B; }
+.category-technology { --category-color: #4ECDC4; }
+.category-language { --category-color: #45B7D1; }
+.category-arts { --category-color: #F7B731; }
+.category-finance { --category-color: #5F27CD; }
+.category-health { --category-color: #00D2D3; }
+.category-gardening { --category-color: #55A630; }
+
+.badge-category {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* --------------------------------------------------------------------------
+   16. SKILL LEVEL INDICATORS
+-------------------------------------------------------------------------- */
+.skill-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.skill-beginner { background: #D4E6F1; color: #1F618D; }
+.skill-intermediate { background: #F9E79F; color: #7D6608; }
+.skill-advanced { background: #F5B7B1; color: #78281F; }
+
+/* --------------------------------------------------------------------------
+   17. ENHANCED COURSE GRID
+-------------------------------------------------------------------------- */
+.course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+    animation: fadeInUp 0.8s ease-out;
+    margin-bottom: 3rem;
+}
+
+.course-item {
+    animation: slideInUp 0.6s ease-out backwards;
+}
+
+.course-item:nth-child(1) { animation-delay: 0.1s; }
+.course-item:nth-child(2) { animation-delay: 0.2s; }
+.course-item:nth-child(3) { animation-delay: 0.3s; }
+.course-item:nth-child(4) { animation-delay: 0.4s; }
+.course-item:nth-child(5) { animation-delay: 0.5s; }
+.course-item:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.course-card-modern {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 2px solid rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+}
+
+.course-card-modern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    border-radius: 20px;
+    z-index: 1;
+}
+
+.course-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+    position: relative;
+    z-index: 2;
+}
+
+.course-card-link:focus-visible {
+    outline: 3px solid rgba(44, 62, 80, 0.4);
+    outline-offset: 4px;
+    border-radius: 20px;
+}
+
+.course-card-modern:hover {
+    transform: translateY(-16px) scale(1.03);
+    box-shadow: 0 28px 56px rgba(0, 0, 0, 0.18);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.course-card-modern:hover::before {
+    opacity: 1;
+}
+
+.course-image-wrapper {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent-pink) 100%);
+}
+
+.course-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.course-card-modern:hover .course-image-wrapper img {
+    transform: scale(1.15) rotate(1deg);
+}
+
+.course-image-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 2;
+}
+
+.course-card-modern:hover .course-image-overlay {
+    opacity: 1;
+}
+
+.course-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(255, 255, 255, 0.98);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    z-index: 3;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    animation: slideInDown 0.5s ease-out;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.course-content {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.course-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+}
+
+.course-description {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1rem;
+    flex: 1;
+}
+
+.course-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+.course-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.course-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid #f0f0f0;
+}
+
+.course-instructor {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+.course-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #FDE047;
+}
+
+.btn-enroll {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-enroll:hover {
+    background: var(--color-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* --------------------------------------------------------------------------
+   18. RESPONSIVE IMPROVEMENTS
+-------------------------------------------------------------------------- */
+.course-hero-card {
+    border-radius: 20px;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent-pink) 100%);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.course-hero-img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    display: block;
+}
+@media (max-width: 768px) {
+    .glass-panel { padding: 1.5rem; }
+    .display-4 { font-size: 2.5rem; }
+    .navbar-brand { font-size: 1.5rem; }
+    .hero-title { font-size: 2rem; }
+    .course-grid { grid-template-columns: 1fr; }
+    
+    .glass-panel::before {
+        display: none;
+    }
+}

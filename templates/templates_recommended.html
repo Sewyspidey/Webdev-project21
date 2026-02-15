@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Recommended Templates - BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: var(--cream-dark);
+    }
+    
+    .main-content {
+        padding: 2rem 3rem;
+        padding-top: 90px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--gray);
+        text-decoration: none;
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+    }
+    
+    .back-link:hover {
+        color: var(--brown);
+    }
+    
+    .page-header {
+        margin-bottom: 2rem;
+    }
+    
+    .page-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        font-weight: 500;
+        color: var(--black);
+        margin-bottom: 0.5rem;
+    }
+    
+    .page-subtitle {
+        color: var(--gray);
+        font-size: 1rem;
+    }
+    
+    .templates-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .template-card {
+        border-radius: 12px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.2s;
+        background: white;
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .template-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    
+    .template-img {
+        height: 120px;
+        width: 100%;
+    }
+    
+    .template-body {
+        padding: 1rem;
+    }
+    
+    .template-category {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: var(--gray);
+        background: var(--cream);
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .template-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--black);
+        margin-bottom: 0.25rem;
+    }
+    
+    .template-usage {
+        font-size: 0.8rem;
+        color: var(--gray);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        color: var(--gray-light);
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state p {
+        color: var(--gray);
+        font-size: 1.1rem;
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <a href="{{ url_for('both_homepage') }}" class="back-link">
+        <i class="bi bi-arrow-left"></i> Back to Home
+    </a>
+    
+    <div class="page-header">
+        <h1 class="page-title">Recommended for You</h1>
+        <p class="page-subtitle">Templates based on your teaching interests</p>
+    </div>
+    
+    {% if templates %}
+    <div class="templates-grid">
+        {% for template in templates %}
+        <a href="{{ url_for('view_template', template_id=template.id) }}" class="template-card">
+            <div class="template-img" style="background-color: {{ template.color }};"></div>
+            <div class="template-body">
+                <span class="template-category">{{ template.category }}</span>
+                <h3 class="template-title">{{ template.title }}</h3>
+                <p class="template-usage">{{ template.usage_count }} uses</p>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="bi bi-lightbulb"></i>
+        <p>No recommendations yet. Update your teaching interests to get personalized suggestions!</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

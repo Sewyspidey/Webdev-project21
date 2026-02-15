@@ -1,0 +1,819 @@
+{% extends "base.html" %}
+{% block title %}Rewards - BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    .rewards-page {
+        padding: 2rem 3rem;
+        padding-top: 100px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .page-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    
+    .page-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+        font-family: 'Playfair Display', serif;
+    }
+    
+    .balance-display {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: var(--tan);
+        padding: 0.75rem 2rem;
+        border-radius: 50px;
+        margin-top: 1rem;
+    }
+    
+    .balance-display .amount {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    
+    .view-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2.5rem;
+        border-bottom: 2px solid var(--tan-light);
+        padding-bottom: 0.5rem;
+    }
+    
+    .view-tab {
+        background: none;
+        border: none;
+        padding: 0.75rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--gray);
+        cursor: pointer;
+        position: relative;
+        text-decoration: none;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .view-tab.active {
+        color: var(--brown);
+    }
+    
+    .view-tab.active::after {
+        content: '';
+        position: absolute;
+        bottom: -0.6rem;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--brown);
+    }
+    
+    .category-nav {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 2.5rem;
+    }
+    
+    .cat-btn {
+        padding: 0.6rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 500;
+        border: 1px solid var(--brown);
+        color: var(--brown);
+        background: transparent;
+        text-decoration: none;
+        transition: all 0.2s;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .cat-btn:hover {
+        background: var(--cream-dark);
+    }
+    
+    .cat-btn.active {
+        background: var(--brown);
+        color: white;
+    }
+    
+    .shop-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .item-card {
+        background: white;
+        border: 1px solid var(--tan-light);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.2s;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        position: relative;
+    }
+    
+    .item-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    
+    .item-preview {
+        height: 180px;
+        background: radial-gradient(circle, var(--cream) 0%, var(--cream-dark) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .item-preview i {
+        font-size: 4rem;
+        color: var(--brown);
+    }
+    
+    .rarity-tag {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        font-size: 0.7rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .rarity-common { color: var(--gray); border: 1px solid var(--gray); }
+    .rarity-rare { color: var(--brown); border: 1px solid var(--brown); }
+    .rarity-epic { color: #5D4037; border: 1px solid #5D4037; }
+    .rarity-legendary { color: #B08D55; border: 1px solid #B08D55; }
+    
+    .item-body {
+        padding: 1.5rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .item-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+        color: var(--black);
+    }
+    
+    .item-desc {
+        color: var(--gray);
+        font-size: 0.9rem;
+        flex-grow: 1;
+        margin-bottom: 1rem;
+    }
+    
+    .item-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 1rem;
+        border-top: 1px solid var(--cream-dark);
+    }
+    
+    .price-tag {
+        font-weight: 700;
+        color: var(--brown);
+        font-size: 1.2rem;
+    }
+    
+    .btn-purchase {
+        background: var(--brown);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: background 0.2s;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .btn-purchase:hover {
+        background: #7a6859;
+    }
+    
+    .btn-owned {
+        background: var(--gray-light);
+        color: white;
+        cursor: not-allowed;
+    }
+    
+    .quests-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .quest-card {
+        background: white;
+        border: 1px solid var(--tan-light);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.2s;
+    }
+    
+    .quest-card:hover {
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    
+    .quest-banner {
+        height: 180px;
+        position: relative;
+        overflow: hidden;
+        background: var(--cream-dark);
+    }
+    
+    .quest-banner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .promoted-badge {
+        position: absolute;
+        bottom: 12px;
+        left: 12px;
+        background: rgba(0,0,0,0.75);
+        color: white;
+        padding: 0.4rem 0.9rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .end-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: rgba(0,0,0,0.75);
+        color: white;
+        padding: 0.4rem 0.9rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+    }
+    
+    .quest-body {
+        padding: 1.5rem;
+    }
+    
+    .quest-body h5 {
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        color: var(--black);
+    }
+    
+    .quest-btn {
+        width: 100%;
+        padding: 0.75rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        background: var(--brown);
+        color: white;
+        transition: all 0.2s;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .quest-btn:hover {
+        background: #7a6859;
+        transform: translateY(-2px);
+    }
+    
+    .quest-btn.done {
+        background: var(--gray-light);
+        cursor: not-allowed;
+    }
+    
+    /* FAB Buttons */
+    .fab-container {
+        position: fixed;
+        right: 2rem;
+        bottom: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        z-index: 100;
+    }
+    
+    .fab {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border: none;
+        transition: transform 0.2s;
+        text-decoration: none;
+    }
+    
+    .fab:hover {
+        transform: scale(1.05);
+    }
+    
+    .fab-chat {
+        background-color: white;
+        color: var(--black);
+        font-size: 1.25rem;
+    }
+    
+    .fab-add {
+        background-color: white;
+        color: var(--black);
+        font-size: 1.5rem;
+    }
+    
+    .fab-menu {
+        display: none;
+        position: absolute;
+        right: 65px;
+        bottom: 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        padding: 0.5rem 0;
+        min-width: 160px;
+    }
+    
+    .fab-menu.show {
+        display: block;
+    }
+    
+    .fab-menu a {
+        display: block;
+        padding: 0.6rem 1rem;
+        color: var(--black);
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    
+    .fab-menu a:hover {
+        background: var(--cream);
+    }
+    
+    /* Modal styles */
+    .modal-content {
+        border-radius: 16px;
+        border: none;
+    }
+    
+    .modal-header {
+        background: var(--cream-dark);
+        border-bottom: 1px solid var(--tan-light);
+    }
+    
+    .modal-footer {
+        background: var(--cream);
+        border-top: 1px solid var(--tan-light);
+    }
+    
+    .btn-custom-modal {
+        background: var(--brown);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .btn-custom-modal:hover {
+        background: #7a6859;
+    }
+    
+    .btn-custom-modal:disabled {
+        background: var(--gray-light);
+        cursor: not-allowed;
+    }
+    
+    @media (max-width: 768px) {
+        .rewards-page {
+            padding: 1.5rem;
+            padding-top: 90px;
+        }
+        .shop-grid, .quests-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="rewards-page">
+    <div class="page-header">
+        <h1>{{ t('rewards.title') }}</h1>
+        <p class="text-muted">{{ t('rewards.subtitle') }}</p>
+        <div class="balance-display">
+            <span class="small text-uppercase">{{ t('rewards.balance') }}</span>
+            <span class="amount" id="navbar-points">{{ user.hive_points }}</span>
+            <i class="bi bi-star-fill" style="color:var(--brown);font-size:1.5rem;"></i>
+        </div>
+    </div>
+
+    <div class="view-tabs">
+        <a href="{{ url_for('rewards', view='shop') }}" class="view-tab {{ 'active' if view=='shop' }}">
+            <i class="bi bi-shop me-2"></i>{{ t('rewards.shop') }}
+        </a>
+        <a href="{{ url_for('rewards', view='quests') }}" class="view-tab {{ 'active' if view=='quests' }}">
+            <i class="bi bi-trophy me-2"></i>{{ t('rewards.quests') }}
+        </a>
+    </div>
+
+    {% if view == 'shop' %}
+    <div class="category-nav">
+        {% for cat_key, cat_name in categories %}
+        <a href="{{ url_for('rewards', category=cat_key, view='shop') }}" 
+           class="cat-btn {{ 'active' if current_category == cat_key }}">
+            {{ cat_name }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <div class="shop-grid">
+        {% for item in items %}
+        <div class="item-card">
+            <span class="rarity-tag rarity-{{ item.rarity }}">{{ item.rarity }}</span>
+            
+            <div class="item-preview">
+                <i class="{{ item.icon or 'bi-box' }}"></i>
+            </div>
+            
+            <div class="item-body">
+                <div class="item-title">{{ item.name }}</div>
+                <div class="item-desc">Exclusive {{ item.rarity }} item for your profile</div>
+                
+                <div class="item-footer">
+                    <div class="price-tag">
+                        {{ item.price }} <small style="font-size:0.7em;">PTS</small>
+                    </div>
+                    
+                    {% if item.id in owned_ids %}
+                    <button class="btn-purchase btn-owned" disabled>
+                        <i class="bi bi-check2 me-1"></i>{{ t('common.owned') }}
+                    </button>
+                    {% else %}
+                    <form action="{{ url_for('buy_item', item_id=item.id) }}" method="POST" style="margin:0;">
+                        <button type="submit" class="btn-purchase">
+                            {{ t('common.purchase') }}
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if view == 'quests' %}
+    <div class="quests-grid">
+        {% for quest in quests %}
+        <div class="quest-card">
+            <div class="quest-banner">
+                <img src="{{ quest.banner_image }}" alt="{{ quest.title }}" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800'">
+                <div class="promoted-badge">
+                    <i class="bi bi-patch-check-fill me-1" style="color:#23A559;"></i>
+                    {{ quest.promoted_by }}
+                </div>
+                {% if quest.ends_date %}
+                <div class="end-badge">
+                    Ends {{ quest.ends_date.strftime('%d/%m') }}
+                </div>
+                {% endif %}
+            </div>
+            <div class="quest-body">
+                <h5>{{ quest.title }}</h5>
+                <p class="text-muted small mb-3">{{ quest.description }}</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-bold" style="color:var(--brown);">
+                        <i class="bi bi-star-fill me-1"></i>+{{ quest.reward_points }} Points
+                    </span>
+                    <span class="small text-muted">
+                        <i class="bi bi-clock me-1"></i>~3 min
+                    </span>
+                </div>
+                {% if quest.id in completed_ids %}
+                <button class="quest-btn done" disabled>
+                    <i class="bi bi-check-circle me-2"></i>Completed
+                </button>
+                {% else %}
+                <button class="quest-btn" onclick="openQuestVideo({{ quest.id }}, '{{ quest.video_url }}', '{{ quest.title }}', {{ quest.reward_points }})">
+                    <i class="bi bi-play-circle me-2"></i>Start Quest
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- FAB Buttons -->
+<div class="fab-container">
+    <div style="position: relative;">
+        <button class="fab fab-chat" id="fabChat" onclick="toggleChatMenu()">
+            <i class="bi bi-chat-square-text"></i>
+        </button>
+        <div class="fab-menu" id="chatFabMenu">
+            <a href="{{ url_for('creation_chatbot') }}"><i class="bi bi-robot" style="margin-right:0.4rem;"></i>Creation AI</a>
+            <a href="{{ url_for('both_chatbot') }}"><i class="bi bi-headset" style="margin-right:0.4rem;"></i>Support AI</a>
+            <a href="/socialhub/"><i class="bi bi-chat-dots" style="margin-right:0.4rem;"></i>Chat</a>
+        </div>
+    </div>
+    <div style="position: relative;">
+        <button class="fab fab-add" id="fabAdd" onclick="toggleFabMenu()">
+            <i class="bi bi-plus"></i>
+        </button>
+        <div class="fab-menu" id="fabMenu">
+            <a href="/lib/create">Create new course</a>
+            <a href="{{ url_for('both_folder_create') }}">New folder</a>
+            <a href="/mentor/templates/all">View Templates</a>
+        </div>
+    </div>
+</div>
+
+<!-- Quest Video Modal -->
+<div class="modal fade" id="questModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title playfair mb-0" id="questModalTitle">Watch to Earn Points</h5>
+                    <small class="text-muted" id="questModalSubtitle"></small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="ratio ratio-16x9">
+                    <iframe id="questVideoFrame"
+                        src=""
+                        title="Quest Video"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+                <div id="videoFallbackMsg" style="display:none; text-align:center; padding:0.75rem; background:var(--cream-dark); font-size:0.85rem; color:var(--gray);">
+                    <i class="bi bi-exclamation-circle me-1"></i>
+                    If the video doesn't load, <a id="videoYtLink" href="#" target="_blank" rel="noopener" style="color:var(--brown); font-weight:600;">watch it on YouTube</a>. The timer still counts!
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="d-flex justify-content-between align-items-center w-100 flex-wrap gap-2">
+                    <div>
+                        <div id="questProgressBar" class="mb-1" style="display:none;">
+                            <div style="background:var(--tan-light); border-radius:20px; height:6px; width:220px;">
+                                <div id="questProgressFill" style="background:var(--brown); height:6px; border-radius:20px; width:0%; transition:width 0.5s;"></div>
+                            </div>
+                        </div>
+                        <small id="questVideoStatus" class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>Watch the video to unlock your reward
+                        </small>
+                    </div>
+                    <button id="claimQuestBtn" class="btn-custom-modal d-flex align-items-center gap-2" disabled onclick="claimCurrentQuest()">
+                        <i class="bi bi-star-fill"></i>
+                        <span>Claim <span id="claimPoints"></span> Points</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+// FAB Menu Toggle
+function toggleFabMenu() {
+    document.getElementById('fabMenu').classList.toggle('show');
+    document.getElementById('chatFabMenu').classList.remove('show');
+}
+
+function toggleChatMenu() {
+    document.getElementById('chatFabMenu').classList.toggle('show');
+    document.getElementById('fabMenu').classList.remove('show');
+}
+
+// Close FAB menus when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.fab-add') && !e.target.closest('#fabMenu')) {
+        document.getElementById('fabMenu').classList.remove('show');
+    }
+    if (!e.target.closest('.fab-chat') && !e.target.closest('#chatFabMenu')) {
+        document.getElementById('chatFabMenu').classList.remove('show');
+    }
+});
+
+// Quest Video System
+let currentQuestId = null;
+let watchTimer = null;
+let watchSeconds = 0;
+const REQUIRED_SECONDS = 30;
+
+function openQuestVideo(questId, videoUrl, title, points) {
+    currentQuestId = questId;
+    watchSeconds = 0;
+    if (watchTimer) clearInterval(watchTimer);
+
+    document.getElementById('questModalTitle').textContent = title;
+    document.getElementById('questModalSubtitle').textContent = '+' + points + ' Hive Points on completion';
+    document.getElementById('claimPoints').textContent = points;
+    document.getElementById('claimQuestBtn').disabled = true;
+    document.getElementById('questVideoStatus').innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Watch at least 30 seconds to unlock your reward...';
+    document.getElementById('questProgressBar').style.display = 'block';
+    document.getElementById('questProgressFill').style.width = '0%';
+
+    // Set fallback YouTube link
+    let ytDirectUrl = videoUrl;
+    if (videoUrl.includes('youtube') || videoUrl.includes('youtu.be')) {
+        // Extract video ID
+        let videoId = '';
+        if (videoUrl.includes('youtu.be/')) videoId = videoUrl.split('youtu.be/')[1].split('?')[0];
+        else if (videoUrl.includes('embed/')) videoId = videoUrl.split('embed/')[1].split('?')[0];
+        else if (videoUrl.includes('v=')) { try { videoId = new URL(videoUrl).searchParams.get('v'); } catch(e){} }
+        if (videoId) ytDirectUrl = 'https://www.youtube.com/watch?v=' + videoId;
+    }
+    const fallbackMsg = document.getElementById('videoFallbackMsg');
+    const ytLink = document.getElementById('videoYtLink');
+    if (fallbackMsg) fallbackMsg.style.display = 'block';
+    if (ytLink) ytLink.href = ytDirectUrl;
+
+    let embedUrl = convertToEmbed(videoUrl);
+    document.getElementById('questVideoFrame').src = embedUrl;
+
+    const modal = new bootstrap.Modal(document.getElementById('questModal'));
+    modal.show();
+
+    watchTimer = setInterval(() => {
+        watchSeconds++;
+        const pct = Math.min((watchSeconds / REQUIRED_SECONDS) * 100, 100);
+        document.getElementById('questProgressFill').style.width = pct + '%';
+
+        if (watchSeconds >= REQUIRED_SECONDS) {
+            clearInterval(watchTimer);
+            markVideoComplete(currentQuestId);
+        } else {
+            const remaining = REQUIRED_SECONDS - watchSeconds;
+            document.getElementById('questVideoStatus').innerHTML =
+                '<i class="bi bi-hourglass-split me-1"></i>' + remaining + 's remaining to unlock reward';
+        }
+    }, 1000);
+}
+
+function convertToEmbed(url) {
+    if (!url) return '';
+    // Use youtube-nocookie.com to avoid embedding restrictions
+    if (url.includes('youtube-nocookie.com/embed/')) {
+        return url + (url.includes('?') ? '&' : '?') + 'autoplay=1&rel=0&modestbranding=1&enablejsapi=1';
+    }
+    if (url.includes('youtube.com/embed/')) {
+        const videoId = url.split('youtube.com/embed/')[1].split('?')[0];
+        return 'https://www.youtube-nocookie.com/embed/' + videoId + '?autoplay=1&rel=0&modestbranding=1&enablejsapi=1';
+    }
+    if (url.includes('youtu.be/')) {
+        const id = url.split('youtu.be/')[1].split('?')[0].split('&')[0];
+        return 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&modestbranding=1&enablejsapi=1';
+    }
+    if (url.includes('youtube.com/watch')) {
+        try {
+            const id = new URL(url).searchParams.get('v');
+            return 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&modestbranding=1&enablejsapi=1';
+        } catch(e) {}
+    }
+    return url;
+}
+
+function markVideoComplete(questId) {
+    fetch('/api/quest/' + questId + '/progress', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({watched: REQUIRED_SECONDS, completed: true})
+    }).then(() => {
+        document.getElementById('claimQuestBtn').disabled = false;
+        document.getElementById('questVideoStatus').innerHTML =
+            '<i class="bi bi-check-circle-fill me-1" style="color:#198754;"></i>Video complete! Claim your reward below.';
+        document.getElementById('questProgressFill').style.background = '#198754';
+    }).catch(() => {
+        document.getElementById('claimQuestBtn').disabled = false;
+        document.getElementById('questVideoStatus').innerHTML =
+            '<i class="bi bi-check-circle-fill me-1" style="color:#198754;"></i>Ready to claim!';
+    });
+}
+
+async function claimCurrentQuest() {
+    if (!currentQuestId) return;
+    const btn = document.getElementById('claimQuestBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Claiming...';
+
+    try {
+        const resp = await fetch('/api/quest/' + currentQuestId + '/claim', {method: 'POST'});
+        const data = await resp.json();
+
+        if (data.success) {
+            // Show confetti celebration
+            showCelebration();
+            
+            // Update points in navbar and balance display
+            document.querySelectorAll('#navbar-points').forEach(el => el.textContent = data.new_points);
+            document.querySelectorAll('.navbar-new-points').forEach(el => {
+                el.innerHTML = '<i class="bi bi-star-fill"></i> ' + data.new_points;
+            });
+            btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Claimed!';
+            btn.style.background = '#198754';
+            document.getElementById('questVideoStatus').innerHTML =
+                '<i class="bi bi-star-fill me-1" style="color:var(--brown);"></i>' + data.message;
+
+            setTimeout(() => {
+                bootstrap.Modal.getInstance(document.getElementById('questModal')).hide();
+                location.reload();
+            }, 1800);
+        } else {
+            document.getElementById('questVideoStatus').innerHTML =
+                '<i class="bi bi-exclamation-triangle me-1 text-warning"></i>' + (data.error || 'Could not claim reward.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-star-fill me-1"></i>Try Again';
+        }
+    } catch(e) {
+        document.getElementById('questVideoStatus').textContent = 'Network error. Please try again.';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-star-fill me-1"></i>Retry';
+    }
+}
+
+// Celebration confetti effect
+function showCelebration() {
+    const count = 100;
+    const defaults = {
+        origin: { y: 0.6 },
+        zIndex: 9999
+    };
+
+    function fire(particleRatio, opts) {
+        const colors = ['#8F7B6A', '#ECD9B9', '#D4AF37', '#FFD700'];
+        if (window.confetti) {
+            window.confetti(Object.assign({}, defaults, opts, {
+                particleCount: Math.floor(count * particleRatio),
+                colors: colors
+            }));
+        }
+    }
+
+    fire(0.25, {
+        spread: 26,
+        startVelocity: 55,
+    });
+    fire(0.2, {
+        spread: 60,
+    });
+    fire(0.35, {
+        spread: 100,
+        decay: 0.91,
+        scalar: 0.8
+    });
+    fire(0.1, {
+        spread: 120,
+        startVelocity: 25,
+        decay: 0.92,
+        scalar: 1.2
+    });
+    fire(0.1, {
+        spread: 120,
+        startVelocity: 45,
+    });
+}
+
+// Stop video and timer when modal closes
+document.getElementById('questModal').addEventListener('hidden.bs.modal', function() {
+    document.getElementById('questVideoFrame').src = '';
+    if (watchTimer) clearInterval(watchTimer);
+    watchSeconds = 0;
+});
+</script>
+{% endblock %}

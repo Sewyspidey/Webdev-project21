@@ -1,0 +1,875 @@
+{% extends "base.html" %}
+{% block title %}Learner Home - BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: var(--cream-dark);
+    }
+    
+    .main-content {
+        padding: 2rem 3rem;
+        padding-top: 90px;
+    }
+    
+    /* Welcome Section */
+    .welcome-section {
+        text-align: center;
+        padding: 2rem 0 3rem;
+    }
+    
+    .welcome-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 3.5rem;
+        font-weight: 500;
+        color: var(--black);
+        margin-bottom: 0.5rem;
+    }
+    
+    .welcome-streak {
+        font-size: 1.1rem;
+        color: var(--gray);
+    }
+    
+    /* Course Section */
+    .course-section {
+        margin-bottom: 2.5rem;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.25rem;
+    }
+    
+    .section-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: var(--black);
+    }
+    
+    .section-subtitle {
+        font-size: 0.9rem;
+        color: var(--gray);
+        margin-bottom: 1rem;
+    }
+    
+    .view-all {
+        color: var(--gray);
+        text-decoration: underline;
+        font-size: 0.9rem;
+    }
+    
+    .view-all:hover {
+        color: var(--brown);
+    }
+    
+    /* Course Carousel Container */
+    .course-carousel-container {
+        position: relative;
+    }
+    
+    .course-carousel-wrapper {
+        overflow: hidden;
+    }
+    
+    .course-carousel {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+    }
+    
+    .course-card {
+        border-radius: 12px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.2s;
+        background: white;
+    }
+    
+    .course-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    
+    .course-img {
+        height: 110px;
+        width: 100%;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    
+    .course-body {
+        padding: 1rem;
+    }
+    
+    .course-category {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: var(--gray);
+        background: var(--cream);
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .course-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--black);
+        margin-bottom: 0.25rem;
+        line-height: 1.3;
+    }
+    
+    .course-instructor {
+        font-size: 0.8rem;
+        color: var(--gray);
+    }
+    
+    .course-meta {
+        font-size: 0.75rem;
+        color: var(--gray);
+        margin-top: 0.5rem;
+    }
+    
+    .progress-bar-bg {
+        height: 6px;
+        background: var(--cream-dark);
+        border-radius: 3px;
+        margin-top: 0.5rem;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: var(--brown);
+        border-radius: 3px;
+    }
+    
+    /* Carousel Navigation Arrows - positioned absolutely */
+    .carousel-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        background: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        z-index: 10;
+        transition: all 0.2s;
+    }
+    
+    .carousel-nav:hover {
+        background: var(--cream);
+        transform: translateY(-50%) scale(1.05);
+    }
+    
+    .carousel-nav.prev {
+        left: -20px;
+    }
+    
+    .carousel-nav.next {
+        right: -20px;
+    }
+    
+    .carousel-nav.hidden {
+        display: none;
+    }
+    
+    .carousel-nav i {
+        font-size: 1.1rem;
+        color: var(--black);
+    }
+    
+    /* Empty State - No border, just text */
+    .empty-state {
+        text-align: center;
+        padding: 2.5rem 2rem;
+    }
+    
+    .empty-state i {
+        font-size: 2.5rem;
+        color: var(--gray-light);
+        margin-bottom: 0.75rem;
+    }
+    
+    .empty-state p {
+        color: var(--gray);
+        font-size: 1rem;
+    }
+    
+    /* Folder Grid */
+    .folder-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .folder-card {
+        height: 150px;
+        border-radius: 12px;
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.2s;
+        padding: 1.25rem;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .folder-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    
+    .folder-icon {
+        font-size: 1.75rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .folder-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+    
+    .folder-count {
+        font-size: 0.8rem;
+        opacity: 0.8;
+        margin-top: auto;
+    }
+    
+    /* Add Folder Card */
+    .add-folder-card {
+        border: 2px dashed var(--gray-light);
+        background: transparent;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray);
+        text-decoration: none;
+    }
+    
+    .add-folder-card:hover {
+        border-color: var(--brown);
+        color: var(--brown);
+        background: rgba(143,123,106,0.05);
+    }
+    
+    .add-folder-card i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Floating Action Buttons */
+    .fab-container {
+        position: fixed;
+        right: 2rem;
+        bottom: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        z-index: 100;
+    }
+    
+    .fab {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border: none;
+        transition: transform 0.2s;
+        text-decoration: none;
+    }
+    
+    .fab:hover {
+        transform: scale(1.05);
+    }
+    
+    .fab-chat {
+        background-color: white;
+        color: var(--black);
+        font-size: 1.25rem;
+    }
+    
+    .fab-add {
+        background-color: white;
+        color: var(--black);
+        font-size: 1.5rem;
+    }
+    
+    .fab-menu {
+        display: none;
+        position: absolute;
+        right: 65px;
+        bottom: 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        padding: 0.5rem 0;
+        min-width: 150px;
+    }
+    
+    .fab-menu.show {
+        display: block;
+    }
+    
+    .fab-menu a {
+        display: block;
+        padding: 0.6rem 1rem;
+        color: var(--black);
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    
+    .fab-menu a:hover {
+        background: var(--cream);
+    }
+    
+    /* Course Popup Modal - Updated to match template popup style */
+    .course-popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.6);
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .course-popup-overlay.active {
+        display: flex;
+    }
+    
+    .course-popup {
+        background: white;
+        border-radius: 16px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+    }
+    
+    .course-popup-header {
+        height: 150px;
+        position: relative;
+        border-radius: 16px 16px 0 0;
+    }
+    
+    .course-popup-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        z-index: 10;
+    }
+    
+    .course-popup-close:hover {
+        background: var(--cream);
+    }
+    
+    .course-popup-body {
+        padding: 1.5rem;
+    }
+    
+    .course-popup-category {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--gray);
+        background: var(--cream);
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        display: inline-block;
+        margin-bottom: 0.75rem;
+    }
+    
+    .course-popup-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+    
+    .course-popup-instructor {
+        color: var(--gray);
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+    }
+    
+    .course-popup-desc {
+        color: var(--gray);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+    
+    .course-popup-actions {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .btn-open-course {
+        flex: 1;
+        padding: 0.875rem;
+        background: var(--brown);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .btn-open-course:hover {
+        background: #7A6A5A;
+    }
+    
+    .btn-add-folder {
+        padding: 0.875rem 1.25rem;
+        background: var(--cream);
+        color: var(--brown);
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .btn-add-folder:hover {
+        background: var(--tan);
+    }
+    
+    /* Folder Dropdown in Popup */
+    .folder-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .folder-dropdown-content {
+        display: none;
+        position: absolute;
+        bottom: 100%;
+        right: 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        min-width: 180px;
+        margin-bottom: 0.5rem;
+        overflow: hidden;
+    }
+    
+    .folder-dropdown-content.show {
+        display: block;
+    }
+    
+    .folder-dropdown-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: background 0.2s;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        font-size: 0.95rem;
+        color: var(--black);
+    }
+    
+    .folder-dropdown-item:hover {
+        background: var(--cream);
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <!-- Welcome Section -->
+    <section class="welcome-section">
+        {% if user and user.is_new_user %}
+        <h1 class="welcome-title">Welcome, {{ user.username }}</h1>
+        <p class="welcome-streak">Start your learning journey today! 🌟</p>
+        {% else %}
+        <h1 class="welcome-title">Welcome back, {{ user.username if user else 'Guest' }}</h1>
+        <p class="welcome-streak">You have a {{ user.streak_days if user else 0 }} day streak 🔥, extend it by learning or creating today!</p>
+        {% endif %}
+    </section>
+    
+    <!-- Jump Back In -->
+    <section class="course-section">
+        <div class="section-header">
+            <h2 class="section-title">{{ t('home.jump_back') }}</h2>
+            {% if courses_in_progress|length > 0 %}
+            <a href="{{ url_for('in_progress_courses_page') }}" class="view-all">{{ t('home.view_all') }}</a>
+            {% endif %}
+        </div>
+        <p class="section-subtitle">{{ t('home.pick_up') }}</p>
+        
+        {% if courses_in_progress|length > 0 %}
+        <div class="course-carousel-container" id="progressCarousel">
+            <button class="carousel-nav prev hidden" onclick="scrollCarousel('progressCarousel', -1)">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <div class="course-carousel-wrapper">
+                <div class="course-carousel" data-page="0">
+                    {% for item in courses_in_progress %}
+                    <div class="course-card course-item" data-index="{{ loop.index0 }}" {% if loop.index0 >= 4 %}style="display: none;"{% endif %} onclick="openCoursePopup({{ item.course.id }}, '{{ item.course.title | e }}', '{{ item.course.instructor_name | e }}', '{{ item.course.category }}', '{{ item.course.color }}', '{{ item.course.description | default('') | e }}', {{ item.course.library_id or 'null' }})">
+                        <div class="course-img" style="{% if item.course.image_url %}background-image: url('{{ item.course.image_url }}');{% endif %} background-color: {{ item.course.color }};"></div>
+                        <div class="course-body">
+                            <span class="course-category">{{ item.course.category }}</span>
+                            <h3 class="course-title">{{ item.course.title }}</h3>
+                            <p class="course-instructor">{{ item.course.instructor_name }}</p>
+                            <div class="progress-bar-bg">
+                                <div class="progress-fill" style="width: {{ item.progress }}%;"></div>
+                            </div>
+                            <p class="course-meta">{{ item.progress }}% complete</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <button class="carousel-nav next {% if courses_in_progress|length <= 4 %}hidden{% endif %}" onclick="scrollCarousel('progressCarousel', 1)">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-journal-bookmark"></i>
+            <p>It's quiet in here... start a course!</p>
+        </div>
+        {% endif %}
+    </section>
+    
+    <!-- Recommendations -->
+    <section class="course-section">
+        <div class="section-header">
+            <h2 class="section-title">{{ t('home.think_like') }}</h2>
+            <a href="{{ url_for('recommended_courses_page') }}" class="view-all">{{ t('home.view_all') }}</a>
+        </div>
+        <p class="section-subtitle">{{ t('home.based_interests') }}</p>
+        
+        <div class="course-carousel-container" id="recommendedCarousel">
+            <button class="carousel-nav prev hidden" onclick="scrollCarousel('recommendedCarousel', -1)">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <div class="course-carousel-wrapper">
+                <div class="course-carousel" data-page="0">
+                    {% for course in recommended_courses %}
+                    <div class="course-card course-item" data-index="{{ loop.index0 }}" {% if loop.index0 >= 4 %}style="display: none;"{% endif %} onclick="openCoursePopup({{ course.id }}, '{{ course.title | e }}', '{{ course.instructor_name | e }}', '{{ course.category }}', '{{ course.color }}', '{{ course.description | default('') | e }}', {{ course.library_id or 'null' }})">
+                        <div class="course-img" style="{% if course.image_url %}background-image: url('{{ course.image_url }}');{% endif %} background-color: {{ course.color }};"></div>
+                        <div class="course-body">
+                            <span class="course-category">{{ course.category }}</span>
+                            <h3 class="course-title">{{ course.title }}</h3>
+                            <p class="course-instructor">{{ course.instructor_name }}</p>
+                            <p class="course-meta">⭐ 4.8 · 150+ enrolled</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <button class="carousel-nav next {% if recommended_courses|length <= 4 %}hidden{% endif %}" onclick="scrollCarousel('recommendedCarousel', 1)">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </section>
+    
+    <!-- Latest from us -->
+    <section class="course-section">
+        <div class="section-header">
+            <h2 class="section-title">{{ t('home.latest') }}</h2>
+            <a href="/lib/library" class="view-all">{{ t('home.view_all') }}</a>
+        </div>
+        <p class="section-subtitle">{{ t('home.explore_new') }}</p>
+        
+        <div class="course-carousel-container" id="latestCarousel">
+            <button class="carousel-nav prev hidden" onclick="scrollCarousel('latestCarousel', -1)">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <div class="course-carousel-wrapper">
+                <div class="course-carousel" data-page="0">
+                    {% for course in all_courses %}
+                    <div class="course-card course-item" data-index="{{ loop.index0 }}" {% if loop.index0 >= 4 %}style="display: none;"{% endif %} onclick="openCoursePopup({{ course.id }}, '{{ course.title | e }}', '{{ course.instructor_name | e }}', '{{ course.category }}', '{{ course.color }}', '{{ course.description | default('') | e }}', {{ course.library_id or 'null' }})">
+                        <div class="course-img" style="{% if course.image_url %}background-image: url('{{ course.image_url }}');{% endif %} background-color: {{ course.color }};"></div>
+                        <div class="course-body">
+                            <span class="course-category">{{ course.category }}</span>
+                            <h3 class="course-title">{{ course.title }}</h3>
+                            <p class="course-instructor">{{ course.instructor_name }}</p>
+                            <p class="course-meta">⭐ 4.7 · 100+ enrolled</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <button class="carousel-nav next {% if all_courses|length <= 4 %}hidden{% endif %}" onclick="scrollCarousel('latestCarousel', 1)">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </section>
+    
+    <!-- Your Collection -->
+    <section class="course-section">
+        <div class="section-header">
+            <h2 class="section-title">{{ t('home.my_collections') }}</h2>
+            <a href="{{ url_for('folder_list') }}" class="view-all">{{ t('home.view_all') }}</a>
+        </div>
+        <p class="section-subtitle">{{ t('home.organize') }}</p>
+        <div class="folder-grid">
+            {% for folder in folders %}
+            <a href="{{ url_for('folder_view', folder_id=folder.id) }}" class="folder-card" style="background-color: {{ folder.color }}; {% if folder.color in ['#8F7B6A', '#C4B4A7'] %}color: white;{% else %}color: #454545;{% endif %}">
+                <div class="folder-icon">
+                    {% if folder.icon == 'heart' %}<i class="bi bi-heart-fill"></i>
+                    {% elif folder.icon == 'bookmark' %}<i class="bi bi-bookmark-fill"></i>
+                    {% elif folder.icon == 'star' %}<i class="bi bi-star-fill"></i>
+                    {% else %}<i class="bi bi-folder-fill"></i>{% endif %}
+                </div>
+                <div class="folder-name">{{ folder.folder_name }}</div>
+                <div class="folder-count">{{ folder_course_counts.get(folder.id, 0) }} course{% if folder_course_counts.get(folder.id, 0) != 1 %}s{% endif %}</div>
+            </a>
+            {% endfor %}
+            <!-- Add Folder Shortcut -->
+            <a href="{{ url_for('folder_create') }}" class="folder-card add-folder-card">
+                <i class="bi bi-plus-circle"></i>
+                <span>Create Folder</span>
+            </a>
+        </div>
+    </section>
+</div>
+
+<!-- Course Popup Modal - Updated to match template popup style -->
+<div class="course-popup-overlay" id="coursePopup">
+    <div class="course-popup">
+        <div class="course-popup-header" id="popupCourseHeader" style="background-color: #FEFAF1;">
+            <button class="course-popup-close" onclick="closeCoursePopup()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="course-popup-body">
+            <span class="course-popup-category" id="popupCourseCategory">Category</span>
+            <h2 class="course-popup-title" id="popupCourseTitle">Course Title</h2>
+            <p class="course-popup-instructor" id="popupCourseInstructor">by Instructor</p>
+            <p class="course-popup-desc" id="popupCourseDesc">Learn new skills with this engaging course designed for intergenerational learning.</p>
+            <div class="course-popup-actions">
+                <button class="btn-open-course" id="btnOpenCourse">Open Course</button>
+                <div class="folder-dropdown">
+                    <button class="btn-add-folder" onclick="toggleFolderDropdown()">
+                        <i class="bi bi-folder-plus"></i>
+                    </button>
+                    <div class="folder-dropdown-content" id="folderDropdown">
+                        {% for folder in folders %}
+                        <button class="folder-dropdown-item" onclick="addCourseToFolder({{ folder.id }})">
+                            <i class="bi bi-{{ folder.icon }}"></i>
+                            {{ folder.folder_name }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Action Buttons -->
+<div class="fab-container">
+    <a href="{{ url_for('student_chatbot') }}" class="fab fab-chat">
+        <i class="bi bi-chat-square-text"></i>
+    </a>
+    <div style="position: relative;">
+        <button class="fab fab-add" id="fabAdd" onclick="toggleFabMenu()">
+            <i class="bi bi-plus"></i>
+        </button>
+        <div class="fab-menu" id="fabMenu">
+            <a href="/lib/create">Create new course</a>
+            <a href="{{ url_for('student_folder_create') }}">New folder</a>
+            <a href="{{ url_for('all_templates_page') }}">View templates</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Current course ID for popup
+let currentCourseId = null;
+
+// FAB Menu Toggle
+function toggleFabMenu() {
+    document.getElementById('fabMenu').classList.toggle('show');
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.fab-add') && !e.target.closest('.fab-menu')) {
+        document.getElementById('fabMenu').classList.remove('show');
+    }
+});
+
+// Carousel Navigation - shows next/prev set of 4 courses
+function scrollCarousel(containerId, direction) {
+    const container = document.getElementById(containerId);
+    const carousel = container.querySelector('.course-carousel');
+    const cards = carousel.querySelectorAll('.course-item');
+    const totalCards = cards.length;
+    
+    if (totalCards === 0) return;
+    
+    let currentPage = parseInt(carousel.dataset.page) || 0;
+    const totalPages = Math.ceil(totalCards / 4);
+    
+    // Move to next/prev page
+    currentPage += direction;
+    
+    // Clamp to valid range
+    if (currentPage < 0) currentPage = 0;
+    if (currentPage >= totalPages) currentPage = totalPages - 1;
+    
+    carousel.dataset.page = currentPage;
+    
+    // Show/hide cards based on current page
+    const startIndex = currentPage * 4;
+    const endIndex = startIndex + 4;
+    
+    cards.forEach((card, index) => {
+        if (index >= startIndex && index < endIndex) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Update arrow visibility
+    const prevBtn = container.querySelector('.carousel-nav.prev');
+    const nextBtn = container.querySelector('.carousel-nav.next');
+    
+    if (prevBtn) {
+        if (currentPage === 0) {
+            prevBtn.classList.add('hidden');
+        } else {
+            prevBtn.classList.remove('hidden');
+        }
+    }
+    
+    if (nextBtn) {
+        if (currentPage >= totalPages - 1) {
+            nextBtn.classList.add('hidden');
+        } else {
+            nextBtn.classList.remove('hidden');
+        }
+    }
+}
+
+// Course Popup Functions - Updated to match template popup style
+function openCoursePopup(id, title, instructor, category, color, description, libraryId) {
+    currentCourseId = id;
+    document.getElementById('popupCourseHeader').style.backgroundColor = color;
+    document.getElementById('popupCourseCategory').textContent = category;
+    document.getElementById('popupCourseTitle').textContent = title;
+    document.getElementById('popupCourseInstructor').textContent = 'by ' + instructor;
+    document.getElementById('popupCourseDesc').textContent = description || ('Learn ' + category.toLowerCase() + ' skills with ' + instructor + '.');
+    document.getElementById('btnOpenCourse').onclick = function() {
+        if (libraryId) {
+            window.location.href = '/lib/course/' + libraryId;
+        } else {
+            window.location.href = '/course/' + id;
+        }
+    };
+    document.getElementById('coursePopup').classList.add('active');
+    document.getElementById('folderDropdown').classList.remove('show');
+}
+
+function closeCoursePopup() {
+    document.getElementById('coursePopup').classList.remove('active');
+    document.getElementById('folderDropdown').classList.remove('show');
+    currentCourseId = null;
+}
+
+function toggleFolderDropdown() {
+    document.getElementById('folderDropdown').classList.toggle('show');
+}
+
+// AJAX add course to folder - no page redirect
+async function addCourseToFolder(folderId) {
+    try {
+        const response = await fetch('/folder/' + folderId + '/add-course/' + currentCourseId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await response.json();
+        
+        // Close dropdown and show feedback
+        document.getElementById('folderDropdown').classList.remove('show');
+        
+        // Brief visual feedback
+        const btn = document.querySelector('.btn-add-folder');
+        btn.innerHTML = '<i class="bi bi-check"></i>';
+        setTimeout(() => {
+            btn.innerHTML = '<i class="bi bi-folder-plus"></i>';
+        }, 1500);
+        
+    } catch (error) {
+        console.error('Error adding to folder:', error);
+    }
+}
+
+// Close popup on overlay click
+document.getElementById('coursePopup').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeCoursePopup();
+    }
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.folder-dropdown')) {
+        document.getElementById('folderDropdown').classList.remove('show');
+    }
+});
+
+// Close popup on Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeCoursePopup();
+    }
+});
+
+// Disable all navigation - this page is not the active homepage
+document.addEventListener('click', function(e) {
+    var link = e.target.closest('a, button');
+    if (link && link.tagName === 'A' && link.getAttribute('href') !== '#') {
+        e.preventDefault();
+    }
+}, true);
+</script>
+{% endblock %}

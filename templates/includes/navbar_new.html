@@ -1,0 +1,57 @@
+<nav class="navbar-new">
+    <a href="{{ url_for('both_homepage') }}" class="navbar-new-brand">
+        <i class="bi bi-hexagon-fill" style="color: var(--brown);"></i>
+        <span>BridgeHive</span>
+    </a>
+    <div class="navbar-new-links">
+        <div class="navbar-new-dropdown">
+            <span class="navbar-new-link">{{ t('nav.learn') }} <i class="bi bi-chevron-down" style="font-size: 0.65rem;"></i></span>
+            <div class="navbar-new-dropmenu">
+                <a href="{{ url_for('in_progress_courses_page') }}">{{ t('nav.view_progress') }}</a>
+                <a href="/lib/library">{{ t('nav.browse_courses') }}</a>
+                <a href="/mentor/templates/all">{{ t('nav.view_templates') }}</a>
+            </div>
+        </div>
+        <div class="navbar-new-dropdown">
+            <span class="navbar-new-link">{{ t('nav.create') }} <i class="bi bi-chevron-down" style="font-size: 0.65rem;"></i></span>
+            <div class="navbar-new-dropmenu">
+                <a href="/lib/create">{{ t('nav.create_course') }}</a>
+                <a href="{{ url_for('both_folder_create') }}">{{ t('nav.create_folder') }}</a>
+                <a href="/mentor/templates/all">{{ t('nav.view_templates') }}</a>
+            </div>
+        </div>
+        <a href="/socialhub/" class="navbar-new-link">{{ t('nav.chat') }}</a>
+        <a href="{{ url_for('support') }}" class="navbar-new-link">{{ t('nav.support') }}</a>
+        <a href="{{ url_for('rewards') }}" class="navbar-new-link">{{ t('nav.rewards') }}</a>
+    </div>
+    <div class="navbar-new-right">
+        <div class="navbar-new-points">
+            <i class="bi bi-star-fill"></i> {{ (user.hive_points if user else navbar_user.hive_points if navbar_user else 0)|default(0) }}
+        </div>
+        <div class="navbar-new-searchbar">
+            <input type="text" placeholder="{{ t('common.search') }}..." readonly>
+            <button type="button"><i class="bi bi-search"></i></button>
+        </div>
+        <a href="{{ url_for('notifications') }}" class="navbar-new-bell" style="text-decoration:none;">
+            <i class="bi bi-bell-fill"></i>
+            <span class="navbar-new-bell-dot"></span>
+        </a>
+        <div class="navbar-new-profile-wrap">
+            <div class="navbar-new-profile-circle">
+                <i class="bi bi-person-fill"></i>
+            </div>
+            <div class="navbar-new-profile-menu">
+                <div class="navbar-new-profile-header">
+                    <div class="navbar-new-profile-name">{{ (user.username if user else navbar_user.username if navbar_user else 'Guest') }}</div>
+                    <div class="navbar-new-profile-email">{{ (user.email if user else navbar_user.email if navbar_user else '') }}</div>
+                </div>
+                <a href="{{ url_for('profile') }}"><i class="bi bi-person"></i> {{ t('nav.profile') }}</a>
+                <a href="{{ url_for('settings') }}"><i class="bi bi-gear"></i> {{ t('nav.settings') }}</a>
+                <a href="{{ url_for('support') }}"><i class="bi bi-question-circle"></i> {{ t('nav.support') }}</a>
+                <a href="#" onclick="openAdminLogin(); return false;"><i class="bi bi-shield-lock"></i> Admin Login</a>
+                <div class="navbar-new-profile-divider"></div>
+                <a href="{{ url_for('logout') }}" class="navbar-new-logout"><i class="bi bi-box-arrow-right"></i> {{ t('nav.logout') }}</a>
+            </div>
+        </div>
+    </div>
+</nav>

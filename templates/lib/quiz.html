@@ -1,0 +1,1518 @@
+{% extends "lib/base.html" %}
+
+{% block title %}Assessment | BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    main {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        min-height: calc(100vh - 300px);
+    }
+
+    .quiz-wrapper {
+        width: 100%;
+        max-width: 900px;
+    }
+
+    .quiz-container {
+        background: white;
+        border-radius: 32px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        border: none;
+        position: relative;
+    }
+
+    .sound-banner {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.55rem 0.9rem;
+        background: linear-gradient(135deg, rgba(17, 24, 39, 0.92) 0%, rgba(31, 41, 55, 0.92) 100%);
+        color: #f8fafc;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        backdrop-filter: blur(10px);
+        overflow: hidden;
+        box-shadow: 0 16px 40px rgba(17, 24, 39, 0.35);
+        z-index: 5;
+    }
+
+    .sound-banner::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 12% 50%, rgba(245, 158, 11, 0.22), transparent 45%),
+                    radial-gradient(circle at 88% 50%, rgba(99, 102, 241, 0.2), transparent 45%);
+        opacity: 0.9;
+        pointer-events: none;
+    }
+
+    .sound-banner-text {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        font-weight: 700;
+        font-size: 0.9rem;
+        letter-spacing: 0.2px;
+        text-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    }
+
+    .sound-banner-text i {
+        color: #f59e0b;
+        text-shadow: 0 0 14px rgba(245, 158, 11, 0.7);
+    }
+
+    .sound-banner-btn {
+        position: relative;
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: #111827;
+        border: none;
+        border-radius: 999px;
+        padding: 0.45rem 0.85rem;
+        font-weight: 800;
+        letter-spacing: 0.3px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 12px 28px rgba(245, 158, 11, 0.45);
+        animation: soundPulse 2.6s ease-in-out infinite;
+    }
+
+    .sound-banner-btn:hover {
+        transform: translateY(-1px) scale(1.03);
+    }
+
+    .sound-banner-btn:active {
+        transform: translateY(0) scale(0.98);
+    }
+
+    @keyframes soundPulse {
+        0%, 100% {
+            box-shadow: 0 12px 28px rgba(245, 158, 11, 0.45);
+        }
+        50% {
+            box-shadow: 0 12px 36px rgba(245, 158, 11, 0.7);
+        }
+    }
+
+    .sound-banner.hidden {
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+        .sound-banner {
+            left: 1rem;
+            right: 1rem;
+            justify-content: space-between;
+            width: calc(100% - 2rem);
+        }
+    }
+
+    .quiz-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .quiz-header-left h2 {
+        font-family: 'DM Serif Display', serif;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .quiz-header-left p {
+        opacity: 0.95;
+        font-size: 1rem;
+    }
+
+    .quiz-header-right {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .header-stat {
+        text-align: center;
+        min-width: 100px;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 1rem;
+        border-radius: 16px;
+        backdrop-filter: blur(10px);
+    }
+
+    .header-stat-value {
+        font-size: 2rem;
+        font-weight: 900;
+        line-height: 1;
+        display: block;
+    }
+
+    .header-stat-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        opacity: 0.9;
+        margin-top: 0.5rem;
+        letter-spacing: 1px;
+    }
+
+    .quiz-progress-container {
+        background: linear-gradient(135deg, #f5f7fa 0%, #f0f4ff 100%);
+        padding: 2rem;
+        border-bottom: none;
+    }
+
+    .progress-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1.2rem;
+        font-size: 0.95rem;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .progress-bar-bg {
+        height: 12px;
+        background: #e0e7ff;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 20px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .quiz-content {
+        padding: 3.5rem 2.5rem;
+        min-height: 500px;
+        display: flex;
+        flex-direction: column;
+        gap: 2.5rem;
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    .question-header {
+        margin-bottom: 2.5rem;
+        animation: fadeInDown 0.6s ease-out;
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .question-number {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 0.6rem 1.4rem;
+        border-radius: 25px;
+        font-size: 0.88rem;
+        font-weight: 800;
+        margin-bottom: 1.2rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .question-text {
+        font-size: 1.7rem;
+        font-family: 'DM Serif Display', serif;
+        color: #1a1a1a;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .question-difficulty {
+        font-size: 0.9rem;
+        color: #667eea;
+        display: flex;
+        gap: 0.7rem;
+        align-items: center;
+        font-weight: 600;
+    }
+
+    .difficulty-star {
+        color: #ffd700;
+        font-size: 1rem;
+    }
+
+    .options-container {
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .option-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 2rem 1.5rem;
+        border: 3px solid #e5e7eb;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: white;
+        min-height: 180px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .option-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .option-card:hover::before {
+        left: 100%;
+    }
+
+    .option-card:hover {
+        transform: translateY(-8px) scale(1.05);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.25);
+        border-color: #667eea;
+    }
+
+    .option-card.selected {
+        border-color: #667eea;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        box-shadow: 0 20px 50px rgba(102, 126, 234, 0.3);
+        transform: scale(1.02);
+    }
+
+    .option-card.correct {
+        border-color: #10b981;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.08));
+        box-shadow: 0 20px 50px rgba(16, 185, 129, 0.3);
+        animation: correctPulse 0.6s ease-out;
+    }
+
+    .option-card.incorrect {
+        border-color: #ef4444;
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.08));
+        box-shadow: 0 20px 50px rgba(239, 68, 68, 0.3);
+        animation: shake 0.5s ease-out;
+    }
+
+    @keyframes correctPulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1.02); }
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
+
+    .option-label {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-size: 1.5rem;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .option-card.selected .option-label {
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+        transform: scale(1.1);
+    }
+
+    .option-text {
+        font-size: 1.1rem;
+        color: #333;
+        flex: 1;
+        line-height: 1.4;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .option-icon {
+        font-size: 2rem;
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .option-card.correct .option-icon {
+        opacity: 1;
+        color: #10b981;
+        animation: checkmark 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .option-card.incorrect .option-icon {
+        opacity: 1;
+        color: #ef4444;
+        animation: xmark 0.5s ease;
+    }
+
+    @keyframes checkmark {
+        0% { transform: scale(0) rotate(-45deg); }
+        50% { transform: scale(1.2) rotate(0deg); }
+        100% { transform: scale(1); }
+    }
+
+    @keyframes xmark {
+        0% { transform: rotate(0deg) scale(0); }
+        50% { transform: rotate(45deg) scale(1.2); }
+        100% { transform: rotate(0deg) scale(1); }
+    }
+
+    .quiz-footer {
+        display: flex;
+        gap: 1.5rem;
+        padding: 2.5rem;
+        border-top: 1px solid #e5e7eb;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        background: linear-gradient(135deg, #f5f7fa 0%, #f0f4ff 100%);
+    }
+
+    .btn-quiz {
+        padding: 1.1rem 2.5rem;
+        border-radius: 20px;
+        border: none;
+        font-weight: 700;
+        font-size: 1.05rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        min-width: 160px;
+        justify-content: center;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .btn-quit {
+        background: white;
+        color: #333;
+        border: 2px solid #e5e7eb;
+    }
+
+    .btn-quit:hover {
+        background: #ef4444;
+        color: white;
+        border-color: #ef4444;
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-quit:active {
+        transform: translateY(-1px);
+    }
+
+    .btn-next {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        min-width: 180px;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-next:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+    }
+
+    .btn-next:active:not(:disabled) {
+        transform: translateY(-1px);
+    }
+
+    .btn-next:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .result-container {
+        display: none;
+        min-height: 500px;
+        padding: 3rem 2rem;
+        text-align: center;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #f5f7fa 0%, #f0f4ff 100%);
+    }
+
+    .result-container.show {
+        display: flex;
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    .result-badge {
+        width: 140px;
+        height: 140px;
+        margin: 0 auto 2rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        animation: bounce 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 20px 50px rgba(102, 126, 234, 0.4);
+    }
+
+    @keyframes bounce {
+        0% { transform: scale(0) rotate(-180deg); }
+        50% { transform: scale(1.15); }
+        100% { transform: scale(1) rotate(0deg); }
+    }
+
+    .result-title {
+        font-family: 'DM Serif Display', serif;
+        font-size: 2.8rem;
+        color: #1a1a1a;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+    }
+
+    .score-display {
+        font-size: 4rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 1rem 0;
+    }
+
+    .result-message {
+        font-size: 1.2rem;
+        color: #666;
+        margin-bottom: 0.7rem;
+        font-weight: 600;
+    }
+
+    .certificate-eligibility {
+        display: inline-block;
+        padding: 1.2rem 2.5rem;
+        border-radius: 20px;
+        margin: 2rem 0;
+        font-weight: 700;
+        font-size: 1.05rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .eligible {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.08));
+        color: #10b981;
+        border: 2px solid #10b981;
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25);
+    }
+
+    .ineligible {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.08));
+        color: #ef4444;
+        border: 2px solid #ef4444;
+        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25);
+    }
+
+    .score-breakdown {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1.5rem;
+        margin: 2.5rem 0;
+        width: 100%;
+    }
+
+    .breakdown-card {
+        background: white;
+        padding: 1.8rem 1.2rem;
+        border-radius: 16px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        border: 2px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    .breakdown-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .breakdown-value {
+        font-size: 2.2rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1;
+    }
+
+    .breakdown-label {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 700;
+    }
+
+    .result-actions {
+        display: flex;
+        gap: 1.2rem;
+        margin-top: 2.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .btn-certificate {
+        padding: 1.2rem 3rem;
+        border-radius: 25px;
+        border: none;
+        font-weight: 700;
+        font-size: 1.05rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-certificate-claim {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+
+    .btn-certificate-claim:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 15px 40px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-retry {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+
+    .btn-retry:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-home {
+        background: white;
+        color: #333;
+        border: 2px solid #e5e7eb;
+    }
+
+    .btn-home:hover {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+
+    .confetti {
+        position: fixed;
+        width: 12px;
+        height: 12px;
+        background-color: #ffd700;
+        pointer-events: none;
+        animation: confetti-fall 3s ease-in-out forwards;
+        border-radius: 50%;
+    }
+
+    @keyframes confetti-fall {
+        0% {
+            opacity: 1;
+            transform: translateY(0) rotate(0deg);
+        }
+        100% {
+            opacity: 0;
+            transform: translateY(100vh) rotate(720deg);
+        }
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    @media (max-width: 768px) {
+        main {
+            padding: 1.5rem 1rem;
+            min-height: auto;
+        }
+
+        .quiz-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 1.5rem;
+        }
+
+        .quiz-header-left h2 {
+            font-size: 1.7rem;
+        }
+
+        .quiz-header-right {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .quiz-content,
+        .result-container {
+            padding: 2rem 1.5rem;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+        }
+
+        .options-container {
+            grid-template-columns: 1fr;
+            gap: 1.2rem;
+        }
+
+        .option-card {
+            min-height: 120px;
+        }
+
+        .option-label {
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+        }
+
+        .option-text {
+            font-size: 1rem;
+        }
+
+        .quiz-footer {
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            gap: 1rem;
+        }
+
+        .btn-quiz {
+            width: 100%;
+            justify-content: center;
+            padding: 1rem 1.5rem;
+        }
+
+        .result-title {
+            font-size: 2rem;
+        }
+
+        .score-display {
+            font-size: 2.8rem;
+        }
+
+        .score-breakdown {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .result-actions {
+            flex-direction: column;
+        }
+
+        .btn-certificate {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .quiz-wrapper {
+            padding: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        main {
+            padding: 1rem 0.5rem;
+            min-height: auto;
+        }
+
+        .quiz-container {
+            border-radius: 20px;
+        }
+
+        .quiz-header {
+            padding: 1.5rem 1rem;
+            gap: 1rem;
+        }
+
+        .quiz-header-left h2 {
+            font-size: 1.4rem;
+        }
+
+        .quiz-header-right {
+            gap: 0.8rem;
+        }
+
+        .header-stat {
+            padding: 0.8rem;
+            min-width: 80px;
+        }
+
+        .quiz-content {
+            padding: 1.5rem 1rem;
+            gap: 1.5rem;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+        }
+
+        .question-number {
+            font-size: 0.7rem;
+        }
+
+        .options-container {
+            gap: 1rem;
+        }
+
+        .option-card {
+            padding: 1.2rem 1rem;
+            min-height: 140px;
+        }
+
+        .option-label {
+            width: 45px;
+            height: 45px;
+            font-size: 1rem;
+        }
+
+        .option-text {
+            font-size: 0.95rem;
+        }
+
+        .quiz-footer {
+            padding: 1.5rem 1rem;
+            gap: 0.8rem;
+        }
+
+        .btn-quiz {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            font-size: 0.9rem;
+            min-width: 100px;
+        }
+
+        .result-container {
+            padding: 1.5rem 1rem;
+        }
+
+        .result-badge {
+            width: 100px;
+            height: 100px;
+            font-size: 3rem;
+        }
+
+        .result-title {
+            font-size: 1.4rem;
+        }
+
+        .score-display {
+            font-size: 2rem;
+        }
+
+        .score-breakdown {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .breakdown-card {
+            padding: 1.2rem;
+        }
+
+        .breakdown-value {
+            font-size: 1.8rem;
+        }
+
+        .breakdown-label {
+            font-size: 0.8rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="quiz-wrapper">
+    <div class="quiz-container">
+        <div class="sound-banner" id="soundBanner">
+            <div class="sound-banner-text">
+                <i class="fas fa-volume-up"></i>
+                Enable sound
+            </div>
+            <button class="sound-banner-btn" id="soundEnableBtn" type="button">Enable Sound</button>
+        </div>
+        <!-- QUIZ HEADER -->
+        <div class="quiz-header">
+            <div class="quiz-header-left">
+                <h2 id="courseTitle">Course Assessment</h2>
+                <p id="courseDifficulty">Intermediate Level</p>
+            </div>
+            <div class="quiz-header-right">
+                <div class="header-stat">
+                    <div class="header-stat-value" id="currentNum">1</div>
+                    <div class="header-stat-label">Current</div>
+                </div>
+                <div style="color: rgba(255,255,255,0.5); font-size: 1.5rem;">/</div>
+                <div class="header-stat">
+                    <div class="header-stat-value" id="totalNum">5</div>
+                    <div class="header-stat-label">Total</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROGRESS BAR -->
+        <div class="quiz-progress-container">
+            <div class="progress-info">
+                <span>Progress</span>
+                <span id="progressPercentage">0%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- QUIZ CONTENT -->
+        <div class="quiz-content" id="questionArea">
+            <div class="question-header">
+                <div class="question-number" id="questionBadge">Question 1</div>
+                <h3 class="question-text" id="questionText">Loading Question...</h3>
+                <div class="question-difficulty">
+                    <span>Difficulty:</span>
+                    <span id="questionDifficulty">
+                        <i class="fas fa-star difficulty-star"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="options-container" id="optionsContainer"></div>
+        </div>
+
+        <!-- RESULTS SECTION -->
+        <div class="result-container" id="resultArea">
+            <div class="result-badge" id="resultBadge">🎓</div>
+            <h2 class="result-title" id="resultTitle">Quiz Complete!</h2>
+            <div class="score-display" id="scoreText">0%</div>
+            <p class="result-message" id="resultMessage">Great effort!</p>
+            
+            <div class="certificate-eligibility" id="certificateStatus">
+                <i class="fas fa-check-circle me-2"></i>
+                <span id="certificateMessage">You passed! Claim your certificate</span>
+            </div>
+
+            <div class="score-breakdown">
+                <div class="breakdown-card">
+                    <div class="breakdown-value" id="correctCount">0</div>
+                    <div class="breakdown-label">Correct Answers</div>
+                </div>
+                <div class="breakdown-card">
+                    <div class="breakdown-value" id="wrongCount">0</div>
+                    <div class="breakdown-label">Wrong Answers</div>
+                </div>
+                <div class="breakdown-card">
+                    <div class="breakdown-value" id="passThreshold">80%</div>
+                    <div class="breakdown-label">Required</div>
+                </div>
+            </div>
+
+            <div class="result-actions">
+                <button class="btn-certificate btn-retry" onclick="location.reload()">
+                    <i class="fas fa-redo"></i> Retry Quiz
+                </button>
+                <a href="{{ url_for('lib.certificate', course_id=course.id) }}" class="btn-certificate btn-certificate-claim" id="certificateBtn" style="display: none;">
+                    <i class="fas fa-medal"></i> Claim Certificate
+                </a>
+                <a href="/lib/library" class="btn-certificate btn-home">
+                    <i class="fas fa-arrow-left"></i> Back to Library
+                </a>
+            </div>
+        </div>
+
+        <!-- QUIZ FOOTER -->
+        <div class="quiz-footer" id="quizFooter">
+            <button class="btn-quiz btn-quit" id="quitBtn" type="button">
+                <i class="fas fa-sign-out-alt"></i> Quit Quiz
+            </button>
+            <button class="btn-quiz btn-next" id="nextBtn" type="button" disabled>
+                Next Question <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script type="application/json" id="quizPayload">
+    {{ quiz_payload | tojson }}
+</script>
+
+<script>
+    const quizPayload = JSON.parse(document.getElementById('quizPayload').textContent || '{}');
+
+    // BACKGROUND MUSIC & SOUND EFFECTS
+    class AudioManager {
+        constructor() {
+            this.audioContext = null;
+            this.masterGain = null;
+            this.backgroundOscillator = null;
+            this.backgroundGain = null;
+            this.backgroundFilter = null;
+            this.backgroundLfo = null;
+            this.backgroundLfoGain = null;
+            this.isPlaying = false;
+            this.backgroundTimers = [];
+        }
+
+        init() {
+            try {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                this.masterGain = this.audioContext.createGain();
+                this.masterGain.gain.setValueAtTime(1.0, this.audioContext.currentTime);
+                this.masterGain.connect(this.audioContext.destination);
+            } catch (e) {
+                console.warn('Web Audio API not supported');
+                return;
+            }
+        }
+
+        // PLAY BACKGROUND TENSE MUSIC (crime-thriller pulse)
+        playBackgroundMusic() {
+            if (this.isPlaying || !this.audioContext) return;
+            
+            const ctx = this.audioContext;
+            this.isPlaying = true;
+
+            // Clearer mid-range drone for audibility
+            this.backgroundOscillator = ctx.createOscillator();
+            this.backgroundGain = ctx.createGain();
+            this.backgroundFilter = ctx.createBiquadFilter();
+            this.backgroundOscillator.type = 'sine';
+            this.backgroundOscillator.frequency.value = 220.0; // A3
+            this.backgroundFilter.type = 'lowpass';
+            this.backgroundFilter.frequency.value = 900;
+            this.backgroundFilter.Q.value = 0.6;
+            this.backgroundGain.gain.setValueAtTime(0.18, ctx.currentTime);
+            this.backgroundOscillator.connect(this.backgroundGain);
+            this.backgroundGain.connect(this.backgroundFilter);
+            this.backgroundFilter.connect(this.masterGain);
+            this.backgroundOscillator.start(ctx.currentTime);
+
+            // Slow tremolo for tension
+            this.backgroundLfo = ctx.createOscillator();
+            this.backgroundLfoGain = ctx.createGain();
+            this.backgroundLfo.type = 'sine';
+            this.backgroundLfo.frequency.value = 0.7;
+            this.backgroundLfoGain.gain.setValueAtTime(0.03, ctx.currentTime);
+            this.backgroundLfo.connect(this.backgroundLfoGain);
+            this.backgroundLfoGain.connect(this.backgroundGain.gain);
+            this.backgroundLfo.start(ctx.currentTime);
+
+            // Crime-thriller motif in mid range (audible on laptops)
+            const notes = [
+                { freq: 440.00, duration: 0.18, volume: 0.45, type: 'triangle' }, // A4
+                { freq: 466.16, duration: 0.14, volume: 0.4, type: 'triangle' }, // Bb4
+                { freq: 392.00, duration: 0.18, volume: 0.42, type: 'triangle' }, // G4
+                { freq: 466.16, duration: 0.14, volume: 0.4, type: 'triangle' }, // Bb4
+                { freq: 523.25, duration: 0.2, volume: 0.45, type: 'triangle' }, // C5
+                { freq: 466.16, duration: 0.16, volume: 0.4, type: 'triangle' }, // Bb4
+                { freq: 392.00, duration: 0.2, volume: 0.42, type: 'triangle' }  // G4
+            ];
+
+            const playMelody = () => {
+                if (!this.isPlaying) return;
+
+                notes.forEach((note, index) => {
+                    const timerId = setTimeout(() => {
+                        if (!this.isPlaying) return;
+                        this.playNote(note.freq, note.duration, note.volume, note.type);
+                    }, index * 260);
+                    this.backgroundTimers.push(timerId);
+                });
+
+                // Loop after sequence ends
+                const loopTimer = setTimeout(playMelody, notes.length * 260 + 200);
+                this.backgroundTimers.push(loopTimer);
+            };
+
+            playMelody();
+        }
+
+        // PLAY A NOTE
+        playNote(frequency, duration, volume = 0.3, type = 'sine') {
+            if (!this.audioContext) return;
+
+            const ctx = this.audioContext;
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(this.masterGain);
+
+            oscillator.frequency.value = frequency;
+            oscillator.type = type;
+
+            // Soft attack and release for smooth background music
+            gainNode.gain.setValueAtTime(0, ctx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(volume, ctx.currentTime + 0.03);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+
+            oscillator.start(ctx.currentTime);
+            oscillator.stop(ctx.currentTime + duration);
+        }
+
+        // PLAY CORRECT SOUND
+        playCorrect() {
+            if (!this.audioContext) return;
+            
+            const ctx = this.audioContext;
+            
+            // Two-note success chime
+            this.playNote(523.25, 0.15, 0.4, 'sine');   // C5
+            setTimeout(() => this.playNote(659.25, 0.2, 0.4, 'sine'), 100); // E5
+        }
+
+        // PLAY INCORRECT SOUND
+        playIncorrect() {
+            if (!this.audioContext) return;
+            
+            const ctx = this.audioContext;
+            
+            // Descending buzz for wrong answer
+            this.playNote(293.66, 0.1, 0.35, 'sine');   // D4
+            setTimeout(() => this.playNote(261.63, 0.15, 0.35, 'sine'), 80); // C4
+        }
+
+        // PLAY COMPLETION FANFARE
+        playComplete() {
+            if (!this.audioContext) return;
+
+            const fanfare = [
+                { freq: 523.25, duration: 0.15 },  // C5
+                { freq: 659.25, duration: 0.15 },  // E5
+                { freq: 783.99, duration: 0.3 },   // G5
+                { freq: 987.77, duration: 0.2 },   // B5
+            ];
+
+            fanfare.forEach((note, index) => {
+                setTimeout(() => this.playNote(note.freq, note.duration, 0.5, 'sine'), index * 150);
+            });
+        }
+
+        // STOP BACKGROUND MUSIC
+        stopBackgroundMusic() {
+            this.isPlaying = false;
+            if (this.backgroundOscillator) {
+                try {
+                    this.backgroundOscillator.stop();
+                } catch (e) {
+                    // no-op
+                }
+                this.backgroundOscillator.disconnect();
+                this.backgroundOscillator = null;
+            }
+            if (this.backgroundGain) {
+                this.backgroundGain.disconnect();
+                this.backgroundGain = null;
+            }
+            if (this.backgroundFilter) {
+                this.backgroundFilter.disconnect();
+                this.backgroundFilter = null;
+            }
+            if (this.backgroundLfo) {
+                try {
+                    this.backgroundLfo.stop();
+                } catch (e) {
+                    // no-op
+                }
+                this.backgroundLfo.disconnect();
+                this.backgroundLfo = null;
+            }
+            if (this.backgroundLfoGain) {
+                this.backgroundLfoGain.disconnect();
+                this.backgroundLfoGain = null;
+            }
+            if (this.backgroundTimers.length) {
+                this.backgroundTimers.forEach((timerId) => clearTimeout(timerId));
+                this.backgroundTimers = [];
+            }
+        }
+    }
+
+    const audioManager = new AudioManager();
+
+    // SOUND EFFECTS (Legacy)
+    const soundEffects = {
+        correct: () => audioManager.playCorrect(),
+        incorrect: () => audioManager.playIncorrect(),
+        complete: () => audioManager.playComplete()
+    };
+
+    // STATE MANAGEMENT
+    let quizState = {
+        currentIndex: 0,
+        score: 0,
+        selectedOption: null,
+        answered: false,
+        quizData: null,
+        totalQuestions: 0,
+        courseId: 'default',
+        correct: 0,
+        incorrect: 0
+    };
+
+    // DOM ELEMENTS
+    const ui = {
+        courseTitle: document.getElementById('courseTitle'),
+        courseDifficulty: document.getElementById('courseDifficulty'),
+        qText: document.getElementById('questionText'),
+        opts: document.getElementById('optionsContainer'),
+        next: document.getElementById('nextBtn'),
+        quit: document.getElementById('quitBtn'),
+        currentNum: document.getElementById('currentNum'),
+        totalNum: document.getElementById('totalNum'),
+        progressBar: document.getElementById('progressBar'),
+        progressPercentage: document.getElementById('progressPercentage'),
+        questionArea: document.getElementById('questionArea'),
+        resultArea: document.getElementById('resultArea'),
+        quizFooter: document.getElementById('quizFooter'),
+        questionBadge: document.getElementById('questionBadge'),
+        questionDifficulty: document.getElementById('questionDifficulty'),
+        scoreBadge: document.getElementById('resultBadge'),
+        resultTitle: document.getElementById('resultTitle'),
+        scoreText: document.getElementById('scoreText'),
+        resultMessage: document.getElementById('resultMessage'),
+        certificateStatus: document.getElementById('certificateStatus'),
+        certificateMessage: document.getElementById('certificateMessage'),
+        certificateBtn: document.getElementById('certificateBtn'),
+        correctCount: document.getElementById('correctCount'),
+        wrongCount: document.getElementById('wrongCount'),
+        soundBanner: document.getElementById('soundBanner'),
+        soundEnableBtn: document.getElementById('soundEnableBtn')
+    };
+
+    // INITIALIZE QUIZ
+    function init() {
+        // Initialize audio
+        audioManager.init();
+        
+        quizState.quizData = quizPayload.questions || [];
+        quizState.totalQuestions = quizState.quizData.length;
+
+        // UPDATE HEADER
+        ui.courseTitle.textContent = quizPayload.title || 'Course Assessment';
+        ui.courseDifficulty.textContent = (quizPayload.difficulty || 'Intermediate') + ' Level';
+        ui.totalNum.textContent = quizState.totalQuestions;
+
+        // EVENT LISTENERS
+        ui.next.addEventListener('click', handleNext);
+        
+        // QUIT BUTTON
+        ui.quit.addEventListener('click', () => {
+            if (confirm('Are you sure you want to quit? Your progress will be lost.')) {
+                audioManager.stopBackgroundMusic();
+                window.location.href = '/library';
+            }
+        });
+
+        // START BACKGROUND MUSIC ON FIRST USER INTERACTION (autoplay blocked otherwise)
+        const startAudioOnce = () => {
+            if (audioManager.audioContext && audioManager.audioContext.state === 'suspended') {
+                audioManager.audioContext.resume();
+            }
+            audioManager.playBackgroundMusic();
+            audioManager.playNote(440, 0.12, 0.6, 'sine');
+            if (ui.soundBanner) {
+                ui.soundBanner.classList.add('hidden');
+            }
+            document.removeEventListener('pointerdown', startAudioOnce);
+            document.removeEventListener('keydown', startAudioOnce);
+        };
+
+        if (ui.soundEnableBtn) {
+            ui.soundEnableBtn.addEventListener('click', startAudioOnce);
+        }
+        document.addEventListener('pointerdown', startAudioOnce, { once: true });
+        document.addEventListener('keydown', startAudioOnce, { once: true });
+
+        loadQuestion();
+        console.log('✓ Quiz initialized:', quizPayload.title);
+    }
+
+    // LOAD QUESTION
+    function loadQuestion() {
+        if (quizState.currentIndex >= quizState.totalQuestions) return;
+
+        const data = quizState.quizData[quizState.currentIndex];
+        
+        // UPDATE UI
+        ui.qText.textContent = data.q;
+        ui.currentNum.textContent = quizState.currentIndex + 1;
+        ui.questionBadge.textContent = `Question ${quizState.currentIndex + 1}`;
+        
+        // PROGRESS
+        const progress = ((quizState.currentIndex + 1) / quizState.totalQuestions) * 100;
+        ui.progressBar.style.width = progress + '%';
+        ui.progressPercentage.textContent = Math.round(progress) + '%';
+
+        // DIFFICULTY STARS
+        ui.questionDifficulty.innerHTML = Array(data.difficulty).fill('<i class="fas fa-star difficulty-star"></i>').join('');
+
+        // RENDER OPTIONS
+        ui.opts.innerHTML = '';
+        quizState.selectedOption = null;
+        quizState.answered = false;
+        ui.next.disabled = true;
+
+        data.options.forEach((opt, idx) => {
+            const div = document.createElement('div');
+            div.className = 'option-card';
+            div.dataset.idx = idx;
+            div.innerHTML = `
+                <div class="option-label">${String.fromCharCode(65 + idx)}</div>
+                <div class="option-text">${opt}</div>
+                <div class="option-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            `;
+            
+            div.addEventListener('click', () => selectOption(div, idx, data.a));
+            ui.opts.appendChild(div);
+        });
+    }
+
+    // SELECT OPTION
+    function selectOption(div, idx, correctAnswer) {
+        if (quizState.answered) return;
+
+        document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+        div.classList.add('selected');
+        quizState.selectedOption = idx;
+        quizState.answered = true;
+
+        // CHECK ANSWER & PLAY SOUND
+        if (idx === correctAnswer) {
+            quizState.score++;
+            quizState.correct++;
+            div.classList.add('correct');
+            
+            // Play correct sound
+            soundEffects.correct();
+            
+            // Celebration effect
+            createParticles(div, 'success');
+        } else {
+            quizState.incorrect++;
+            div.classList.add('incorrect');
+            document.querySelectorAll('.option-card')[correctAnswer].classList.add('correct');
+            
+            // Play incorrect sound
+            soundEffects.incorrect();
+            
+            // Error effect
+            createParticles(div, 'error');
+        }
+
+        ui.next.disabled = false;
+        ui.next.textContent = quizState.currentIndex === quizState.totalQuestions - 1 ? 'See Results →' : 'Next Question →';
+    }
+
+    // CREATE PARTICLE EFFECTS
+    function createParticles(element, type) {
+        const rect = element.getBoundingClientRect();
+        const colors = type === 'success' ? ['#10b981', '#34d399', '#6ee7b7'] : ['#ef4444', '#f87171', '#fca5a5'];
+        
+        for (let i = 0; i < 8; i++) {
+            const particle = document.createElement('div');
+            particle.style.position = 'fixed';
+            particle.style.left = rect.left + rect.width / 2 + 'px';
+            particle.style.top = rect.top + rect.height / 2 + 'px';
+            particle.style.width = '12px';
+            particle.style.height = '12px';
+            particle.style.borderRadius = '50%';
+            particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.pointerEvents = 'none';
+            particle.style.zIndex = '9999';
+            
+            const angle = (i / 8) * Math.PI * 2;
+            const velocity = 5;
+            const vx = Math.cos(angle) * velocity;
+            const vy = Math.sin(angle) * velocity;
+            
+            document.body.appendChild(particle);
+            
+            let x = rect.left + rect.width / 2;
+            let y = rect.top + rect.height / 2;
+            let opacity = 1;
+            
+            const animate = () => {
+                x += vx;
+                y += vy;
+                opacity -= 0.05;
+                
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.opacity = opacity;
+                
+                if (opacity > 0) {
+                    requestAnimationFrame(animate);
+                } else {
+                    particle.remove();
+                }
+            };
+            
+            animate();
+        }
+    }
+
+    // HANDLE NEXT
+    function handleNext() {
+        quizState.currentIndex++;
+        if (quizState.currentIndex < quizState.totalQuestions) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    // SHOW RESULTS
+    function showResults() {
+        // STOP BACKGROUND MUSIC
+        audioManager.stopBackgroundMusic();
+        
+        ui.questionArea.classList.add('hidden');
+        ui.quizFooter.classList.add('hidden');
+        ui.resultArea.classList.add('show');
+
+        const percentage = Math.round((quizState.score / quizState.totalQuestions) * 100);
+        const passed = percentage >= 80;
+        const requiredCorrect = Math.ceil(quizState.totalQuestions * 0.8);
+        const needMore = requiredCorrect - quizState.score;
+
+        // UPDATE RESULTS
+        ui.scoreText.textContent = percentage + '%';
+        ui.correctCount.textContent = quizState.correct;
+        ui.wrongCount.textContent = quizState.incorrect;
+
+        // RESULT MESSAGE
+        if (passed) {
+            ui.scoreBadge.textContent = '🎉';
+            ui.resultTitle.textContent = 'Excellent Work!';
+            ui.resultMessage.textContent = 'You passed the assessment!';
+            ui.certificateStatus.classList.add('eligible');
+            ui.certificateStatus.classList.remove('ineligible');
+            ui.certificateMessage.innerHTML = '<i class="fas fa-check-circle me-2"></i>You passed! Claim your certificate now.';
+            ui.certificateBtn.style.display = 'inline-flex';
+            
+            // Play success fanfare
+            soundEffects.complete();
+            
+            triggerConfetti();
+            
+            // notify server of passing
+            fetch(`/lib/quiz/${quizPayload.course_id}/submit`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    score: quizState.score,
+                    total: quizState.totalQuestions,
+                    passed: true
+                })
+            }).catch(e => console.warn('Quiz submit failed', e));
+        } else {
+            ui.scoreBadge.textContent = '📚';
+            ui.resultTitle.textContent = 'Keep Learning!';
+            ui.resultMessage.textContent = `You scored ${quizState.score}/${quizState.totalQuestions} correct (${percentage}%). You need ${requiredCorrect}/${quizState.totalQuestions} (80%) to pass.`;
+            ui.certificateStatus.classList.add('ineligible');
+            ui.certificateStatus.classList.remove('eligible');
+            ui.certificateMessage.innerHTML = `<i class="fas fa-info-circle me-2"></i>You need ${needMore} more correct answer${needMore > 1 ? 's' : ''} to pass (currently ${quizState.score}/${requiredCorrect} required).`;
+            ui.certificateBtn.style.display = 'none';
+        }
+
+        if (typeof UIController !== 'undefined' && UIController.showToast) {
+            const message = passed ? '🎉 Congratulations! You passed the assessment!' : '📚 Great effort! Try again to reach 80%.';
+            UIController.showToast(message, passed ? 'success' : 'info');
+        }
+    }
+
+    // CONFETTI ANIMATION
+    function triggerConfetti() {
+        for (let i = 0; i < 80; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.backgroundColor = ['#FDE047', '#667eea', '#F8B4B4', '#10b981', '#764ba2'][Math.floor(Math.random() * 5)];
+            confetti.style.animationDuration = (Math.random() * 2.5 + 2.5) + 's';
+            confetti.style.animationDelay = (Math.random() * 0.5) + 's';
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => confetti.remove(), 5000);
+        }
+    }
+
+    // START
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+{% endblock %}

@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}Courses In Progress - BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: var(--cream-dark);
+    }
+    
+    .main-content {
+        padding: 2rem 3rem;
+        padding-top: 90px;
+    }
+    
+    .page-header {
+        margin-bottom: 2rem;
+    }
+    
+    .page-header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        color: var(--black);
+        margin-bottom: 0.5rem;
+    }
+    
+    .page-header p {
+        color: var(--gray);
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--gray);
+        text-decoration: none;
+        margin-bottom: 1rem;
+    }
+    
+    .back-link:hover {
+        color: var(--brown);
+    }
+    
+    /* Course Grid - 4 per row */
+    .course-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+    }
+    
+    .course-card {
+        border-radius: 12px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.2s;
+        background: white;
+    }
+    
+    .course-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    
+    .course-img {
+        height: 110px;
+        width: 100%;
+    }
+    
+    .course-body {
+        padding: 1rem;
+    }
+    
+    .course-category {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: var(--gray);
+        background: var(--cream);
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .course-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--black);
+        margin-bottom: 0.25rem;
+    }
+    
+    .course-instructor {
+        font-size: 0.8rem;
+        color: var(--gray);
+    }
+    
+    .course-meta {
+        font-size: 0.75rem;
+        color: var(--gray);
+        margin-top: 0.5rem;
+    }
+    
+    .progress-bar-bg {
+        height: 6px;
+        background: var(--cream-dark);
+        border-radius: 3px;
+        margin-top: 0.5rem;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: var(--brown);
+        border-radius: 3px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--gray);
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--gray-light);
+        margin-bottom: 1rem;
+    }
+    
+    @media (max-width: 1200px) {
+        .course-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+    
+    @media (max-width: 900px) {
+        .course-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <a href="{{ url_for('both_homepage') }}" class="back-link">
+        <i class="bi bi-arrow-left"></i> Back to Home
+    </a>
+    
+    <div class="page-header">
+        <h1>Courses In Progress</h1>
+        <p>{{ courses_in_progress|length }} courses you're currently learning</p>
+    </div>
+    
+    {% if courses_in_progress|length > 0 %}
+    <div class="course-grid">
+        {% for item in courses_in_progress %}
+        <a href="{{ url_for('view_course', course_id=item.course.id) }}" class="course-card" style="text-decoration: none;">
+            <div class="course-img" style="background-color: {{ item.course.color }};"></div>
+            <div class="course-body">
+                <span class="course-category">{{ item.course.category }}</span>
+                <h3 class="course-title">{{ item.course.title }}</h3>
+                <p class="course-instructor">{{ item.course.instructor_name }}</p>
+                <div class="progress-bar-bg">
+                    <div class="progress-fill" style="width: {{ item.progress }}%;"></div>
+                </div>
+                <p class="course-meta">{{ item.progress }}% complete</p>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="bi bi-journal-bookmark"></i>
+        <p>You haven't started any courses yet.<br>Browse courses to get started!</p>
+        <a href="{{ url_for('all_courses_page') }}" style="display: inline-block; margin-top: 1rem; padding: 0.75rem 1.5rem; background: var(--brown); color: white; border-radius: 8px; text-decoration: none;">Browse Courses</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

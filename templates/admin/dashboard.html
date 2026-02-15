@@ -1,0 +1,1300 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: #F5F5F5;
+    }
+    
+    .admin-container {
+        display: flex;
+        min-height: 100vh;
+        padding-top: 70px;
+    }
+    
+    /* Sidebar */
+    .admin-sidebar {
+        width: 250px;
+        background: #454545;
+        padding: 1.5rem 0;
+        position: fixed;
+        top: 70px;
+        left: 0;
+        bottom: 0;
+        overflow-y: auto;
+    }
+    
+    .sidebar-header {
+        padding: 0 1.5rem 1.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        margin-bottom: 1rem;
+    }
+    
+    .sidebar-header h2 {
+        color: white;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.25rem;
+        margin: 0;
+    }
+    
+    .sidebar-header p {
+        color: rgba(255,255,255,0.6);
+        font-size: 0.85rem;
+        margin: 0.25rem 0 0;
+    }
+    
+    .sidebar-nav {
+        padding: 0;
+    }
+    
+    .sidebar-nav a {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.85rem 1.5rem;
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+    
+    .sidebar-nav a:hover {
+        background: rgba(255,255,255,0.1);
+        color: white;
+    }
+    
+    .sidebar-nav a.active {
+        background: var(--brown);
+        color: white;
+    }
+    
+    .sidebar-nav a i {
+        font-size: 1.1rem;
+        width: 20px;
+    }
+    
+    .sidebar-nav a .badge {
+        margin-left: auto;
+        background: rgba(255,255,255,0.2);
+        padding: 0.15rem 0.5rem;
+        border-radius: 10px;
+        font-size: 0.75rem;
+    }
+    
+    .sidebar-logout {
+        position: absolute;
+        bottom: 1rem;
+        left: 1.5rem;
+        right: 1.5rem;
+    }
+    
+    .sidebar-logout a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        background: rgba(255,255,255,0.1);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+    }
+    
+    .sidebar-logout a:hover {
+        background: rgba(255,255,255,0.2);
+    }
+    
+    /* Main Content */
+    .admin-main {
+        flex: 1;
+        margin-left: 250px;
+        padding: 2rem;
+    }
+    
+    .admin-header {
+        margin-bottom: 2rem;
+    }
+    
+    .admin-header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.75rem;
+        color: #454545;
+        margin: 0 0 0.25rem;
+    }
+    
+    .admin-header p {
+        color: #888;
+        margin: 0;
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.25rem;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .stat-card .number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--brown);
+    }
+    
+    .stat-card .label {
+        color: #888;
+        font-size: 0.85rem;
+    }
+    
+    /* Content Card */
+    .content-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+    
+    .content-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .content-card-header h3 {
+        margin: 0;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.25rem;
+        color: #454545;
+    }
+    
+    .btn-add {
+        padding: 0.5rem 1rem;
+        background: var(--brown);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+    
+    .btn-add:hover {
+        background: #7A6A5A;
+    }
+    
+    /* Table */
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .admin-table th {
+        text-align: left;
+        padding: 1rem 1.5rem;
+        background: #FAFAFA;
+        font-weight: 600;
+        color: #555;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .admin-table td {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #eee;
+        color: #454545;
+        font-size: 0.95rem;
+    }
+    
+    .admin-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .admin-table tr:hover {
+        background: #FAFAFA;
+    }
+    
+    .table-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-edit, .btn-delete, .btn-view {
+        padding: 0.4rem 0.75rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    
+    .btn-edit {
+        background: #E8F4FD;
+        color: #2196F3;
+    }
+    
+    .btn-delete {
+        background: #FFEBEE;
+        color: #F44336;
+    }
+    
+    .btn-view {
+        background: #E8F5E9;
+        color: #4CAF50;
+    }
+    
+    .btn-edit:hover { background: #D1E9FC; }
+    .btn-delete:hover { background: #FFCDD2; }
+    .btn-view:hover { background: #C8E6C9; }
+    
+    /* Status Badge */
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    
+    .status-active { background: #E8F5E9; color: #4CAF50; }
+    .status-inactive { background: #FFF3E0; color: #FF9800; }
+    .status-unread { background: #E3F2FD; color: #2196F3; }
+    .status-read { background: #ECEFF1; color: #607D8B; }
+    
+    /* Color Preview */
+    .color-preview {
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 0.5rem;
+        border: 1px solid #ddd;
+    }
+    
+    /* Modal */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+    }
+    
+    .modal-overlay.active {
+        display: flex;
+    }
+    
+    .modal {
+        background: white;
+        border-radius: 12px;
+        width: 500px;
+        max-width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .modal-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .modal-header h3 {
+        margin: 0;
+        font-family: 'Playfair Display', serif;
+    }
+    
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #888;
+        line-height: 1;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #454545;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        box-sizing: border-box;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--brown);
+    }
+    
+    .modal-footer {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+    }
+    
+    .btn-cancel {
+        padding: 0.75rem 1.5rem;
+        background: #eee;
+        color: #454545;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    
+    .btn-submit {
+        padding: 0.75rem 1.5rem;
+        background: var(--brown);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    
+    .btn-submit:hover { background: #7A6A5A; }
+    
+    /* Message Preview */
+    .message-preview {
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #888;
+    }
+    
+    /* Flash Messages */
+    .admin-flash {
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+    
+    .admin-flash-success {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+    
+    .admin-flash-error {
+        background: #FFEBEE;
+        color: #C62828;
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <h2>BridgeHive</h2>
+            <p>Admin Panel</p>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin_dashboard', tab='overview') }}" class="{% if active_tab == 'overview' %}active{% endif %}">
+                <i class="bi bi-grid-1x2"></i> Overview
+            </a>
+            <a href="{{ url_for('admin_dashboard', tab='users') }}" class="{% if active_tab == 'users' %}active{% endif %}">
+                <i class="bi bi-people"></i> Users
+                <span class="badge">{{ user_count }}</span>
+            </a>
+            <a href="{{ url_for('admin_dashboard', tab='courses') }}" class="{% if active_tab == 'courses' %}active{% endif %}">
+                <i class="bi bi-book"></i> Courses
+                <span class="badge">{{ course_count }}</span>
+            </a>
+            <a href="{{ url_for('admin_dashboard', tab='templates') }}" class="{% if active_tab == 'templates' %}active{% endif %}">
+                <i class="bi bi-file-earmark-text"></i> Templates
+                <span class="badge">{{ template_count }}</span>
+            </a>
+            <a href="{{ url_for('admin_dashboard', tab='folders') }}" class="{% if active_tab == 'folders' %}active{% endif %}">
+                <i class="bi bi-folder"></i> Folders
+                <span class="badge">{{ folder_count }}</span>
+            </a>
+            <a href="{{ url_for('admin_dashboard', tab='faqs') }}" class="{% if active_tab == 'faqs' %}active{% endif %}">
+                <i class="bi bi-question-circle"></i> FAQs
+                <span class="badge">{{ faq_count }}</span>
+            </a>
+            <a href="{{ url_for('admin_dashboard', tab='messages') }}" class="{% if active_tab == 'messages' %}active{% endif %}">
+                <i class="bi bi-envelope"></i> Messages
+                <span class="badge">{{ message_count }}</span>
+            </a>
+            <a href="{{ url_for('admin_dashboard', tab='announcements') }}" class="{% if active_tab == 'announcements' %}active{% endif %}">
+                <i class="bi bi-megaphone"></i> Announcements
+                <span class="badge">{{ announcement_count }}</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-logout">
+            <a href="{{ url_for('admin_logout') }}">
+                <i class="bi bi-box-arrow-left"></i> Logout
+            </a>
+        </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="admin-main">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="admin-flash admin-flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% if active_tab == 'overview' %}
+        <!-- Overview Tab -->
+        <div class="admin-header">
+            <h1>Dashboard Overview</h1>
+            <p>Welcome back, Admin</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="number">{{ user_count }}</div>
+                <div class="label">Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">{{ course_count }}</div>
+                <div class="label">Courses</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">{{ folder_count }}</div>
+                <div class="label">Folders</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">{{ faq_count }}</div>
+                <div class="label">FAQs</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">{{ message_count }}</div>
+                <div class="label">Messages</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">{{ announcement_count }}</div>
+                <div class="label">Announcements</div>
+            </div>
+        </div>
+        
+        <div class="content-card">
+            <div class="content-card-header">
+                <h3>Recent Messages</h3>
+                <a href="{{ url_for('admin_dashboard', tab='messages') }}" class="btn-add" style="background: #eee; color: #454545;">View All</a>
+            </div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>From</th>
+                        <th>Topic</th>
+                        <th>Message</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for msg in messages[:5] %}
+                    <tr>
+                        <td>{{ msg.first_name }} {{ msg.last_name }}</td>
+                        <td>{{ msg.topic }}</td>
+                        <td class="message-preview">{{ msg.message }}</td>
+                        <td>{{ msg.date_created.strftime('%b %d, %Y') }}</td>
+                        <td>
+                            <span class="status-badge {% if msg.is_read %}status-read{% else %}status-unread{% endif %}">
+                                {{ 'Read' if msg.is_read else 'Unread' }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="empty-state">No messages yet</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% elif active_tab == 'users' %}
+        <!-- Users Tab -->
+        <div class="admin-header">
+            <h1>Manage Users</h1>
+            <p>{{ user_count }} registered users</p>
+        </div>
+        
+        <div class="content-card">
+            <div class="content-card-header">
+                <h3>All Users</h3>
+            </div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Type</th>
+                        <th>Role</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.user_type or 'N/A' }}</td>
+                        <td>{{ user.role or 'N/A' }}</td>
+                        <td>{{ user.date_joined.strftime('%b %d, %Y') if user.date_joined else 'N/A' }}</td>
+                        <td class="table-actions">
+                            <button class="btn-edit" onclick="openEditUserModal({{ user.id }}, '{{ user.username }}', '{{ user.email }}', '{{ user.user_type or '' }}', '{{ user.role or '' }}')">
+                                <i class="bi bi-pencil"></i> Edit
+                            </button>
+                            <form action="{{ url_for('admin_user_delete', user_id=user.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Delete this user?');">
+                                <button type="submit" class="btn-delete"><i class="bi bi-trash"></i> Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="empty-state">No users found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% elif active_tab == 'courses' %}
+        <!-- Courses Tab -->
+        <div class="admin-header">
+            <h1>Manage Courses</h1>
+            <p>{{ course_count }} courses available</p>
+        </div>
+        
+        <div class="content-card">
+            <div class="content-card-header">
+                <h3>All Courses</h3>
+                <button class="btn-add" onclick="openAddCourseModal()">
+                    <i class="bi bi-plus"></i> Add Course
+                </button>
+            </div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Instructor</th>
+                        <th>Category</th>
+                        <th>Color</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in courses %}
+                    <tr>
+                        <td>{{ course.id }}</td>
+                        <td>{{ course.title }}</td>
+                        <td>{{ course.instructor_name }}</td>
+                        <td>{{ course.category }}</td>
+                        <td><span class="color-preview" style="background: {{ course.color }};"></span>{{ course.color }}</td>
+                        <td>{{ course.date_created.strftime('%b %d, %Y') if course.date_created else 'N/A' }}</td>
+                        <td class="table-actions">
+                            <button class="btn-edit" onclick="openEditCourseModal({{ course.id }}, '{{ course.title }}', '{{ course.instructor_name }}', '{{ course.category }}', '{{ course.color }}')">
+                                <i class="bi bi-pencil"></i> Edit
+                            </button>
+                            <form action="{{ url_for('admin_course_delete', course_id=course.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Delete this course?');">
+                                <button type="submit" class="btn-delete"><i class="bi bi-trash"></i> Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="empty-state">No courses found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% elif active_tab == 'templates' %}
+        <!-- Templates Tab -->
+        <div class="admin-header">
+            <h1>Manage Templates</h1>
+            <p>{{ template_count }} templates available</p>
+        </div>
+        
+        <div class="content-card">
+            <div class="content-card-header">
+                <h3>All Templates</h3>
+                <button class="btn-add" onclick="openAddTemplateModal()">
+                    <i class="bi bi-plus"></i> Add Template
+                </button>
+            </div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Color</th>
+                        <th>Uses</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for template in templates %}
+                    <tr>
+                        <td>{{ template.id }}</td>
+                        <td>{{ template.title }}</td>
+                        <td>{{ template.category }}</td>
+                        <td class="message-preview">{{ template.description or 'No description' }}</td>
+                        <td><span class="color-preview" style="background: {{ template.color }};"></span>{{ template.color }}</td>
+                        <td>{{ template.usage_count }}</td>
+                        <td class="table-actions">
+                            <button class="btn-edit" onclick="openEditTemplateModal({{ template.id }}, '{{ template.title }}', '{{ template.category }}', '{{ template.description | default('') | e }}', '{{ template.color }}')">
+                                <i class="bi bi-pencil"></i> Edit
+                            </button>
+                            <form action="{{ url_for('admin_template_delete', template_id=template.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Delete this template?');">
+                                <button type="submit" class="btn-delete"><i class="bi bi-trash"></i> Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="empty-state">No templates found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% elif active_tab == 'folders' %}
+        <!-- Folders Tab -->
+        <div class="admin-header">
+            <h1>Manage Folders</h1>
+            <p>{{ folder_count }} folders created</p>
+        </div>
+        
+        <div class="content-card">
+            <div class="content-card-header">
+                <h3>All Folders</h3>
+            </div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Owner ID</th>
+                        <th>Type</th>
+                        <th>Icon</th>
+                        <th>Color</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for folder in folders %}
+                    <tr>
+                        <td>{{ folder.id }}</td>
+                        <td>{{ folder.folder_name }}</td>
+                        <td>{{ folder.user_id }}</td>
+                        <td>{{ folder.folder_type or 'custom' }}</td>
+                        <td><i class="bi bi-{{ folder.icon }}-fill"></i> {{ folder.icon }}</td>
+                        <td><span class="color-preview" style="background: {{ folder.color }};"></span>{{ folder.color }}</td>
+                        <td class="table-actions">
+                            <form action="{{ url_for('admin_folder_delete', folder_id=folder.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Delete this folder?');">
+                                <button type="submit" class="btn-delete"><i class="bi bi-trash"></i> Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="empty-state">No folders found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% elif active_tab == 'faqs' %}
+        <!-- FAQs Tab -->
+        <div class="admin-header">
+            <h1>Manage FAQs</h1>
+            <p>{{ faq_count }} FAQs available</p>
+        </div>
+        
+        <div class="content-card">
+            <div class="content-card-header">
+                <h3>All FAQs</h3>
+                <a href="{{ url_for('admin_faq_create') }}" class="btn-add">
+                    <i class="bi bi-plus"></i> Add FAQ
+                </a>
+            </div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Question</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for faq in faqs %}
+                    <tr>
+                        <td>{{ faq.id }}</td>
+                        <td>{{ faq.question[:50] }}{% if faq.question|length > 50 %}...{% endif %}</td>
+                        <td>{{ faq.category }}</td>
+                        <td>
+                            <span class="status-badge {% if faq.is_active %}status-active{% else %}status-inactive{% endif %}">
+                                {{ 'Active' if faq.is_active else 'Inactive' }}
+                            </span>
+                        </td>
+                        <td>{{ faq.date_created.strftime('%b %d, %Y') if faq.date_created else 'N/A' }}</td>
+                        <td class="table-actions">
+                            <a href="{{ url_for('admin_faq_edit', faq_id=faq.id) }}" class="btn-edit">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <form action="{{ url_for('admin_faq_delete', faq_id=faq.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Delete this FAQ?');">
+                                <button type="submit" class="btn-delete"><i class="bi bi-trash"></i> Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="empty-state">No FAQs found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% elif active_tab == 'messages' %}
+        <!-- Messages Tab -->
+        <div class="admin-header">
+            <h1>Contact Messages</h1>
+            <p>{{ message_count }} messages received</p>
+        </div>
+        
+        <div class="content-card">
+            <div class="content-card-header">
+                <h3>All Messages</h3>
+            </div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>From</th>
+                        <th>Email</th>
+                        <th>Topic</th>
+                        <th>Message</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for msg in messages %}
+                    <tr>
+                        <td>{{ msg.id }}</td>
+                        <td>{{ msg.first_name }} {{ msg.last_name }}</td>
+                        <td>{{ msg.email }}</td>
+                        <td>{{ msg.topic }}</td>
+                        <td class="message-preview">{{ msg.message[:30] }}{% if msg.message|length > 30 %}...{% endif %}</td>
+                        <td>{{ msg.date_created.strftime('%b %d, %Y') }}</td>
+                        <td>
+                            <span class="status-badge {% if msg.is_read %}status-read{% else %}status-unread{% endif %}">
+                                {{ 'Read' if msg.is_read else 'Unread' }}
+                            </span>
+                        </td>
+                        <td class="table-actions">
+                            <button class="btn-view" onclick="openMessageModal('{{ msg.first_name }} {{ msg.last_name }}', '{{ msg.email }}', '{{ msg.topic }}', `{{ msg.message|replace('`', '') }}`, '{{ msg.date_created.strftime('%b %d, %Y at %H:%M') }}')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <form action="{{ url_for('admin_message_toggle_read', message_id=msg.id) }}" method="POST" style="display: inline;">
+                                <button type="submit" class="btn-edit" title="Toggle read status">
+                                    <i class="bi bi-{% if msg.is_read %}envelope{% else %}envelope-open{% endif %}"></i>
+                                </button>
+                            </form>
+                            <form action="{{ url_for('admin_message_delete', message_id=msg.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Delete this message?');">
+                                <button type="submit" class="btn-delete"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="empty-state">No messages found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% elif active_tab == 'announcements' %}
+        <!-- Announcements Tab -->
+        <div class="admin-header">
+            <h1>Manage Announcements</h1>
+            <p>{{ announcement_count }} announcements sent</p>
+        </div>
+
+        <div class="content-card" style="margin-bottom: 1rem;">
+            <div class="content-card-header">
+                <h3>Send New Announcement</h3>
+                <a href="{{ url_for('notifications') }}" class="btn-add" style="background: #eee; color: #454545;">
+                    <i class="bi bi-bell"></i> Open Notifications Page
+                </a>
+            </div>
+            <div class="modal-body" style="padding-top: 1rem;">
+                <form action="{{ url_for('admin_announcement_create') }}" method="POST">
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" name="title" maxlength="200" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea name="message" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">Send to All Users</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="content-card-header">
+                <h3>Announcement History</h3>
+            </div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Message</th>
+                        <th>Created By</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for announcement in announcements %}
+                    <tr>
+                        <td>{{ announcement.id }}</td>
+                        <td>{{ announcement.title }}</td>
+                        <td class="message-preview">{{ announcement.message }}</td>
+                        <td>{{ announcement.created_by }}</td>
+                        <td>{{ announcement.created_at.strftime('%b %d, %Y %H:%M') if announcement.created_at else 'N/A' }}</td>
+                        <td class="table-actions">
+                            <form action="{{ url_for('admin_announcement_delete', announcement_id=announcement.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Delete this announcement?');">
+                                <button type="submit" class="btn-delete"><i class="bi bi-trash"></i> Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="empty-state">No announcements found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </main>
+</div>
+
+<!-- Add Course Modal -->
+<div class="modal-overlay" id="addCourseModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Add New Course</h3>
+            <button class="modal-close" onclick="closeModal('addCourseModal')">&times;</button>
+        </div>
+        <form action="{{ url_for('admin_course_create') }}" method="POST">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Course Title</label>
+                    <input type="text" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label>Instructor Name</label>
+                    <input type="text" name="instructor_name" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select name="category" required>
+                        <option value="Cooking">Cooking</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Language">Language</option>
+                        <option value="Sports & Fitness">Sports & Fitness</option>
+                        <option value="Arts & Creativity">Arts & Creativity</option>
+                        <option value="Health & Wellness">Health & Wellness</option>
+                        <option value="Gardening">Gardening</option>
+                        <option value="Finance">Finance</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Color</label>
+                    <select name="color">
+                        <option value="#FEFAF1">Cream Light</option>
+                        <option value="#FFE5C4">Peach</option>
+                        <option value="#ECD9B9">Beige</option>
+                        <option value="#DEC09A">Tan</option>
+                        <option value="#C4B4A7">Taupe</option>
+                        <option value="#BEBAAF">Gray</option>
+                        <option value="#8F7B6A">Brown</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeModal('addCourseModal')">Cancel</button>
+                <button type="submit" class="btn-submit">Add Course</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Course Modal -->
+<div class="modal-overlay" id="editCourseModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Edit Course</h3>
+            <button class="modal-close" onclick="closeModal('editCourseModal')">&times;</button>
+        </div>
+        <form id="editCourseForm" method="POST">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Course Title</label>
+                    <input type="text" name="title" id="editCourseTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Instructor Name</label>
+                    <input type="text" name="instructor_name" id="editCourseInstructor" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select name="category" id="editCourseCategory" required>
+                        <option value="Cooking">Cooking</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Language">Language</option>
+                        <option value="Sports & Fitness">Sports & Fitness</option>
+                        <option value="Arts & Creativity">Arts & Creativity</option>
+                        <option value="Health & Wellness">Health & Wellness</option>
+                        <option value="Gardening">Gardening</option>
+                        <option value="Finance">Finance</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Color</label>
+                    <select name="color" id="editCourseColor">
+                        <option value="#FEFAF1">Cream Light</option>
+                        <option value="#FFE5C4">Peach</option>
+                        <option value="#ECD9B9">Beige</option>
+                        <option value="#DEC09A">Tan</option>
+                        <option value="#C4B4A7">Taupe</option>
+                        <option value="#BEBAAF">Gray</option>
+                        <option value="#8F7B6A">Brown</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeModal('editCourseModal')">Cancel</button>
+                <button type="submit" class="btn-submit">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Template Modal -->
+<div class="modal-overlay" id="addTemplateModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Add New Template</h3>
+            <button class="modal-close" onclick="closeModal('addTemplateModal')">&times;</button>
+        </div>
+        <form action="{{ url_for('admin_template_create') }}" method="POST">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Template Title</label>
+                    <input type="text" name="title" required placeholder="Enter template title">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select name="category" required>
+                        <option value="Cooking">Cooking</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Language">Language</option>
+                        <option value="Sports & Fitness">Sports & Fitness</option>
+                        <option value="Arts & Creativity">Arts & Creativity</option>
+                        <option value="Health & Wellness">Health & Wellness</option>
+                        <option value="Gardening">Gardening</option>
+                        <option value="Finance">Finance</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" rows="3" placeholder="Enter template description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Color</label>
+                    <select name="color">
+                        <option value="#FEFAF1">Cream Light</option>
+                        <option value="#FFE5C4">Peach</option>
+                        <option value="#ECD9B9">Beige</option>
+                        <option value="#DEC09A">Tan</option>
+                        <option value="#C4B4A7">Taupe</option>
+                        <option value="#BEBAAF">Gray</option>
+                        <option value="#8F7B6A">Brown</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeModal('addTemplateModal')">Cancel</button>
+                <button type="submit" class="btn-submit">Add Template</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Template Modal -->
+<div class="modal-overlay" id="editTemplateModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Edit Template</h3>
+            <button class="modal-close" onclick="closeModal('editTemplateModal')">&times;</button>
+        </div>
+        <form id="editTemplateForm" method="POST">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Template Title</label>
+                    <input type="text" name="title" id="editTemplateTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select name="category" id="editTemplateCategory" required>
+                        <option value="Cooking">Cooking</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Language">Language</option>
+                        <option value="Sports & Fitness">Sports & Fitness</option>
+                        <option value="Arts & Creativity">Arts & Creativity</option>
+                        <option value="Health & Wellness">Health & Wellness</option>
+                        <option value="Gardening">Gardening</option>
+                        <option value="Finance">Finance</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" id="editTemplateDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Color</label>
+                    <select name="color" id="editTemplateColor">
+                        <option value="#FEFAF1">Cream Light</option>
+                        <option value="#FFE5C4">Peach</option>
+                        <option value="#ECD9B9">Beige</option>
+                        <option value="#DEC09A">Tan</option>
+                        <option value="#C4B4A7">Taupe</option>
+                        <option value="#BEBAAF">Gray</option>
+                        <option value="#8F7B6A">Brown</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeModal('editTemplateModal')">Cancel</button>
+                <button type="submit" class="btn-submit">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal-overlay" id="editUserModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Edit User</h3>
+            <button class="modal-close" onclick="closeModal('editUserModal')">&times;</button>
+        </div>
+        <form id="editUserForm" method="POST">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" name="username" id="editUserUsername" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" id="editUserEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>User Type</label>
+                    <select name="user_type" id="editUserType">
+                        <option value="">Not Set</option>
+                        <option value="youth">Youth</option>
+                        <option value="elder">Elder</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select name="role" id="editUserRole">
+                        <option value="">Not Set</option>
+                        <option value="learner">Learner</option>
+                        <option value="mentor">Mentor</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeModal('editUserModal')">Cancel</button>
+                <button type="submit" class="btn-submit">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- View Message Modal -->
+<div class="modal-overlay" id="viewMessageModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Message Details</h3>
+            <button class="modal-close" onclick="closeModal('viewMessageModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p><strong>From:</strong> <span id="msgFrom"></span></p>
+            <p><strong>Email:</strong> <span id="msgEmail"></span></p>
+            <p><strong>Topic:</strong> <span id="msgTopic"></span></p>
+            <p><strong>Date:</strong> <span id="msgDate"></span></p>
+            <hr style="margin: 1rem 0; border: none; border-top: 1px solid #eee;">
+            <p><strong>Message:</strong></p>
+            <p id="msgContent" style="background: #f9f9f9; padding: 1rem; border-radius: 8px; white-space: pre-wrap;"></p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="closeModal('viewMessageModal')">Close</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openModal(id) {
+    document.getElementById(id).classList.add('active');
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+}
+
+function openAddCourseModal() {
+    openModal('addCourseModal');
+}
+
+function openEditCourseModal(id, title, instructor, category, color) {
+    document.getElementById('editCourseForm').action = '/admin/courses/' + id + '/edit';
+    document.getElementById('editCourseTitle').value = title;
+    document.getElementById('editCourseInstructor').value = instructor;
+    document.getElementById('editCourseCategory').value = category;
+    document.getElementById('editCourseColor').value = color;
+    openModal('editCourseModal');
+}
+
+function openEditUserModal(id, username, email, userType, role) {
+    document.getElementById('editUserForm').action = '/admin/users/' + id + '/edit';
+    document.getElementById('editUserUsername').value = username;
+    document.getElementById('editUserEmail').value = email;
+    document.getElementById('editUserType').value = userType;
+    document.getElementById('editUserRole').value = role;
+    openModal('editUserModal');
+}
+
+function openMessageModal(from, email, topic, content, date) {
+    document.getElementById('msgFrom').textContent = from;
+    document.getElementById('msgEmail').textContent = email;
+    document.getElementById('msgTopic').textContent = topic;
+    document.getElementById('msgContent').textContent = content;
+    document.getElementById('msgDate').textContent = date;
+    openModal('viewMessageModal');
+}
+
+function openAddTemplateModal() {
+    openModal('addTemplateModal');
+}
+
+function openEditTemplateModal(id, title, category, description, color) {
+    document.getElementById('editTemplateForm').action = '/admin/templates/' + id + '/edit';
+    document.getElementById('editTemplateTitle').value = title;
+    document.getElementById('editTemplateCategory').value = category;
+    document.getElementById('editTemplateDescription').value = description;
+    document.getElementById('editTemplateColor').value = color;
+    openModal('editTemplateModal');
+}
+
+// Close modal when clicking outside
+document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+    overlay.addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.remove('active');
+        }
+    });
+});
+
+// Close on Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.active').forEach(function(modal) {
+            modal.classList.remove('active');
+        });
+    }
+});
+</script>
+{% endblock %}

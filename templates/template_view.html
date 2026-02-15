@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+{% block title %}{{ template.title }} - BridgeHive{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .template-view-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+    
+    .template-view-modal {
+        background: var(--cream);
+        border-radius: 16px;
+        max-width: 800px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+    }
+    
+    .template-view-header {
+        height: 200px;
+        background-color: {{ template.color }};
+        border-radius: 16px 16px 0 0;
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        padding: 2rem;
+    }
+    
+    .template-close-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 40px;
+        height: 40px;
+        background: rgba(255,255,255,0.9);
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: var(--black);
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+    
+    .template-close-btn:hover {
+        background: white;
+        transform: scale(1.1);
+    }
+    
+    .template-view-category {
+        background: rgba(255,255,255,0.9);
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--black);
+    }
+    
+    .template-view-body {
+        padding: 2rem;
+    }
+    
+    .template-view-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        color: var(--black);
+    }
+    
+    .template-view-usage {
+        color: var(--gray);
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .template-view-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .template-view-section h3 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+        color: var(--black);
+    }
+    
+    .template-view-section p {
+        color: var(--gray);
+        line-height: 1.7;
+    }
+    
+    .template-features {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .template-features li {
+        padding: 1rem;
+        background: var(--cream-dark);
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .template-features li i {
+        color: var(--brown);
+    }
+    
+    .template-view-footer {
+        padding: 1.5rem 2rem;
+        border-top: 1px solid var(--cream-dark);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .btn-use-template {
+        background: var(--brown);
+        color: white;
+        padding: 0.85rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+        text-decoration: none;
+    }
+    
+    .btn-use-template:hover {
+        background: #7A6A5A;
+        color: white;
+    }
+    
+    .template-meta-info {
+        display: flex;
+        gap: 1.5rem;
+        color: var(--gray);
+        font-size: 0.9rem;
+    }
+    
+    .template-meta-info span {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    /* Folder dropdown for adding to folder */
+    .footer-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .btn-add-to-folder {
+        background: var(--cream-dark);
+        color: var(--brown);
+        padding: 0.85rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: background 0.2s;
+        position: relative;
+    }
+    
+    .btn-add-to-folder:hover {
+        background: var(--tan);
+    }
+    
+    .folder-dropdown {
+        position: absolute;
+        bottom: 100%;
+        right: 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        min-width: 200px;
+        margin-bottom: 0.5rem;
+        display: none;
+        overflow: hidden;
+    }
+    
+    .folder-dropdown.show {
+        display: block;
+    }
+    
+    .folder-dropdown-item {
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        transition: background 0.2s;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        font-size: 0.95rem;
+    }
+    
+    .folder-dropdown-item:hover {
+        background: var(--cream);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="template-view-overlay">
+    <div class="template-view-modal">
+        <div class="template-view-header">
+            {% if from_folder %}
+            <a href="{{ url_for('mentor_folder_view', folder_id=from_folder) }}" class="template-close-btn">
+                <i class="bi bi-x-lg"></i>
+            </a>
+            {% else %}
+            <a href="{{ url_for('both_homepage') }}" class="template-close-btn">
+                <i class="bi bi-x-lg"></i>
+            </a>
+            {% endif %}
+            <span class="template-view-category">{{ template.category }}</span>
+        </div>
+        
+        <div class="template-view-body">
+            <h1 class="template-view-title">{{ template.title }}</h1>
+            <p class="template-view-usage"><i class="bi bi-people"></i> Used by {{ template.usage_count }} creators</p>
+            
+            <div class="template-view-section">
+                <h3>About this template</h3>
+                <p>{{ template.description or 'This template helps you create engaging ' + template.category.lower() + ' courses. It includes structured sections, activity suggestions, and best practices for intergenerational learning.' }}</p>
+            </div>
+            
+            <div class="template-view-section">
+                <h3>Template includes</h3>
+                <ul class="template-features">
+                    <li><i class="bi bi-check-circle-fill"></i> Course structure and outline</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Pre-made module templates</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Activity and exercise ideas</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Assessment suggestions</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Best practices guide</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="template-view-footer">
+            <div class="template-meta-info">
+                <span><i class="bi bi-clock"></i> Est. 2-3 hours to customize</span>
+                <span><i class="bi bi-star-fill"></i> Popular choice</span>
+            </div>
+            <div class="footer-actions">
+                <div style="position: relative;">
+                    <button class="btn-add-to-folder" onclick="toggleFolderDropdown()">
+                        <i class="bi bi-folder-plus"></i> Save
+                    </button>
+                    <div class="folder-dropdown" id="folderDropdown">
+                        {% for folder in folders %}
+                        <form action="{{ url_for('add_template_to_folder', folder_id=folder.id, template_id=template.id) }}" method="POST">
+                            <button type="submit" class="folder-dropdown-item">
+                                <i class="bi bi-{{ folder.icon }}"></i>
+                                {{ folder.folder_name }}
+                            </button>
+                        </form>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button class="btn-use-template" onclick="alert('Starting course creation with this template! This would open the course editor.')">
+                    Start Creating
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleFolderDropdown() {
+        document.getElementById('folderDropdown').classList.toggle('show');
+    }
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.btn-add-to-folder') && !e.target.closest('.folder-dropdown')) {
+            document.getElementById('folderDropdown').classList.remove('show');
+        }
+    });
+</script>
+{% endblock %}

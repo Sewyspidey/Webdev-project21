@@ -1,0 +1,1233 @@
+{% extends "lib/base.html" %}
+
+{% block title %}{{ module.title }} - {{ course.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --color-primary: #2C3E50;
+        --color-accent-pink: #F8B4B4;
+        --color-secondary: #B5B0A1;
+        --color-success: #10b981;
+        --color-text: #333;
+        --color-light: #f8f9fa;
+    }
+
+    main {
+        padding: 40px 0 30px;
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--color-primary);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 20px;
+        padding: 10px 16px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .back-button:hover {
+        background: rgba(44, 62, 80, 0.1);
+        color: #000;
+        transform: translateX(-3px);
+    }
+
+    .breadcrumb {
+        background: white;
+        border-radius: 12px;
+        padding: 15px 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 25px;
+    }
+
+    .breadcrumb a {
+        color: var(--color-primary);
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .breadcrumb a:hover {
+        color: var(--color-accent-pink);
+        transform: translateX(2px);
+    }
+
+    .breadcrumb-item.active {
+        color: var(--color-secondary);
+    }
+
+    .module-progress {
+        background: linear-gradient(135deg, var(--color-primary) 0%, rgba(44, 62, 80, 0.9) 100%);
+        color: white;
+        padding: 20px 25px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(44, 62, 80, 0.15);
+        border-left: 5px solid var(--color-accent-pink);
+    }
+
+    .progress-bar-custom {
+        height: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 12px;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--color-accent-pink), #F5A5A5);
+        border-radius: 10px;
+        transition: width 0.5s ease;
+    }
+
+    .module-header {
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        border-top: 5px solid var(--color-accent-pink);
+    }
+
+    .module-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--color-primary);
+        margin-bottom: 15px;
+    }
+
+    .module-meta {
+        display: flex;
+        gap: 25px;
+        flex-wrap: wrap;
+        color: var(--color-secondary);
+        font-size: 0.95rem;
+    }
+
+    .module-meta span {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background: var(--color-light);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .module-meta i {
+        color: var(--color-accent-pink);
+        font-weight: 600;
+    }
+
+    .video-player-wrapper {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+        margin-bottom: 30px;
+        aspect-ratio: 16 / 9;
+        border: 1px solid rgba(248, 180, 180, 0.2);
+    }
+
+    .video-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, var(--color-primary) 0%, rgba(44, 62, 80, 0.8) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+
+    .video-placeholder i {
+        font-size: 3.5rem;
+        opacity: 0.9;
+    }
+
+    .video-placeholder strong {
+        font-size: 1.3rem;
+        font-weight: 700;
+    }
+
+    .content-section {
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .section-title {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--color-primary);
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid var(--color-light);
+    }
+
+    .section-title i {
+        color: var(--color-accent-pink);
+        font-size: 1.3rem;
+    }
+
+    .module-intro {
+        font-size: 1.05rem;
+        color: #555;
+        line-height: 1.8;
+        padding: 20px;
+        background: linear-gradient(135deg, rgba(248, 180, 180, 0.08) 0%, rgba(181, 176, 161, 0.05) 100%);
+        border-radius: 12px;
+        border-left: 5px solid var(--color-accent-pink);
+        margin-bottom: 25px;
+    }
+
+    .content-slides {
+        background: linear-gradient(135deg, #ffffff 0%, rgba(248, 180, 180, 0.02) 100%);
+        border-radius: 20px;
+        border: 2px solid rgba(248, 180, 180, 0.3);
+        padding: 40px;
+        min-height: 320px;
+        box-shadow: 0 15px 50px rgba(44, 62, 80, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .content-slides::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 8px;
+        background: linear-gradient(90deg, var(--color-accent-pink), #F5A5A5, rgba(44, 62, 80, 0.85));
+        box-shadow: 0 4px 15px rgba(248, 180, 180, 0.2);
+    }
+
+    .content-slide {
+        display: none;
+    }
+
+    .content-slide.active {
+        display: block;
+        animation: fadeIn 0.25s ease;
+    }
+
+    .slide-title {
+        font-weight: 800;
+        color: var(--color-primary);
+        margin-bottom: 8px;
+        font-size: 1.35rem;
+        letter-spacing: -0.5px;
+    }
+
+    .slide-subtitle {
+        color: var(--color-accent-pink);
+        font-size: 0.95rem;
+        margin-bottom: 20px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .slide-bullets {
+        margin: 0;
+        padding-left: 0;
+        color: #374151;
+        line-height: 1.9;
+        display: grid;
+        gap: 14px;
+    }
+
+    .slide-bullets li {
+        background: linear-gradient(135deg, #f9fafb 0%, rgba(248, 180, 180, 0.05) 100%);
+        border: 2px solid rgba(248, 180, 180, 0.2);
+        border-left: 5px solid var(--color-accent-pink);
+        padding: 16px 18px;
+        border-radius: 12px;
+        list-style: none;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        font-weight: 500;
+    }
+
+    .slide-bullets li:hover {
+        transform: translateX(8px);
+        border-color: var(--color-accent-pink);
+        background: linear-gradient(135deg, rgba(248, 180, 180, 0.1) 0%, rgba(248, 180, 180, 0.08) 100%);
+        box-shadow: 0 8px 20px rgba(248, 180, 180, 0.15);
+    }
+
+    .slide-bullets li::before {
+        content: '▸';
+        color: var(--color-accent-pink);
+        font-weight: 700;
+        margin-right: 12px;
+        font-size: 1.1rem;
+    }
+
+    .slide-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 28px;
+        padding-top: 25px;
+        border-top: 2px solid rgba(248, 180, 180, 0.2);
+    }
+
+    .slide-btn {
+        background: white;
+        color: var(--color-primary);
+        border: 2px solid var(--color-primary);
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 700;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: pointer;
+        font-size: 0.95rem;
+    }
+
+    .slide-btn:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(44, 62, 80, 0.15);
+        background: linear-gradient(135deg, rgba(44, 62, 80, 0.05), rgba(248, 180, 180, 0.05));
+    }
+
+    .slide-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .slide-indicator {
+        font-weight: 700;
+        color: var(--color-primary);
+        font-size: 0.95rem;
+        background: rgba(248, 180, 180, 0.1);
+        padding: 8px 16px;
+        border-radius: 20px;
+        border: 1px solid rgba(248, 180, 180, 0.3);
+    }
+
+    .slide-dots {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .slide-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #e5e7eb;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .slide-dot:hover {
+        background: var(--color-secondary);
+        transform: scale(1.2);
+    }
+
+    .slide-dot.active {
+        background: var(--color-accent-pink);
+        box-shadow: 0 0 12px rgba(248, 180, 180, 0.5);
+        transform: scale(1.15);
+    }
+
+    .learning-points {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .learning-point {
+        display: flex;
+        gap: 12px;
+        padding: 14px 16px;
+        background: var(--color-light);
+        border-radius: 10px;
+        border-left: 4px solid var(--color-accent-pink);
+        transition: all 0.3s ease;
+    }
+
+    .learning-point:hover {
+        background: rgba(248, 180, 180, 0.1);
+        transform: translateX(5px);
+    }
+
+    .learning-point i {
+        color: var(--color-accent-pink);
+        flex-shrink: 0;
+        margin-top: 2px;
+        font-weight: 600;
+    }
+
+    .resources-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .resource-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        border: 2px solid var(--color-light);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: pointer !important;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    .resource-card::after {
+        content: '→';
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 1.5rem;
+        color: var(--color-accent-pink);
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+
+    .resource-card:hover {
+        transform: translateY(-8px);
+        border-color: var(--color-accent-pink);
+        box-shadow: 0 10px 30px rgba(248, 180, 180, 0.2);
+    }
+
+    .resource-card:hover::after {
+        opacity: 1;
+        right: 15px;
+    }
+
+    .resource-card:active {
+        transform: translateY(-4px);
+    }
+
+    .resource-card-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        margin-bottom: 12px;
+    }
+
+    .resource-card-icon.video {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+
+    .resource-card-icon.pdf {
+        background: rgba(249, 115, 22, 0.1);
+        color: #f97316;
+    }
+
+    .resource-card-icon.article {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+
+    .resource-card-title {
+        font-weight: 700;
+        margin-bottom: 5px;
+        color: var(--color-primary);
+        font-size: 1rem;
+    }
+
+    .resource-card-type {
+        font-size: 0.8rem;
+        color: var(--color-secondary);
+        font-weight: 600;
+    }
+
+    .navigation-section {
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .navigation-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+        margin-bottom: 25px;
+    }
+
+    .nav-button {
+        padding: 16px 24px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .nav-button.prev {
+        background: white;
+        color: var(--color-primary);
+        border: 2px solid var(--color-primary);
+    }
+
+    .nav-button.prev:hover {
+        background: var(--color-light);
+        transform: translateX(-3px);
+    }
+
+    .nav-button.next {
+        background: linear-gradient(135deg, var(--color-primary), rgba(44, 62, 80, 0.9));
+        color: white;
+        border: none;
+    }
+
+    .nav-button.next.locked {
+        background: linear-gradient(135deg, #4b5563, #1f2937);
+        color: #e5e7eb;
+    }
+
+    .nav-button.next:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(44, 62, 80, 0.2);
+    }
+
+    .nav-button.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .mark-complete-btn {
+        display: block;
+        margin: 20px 0;
+        padding: 14px 28px;
+        border-radius: 12px;
+        border: 2px solid var(--color-accent-pink);
+        background: white;
+        color: var(--color-accent-pink);
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .mark-complete-btn:hover:not(:disabled) {
+        background: var(--color-accent-pink);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(248, 180, 180, 0.3);
+    }
+
+    .mark-complete-btn:disabled {
+        background: #10b981;
+        color: white;
+        border-color: #10b981;
+        opacity: 0.8;
+        cursor: not-allowed;
+    }
+
+    .alert {
+        border-radius: 12px;
+        border-left: 5px solid;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(52, 211, 153, 0.08));
+        border-color: var(--color-success);
+        color: #065f46;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+        .module-title {
+            font-size: 1.6rem;
+        }
+
+        .module-header {
+            padding: 25px;
+        }
+
+        .content-section {
+            padding: 25px;
+        }
+
+        .navigation-section {
+            padding: 25px;
+        }
+
+        .module-meta {
+            gap: 12px;
+        }
+
+        .navigation-buttons {
+            grid-template-columns: 1fr;
+        }
+
+        .video-player-wrapper {
+            aspect-ratio: 16 / 9;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-lg" data-course-id="{{ course.id }}" data-module-id="{{ module.id }}">
+    <!-- Back Button -->
+    <a href="{{ url_for('lib.learn_modules', course_id=course.id) }}" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back to Learning Path
+    </a>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="/lib/library"><i class="fas fa-home me-1"></i>Library</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('lib.course_view', course_id=course.id) }}">{{ course.title }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ module.title }}</li>
+        </ol>
+    </nav>
+
+    <!-- Module Progress -->
+    <div class="module-progress">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span><strong>Module {{ current_index }} of {{ total_modules }}</strong></span>
+            <span id="percentComplete"><strong>{{ completion_percentage|round(0) }}%</strong> Complete</span>
+        </div>
+        <div class="progress-bar-custom">
+            <div class="progress-bar-fill" data-progress="{{ completion_percentage|round(0) }}"></div>
+        </div>
+        <small>{{ completed_modules }} of {{ total_modules }} lessons completed</small>
+    </div>
+
+    <!-- Module Header -->
+    <div class="module-header">
+        <h1 class="module-title">{{ module.title }}</h1>
+        <div class="module-meta">
+            <span><i class="fas fa-clock"></i> {{ module.duration_mins }} minutes</span>
+            <span><i class="fas fa-video"></i> Video Lesson</span>
+            <span><i class="fas fa-bookmark"></i> Module {{ current_index }}/{{ total_modules }}</span>
+            <span><i class="fas fa-star"></i> <strong>{{ module.difficulty or 'Beginner' }}</strong></span>
+        </div>
+    </div>
+
+    <!-- Video Player -->
+    <div class="video-player-wrapper">
+        {% if module.resource_url %}
+            {% if 'youtube' in module.resource_url or 'youtu.be' in module.resource_url %}
+                <iframe 
+                    width="100%" 
+                    height="100%" 
+                    src="{{ module.resource_url }}" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            {% else %}
+                <video width="100%" height="100%" controls controlsList="nodownload">
+                    <source src="{{ url_for('static', filename='lib/' + module.resource_url) }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            {% endif %}
+        {% else %}
+            <div class="video-placeholder">
+                <i class="fas fa-play-circle"></i>
+                <div>
+                    <strong>{{ module.title }}</strong>
+                    <p>Video lesson content loads here</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Module Content -->
+    <div class="content-section">
+        <h3 class="section-title">
+            <i class="fas fa-book-open"></i> Lesson Content
+        </h3>
+        {% if module.content %}
+            <div class="content-slides" id="contentSlides"></div>
+            <div class="slide-dots" id="slideDots"></div>
+            <div class="slide-controls">
+                <button class="slide-btn" id="prevSlideBtn" type="button">&larr; Previous</button>
+                <div class="slide-indicator" id="slideIndicator">Slide 1 of 1</div>
+                <button class="slide-btn" id="nextSlideBtn" type="button">Next &rarr;</button>
+            </div>
+            <textarea id="moduleContentRaw" class="d-none">{{ module.content | e }}</textarea>
+        {% else %}
+            <div class="module-intro">
+                This lesson covers important concepts and practical applications. Watch the video above to learn the core materials.
+            </div>
+        {% endif %}
+
+        {% if module.learning_objectives %}
+            <h4 style="color: var(--color-primary); font-weight: 700; margin-top: 30px; margin-bottom: 15px;">
+                <i class="fas fa-target me-2" style="color: var(--color-accent-pink);"></i>Learning Objectives
+            </h4>
+            <div class="learning-points">
+                {% set objectives = module.learning_objectives.split('\n') %}
+                {% for objective in objectives %}
+                    {% if objective.strip() %}
+                        <div class="learning-point">
+                            <i class="fas fa-check"></i>
+                            <span>{{ objective.strip().lstrip('- ') }}</span>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Module Mini Quiz -->
+    {% if module_quiz %}
+    <div id="module-quiz" class="content-section" style="background: linear-gradient(135deg, rgba(248, 180, 180, 0.1), rgba(181, 176, 161, 0.05)); border: 2px solid var(--color-accent-pink); border-radius: 15px; padding: 30px;">
+        <h3 class="section-title" style="color: var(--color-primary);">
+            <i class="fas fa-question-circle" style="color: var(--color-accent-pink);"></i> Quick Knowledge Check
+        </h3>
+        <p style="color: #666; margin-bottom: 25px;">Test your understanding of this lesson</p>
+        
+        <form id="moduleQuizForm">
+            {% for question in module_quiz %}
+            <div class="quiz-question" style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid var(--color-accent-pink);">
+                <p style="font-weight: 600; color: var(--color-primary); margin-bottom: 15px;">
+                    {{ loop.index }}. {{ question.question_text }}
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    {% for option_num in range(4) %}
+                        {% set option_letter = ['A', 'B', 'C', 'D'][option_num] %}
+                        {% set option_key = ['option_a', 'option_b', 'option_c', 'option_d'][option_num] %}
+                        <label class="quiz-option" style="display: flex; align-items: center; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                            <input type="radio" name="question_{{ question.id }}" value="{{ option_num }}" data-correct="{{ question.correct_index }}" style="margin-right: 12px;">
+                            <span>{{ option_letter }}. {{ question[option_key] }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+            
+            <button type="button" onclick="checkModuleQuiz()" class="btn btn-primary btn-lg" style="background: linear-gradient(135deg, #8f2b2b, #c24a4a); border: none; padding: 12px 35px; box-shadow: 0 10px 22px rgba(143, 43, 43, 0.25); transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;">
+                <i class="fas fa-check-circle"></i> Check Answers
+            </button>
+            <button type="button" id="redoQuizBtn" onclick="resetModuleQuiz()" class="btn btn-outline-secondary btn-lg" style="margin-left: 10px; padding: 12px 28px; display: none;">
+                <i class="fas fa-rotate-right"></i> Redo Quiz
+            </button>
+            
+            <div id="moduleQuizResult" style="display: none; margin-top: 20px; padding: 20px; border-radius: 12px;"></div>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Navigation Section -->
+    <div class="navigation-section">
+        <h4 style="color: var(--color-primary); font-weight: 700; margin-bottom: 20px;">
+            <i class="fas fa-arrow-right me-2" style="color: var(--color-accent-pink);"></i>Lesson Navigation
+        </h4>
+
+        {% if current_index == total_modules %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-trophy me-2"></i>
+                <strong>Course Complete!</strong> You've finished all modules. Click "Take Quiz" to begin your assessment.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endif %}
+
+        <div class="navigation-buttons">
+            {% if prev_module %}
+                <a href="{{ url_for('lib.view_module', course_id=course.id, module_id=prev_module.id) }}" class="nav-button prev">
+                    <i class="fas fa-chevron-left"></i> Previous Lesson
+                </a>
+            {% else %}
+                <button class="nav-button prev disabled">
+                    <i class="fas fa-chevron-left"></i> Previous Lesson
+                </button>
+            {% endif %}
+
+            {% if next_module %}
+                <a href="{{ url_for('lib.view_module', course_id=course.id, module_id=next_module.id) }}" class="nav-button next locked" id="nextLessonBtn" style="pointer-events: none; opacity: 0.5;">
+                    Next Lesson <i class="fas fa-chevron-right"></i>
+                </a>
+            {% else %}
+                <a href="{{ url_for('lib.quiz', course_id=course.id) }}" class="nav-button next" id="quizButton">
+                    <i class="fas fa-graduation-cap"></i> Take Quiz
+                </a>
+            {% endif %}
+        </div>
+
+        {% if next_module %}
+        <p id="quizRequirement" style="color: #ef4444; font-size: 0.9rem; margin-top: 10px; text-align: center;">
+            <i class="fas fa-lock"></i> Complete the quiz above with 67% to unlock the next lesson
+        </p>
+        {% endif %}
+
+        {% set module_is_completed = module.id in completed_ids %}
+        <button type="button" class="mark-complete-btn" id="markCompleteBtn" {% if module_is_completed %}disabled{% endif %}>
+            <i class="fas fa-check-circle"></i>
+            {% if module_is_completed %}
+                Lesson Completed
+            {% else %}
+                Mark as Complete
+            {% endif %}
+        </button>
+
+        <div style="margin-top: 25px;">
+            <a href="{{ url_for('lib.learn_modules', course_id=course.id) }}" class="btn btn-outline-secondary">
+                <i class="fas fa-th-list me-2"></i> View All Modules
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const moduleShell = document.querySelector('[data-course-id][data-module-id]');
+    const courseId = Number(moduleShell?.dataset.courseId || 0);
+    const moduleId = Number(moduleShell?.dataset.moduleId || 0);
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        checkCompletionStatus();
+        setInterval(checkCompletionStatus, 5000);
+
+        const markBtn = document.getElementById('markCompleteBtn');
+        if (markBtn) {
+            markBtn.addEventListener('click', () => markModuleComplete(moduleId));
+        }
+
+        // Restore quiz pass state to unlock next lesson
+        const passedKey = `moduleQuizPassed_${moduleId}`;
+        if (localStorage.getItem(passedKey) === 'true') {
+            unlockNextLesson();
+        }
+
+        // Apply progress bar width after page loads
+        const progressBar = document.querySelector('[data-progress]');
+        if (progressBar) {
+            const percentage = Number(progressBar.dataset.progress) || 0;
+            progressBar.style.width = percentage + '%';
+        }
+
+        // Build lesson content slides
+        const rawContent = document.getElementById('moduleContentRaw');
+        const slidesContainer = document.getElementById('contentSlides');
+        if (rawContent && slidesContainer) {
+            buildContentSlides(rawContent.value, slidesContainer);
+        }
+        
+        // Add hover effects to quiz options
+        document.querySelectorAll('.quiz-option').forEach(option => {
+            option.addEventListener('mouseenter', function() {
+                this.style.borderColor = 'var(--color-accent-pink)';
+                this.style.background = 'rgba(248, 180, 180, 0.1)';
+            });
+            option.addEventListener('mouseleave', function() {
+                if (!this.querySelector('input').checked) {
+                    this.style.borderColor = '#e0e0e0';
+                    this.style.background = 'white';
+                }
+            });
+            option.addEventListener('click', function() {
+                this.querySelector('input').checked = true;
+                // Remove selection styling from siblings
+                this.parentElement.querySelectorAll('.quiz-option').forEach(opt => {
+                    opt.style.borderColor = '#e0e0e0';
+                    opt.style.background = 'white';
+                });
+                this.style.borderColor = 'var(--color-accent-pink)';
+                this.style.background = 'rgba(248, 180, 180, 0.15)';
+            });
+        });
+    });
+
+    function checkCompletionStatus() {
+        fetch(`/lib/course/${courseId}/completion-status`)
+            .then(response => response.json())
+            .then(data => {
+                const quizButton = document.getElementById('quizButton');
+                if (quizButton) {
+                    if (data.all_completed) {
+                        quizButton.style.opacity = '1';
+                        quizButton.style.pointerEvents = 'auto';
+                        quizButton.title = 'All modules complete! Take the quiz.';
+                        quizButton.classList.remove('disabled');
+                    } else {
+                        quizButton.style.opacity = '0.6';
+                        quizButton.style.pointerEvents = 'none';
+                        quizButton.title = `Complete all modules first (${data.completed_modules}/${data.total_modules} done)`;
+                        quizButton.classList.add('disabled');
+                    }
+                }
+            })
+            .catch(error => console.error('Error checking completion:', error));
+    }
+    
+    function markModuleComplete(moduleId) {
+        const btn = document.getElementById('markCompleteBtn');
+        btn.disabled = true;
+        
+        fetch(`/lib/module/${moduleId}/complete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ course_id: courseId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Lesson Completed';
+                btn.style.background = 'linear-gradient(135deg, #10b981, #34d399)';
+                setTimeout(() => {
+                    checkCompletionStatus();
+                    showNotification(`Module completed! ${data.completed}/${data.total} lessons done`, 'success');
+                }, 500);
+            } else {
+                btn.disabled = false;
+                showNotification('Error marking module as complete', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            btn.disabled = false;
+            showNotification('Error marking module as complete', 'danger');
+        });
+    }
+    
+    function showNotification(message, type = 'info') {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 320px; animation: slideIn 0.3s ease;';
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alertDiv);
+        
+        setTimeout(() => alertDiv.remove(), 4000);
+    }
+
+    function buildContentSlides(text, container) {
+        const cleaned = (text || '').trim();
+        if (!cleaned) {
+            container.innerHTML = '<div class="module-intro">No content available.</div>';
+            return;
+        }
+
+        const sections = cleaned.split(/\n\s*\n+/).map(s => s.trim()).filter(Boolean);
+        const slides = sections.length ? sections : [cleaned];
+
+        container.innerHTML = '';
+        const slideData = [];
+        slides.forEach((section) => {
+            const bullets = splitToBullets(section);
+            const chunkSize = 4;
+            for (let i = 0; i < bullets.length; i += chunkSize) {
+                slideData.push(bullets.slice(i, i + chunkSize));
+            }
+        });
+
+        slideData.forEach((bullets, index) => {
+            const slide = document.createElement('div');
+            slide.className = 'content-slide';
+            if (index === 0) slide.classList.add('active');
+
+            const title = document.createElement('div');
+            title.className = 'slide-title';
+            title.textContent = `Slide ${index + 1}`;
+
+            const subtitle = document.createElement('div');
+            subtitle.className = 'slide-subtitle';
+            subtitle.textContent = 'Key points from this lesson';
+
+            const list = document.createElement('ul');
+            list.className = 'slide-bullets';
+
+            bullets.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                list.appendChild(li);
+            });
+
+            slide.appendChild(title);
+            slide.appendChild(subtitle);
+            slide.appendChild(list);
+            container.appendChild(slide);
+        });
+
+        setupSlideControls(slideData.length);
+    }
+
+    function splitToBullets(section) {
+        const normalized = section.replace(/\s+/g, ' ').trim();
+        const sentences = normalized.match(/[^.!?]+[.!?]+/g);
+        if (sentences && sentences.length >= 2) {
+            return sentences.map(s => s.trim());
+        }
+        return normalized.split(/;|\u2022|\u2023|\u25E6/).map(s => s.trim()).filter(Boolean);
+    }
+
+    function setupSlideControls(totalSlides) {
+        let current = 0;
+        const prevBtn = document.getElementById('prevSlideBtn');
+        const nextBtn = document.getElementById('nextSlideBtn');
+        const indicator = document.getElementById('slideIndicator');
+        const dots = document.getElementById('slideDots');
+
+        if (dots) {
+            dots.innerHTML = '';
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'slide-dot' + (i === 0 ? ' active' : '');
+                dot.addEventListener('click', () => {
+                    current = i;
+                    updateUI();
+                });
+                dots.appendChild(dot);
+            }
+        }
+
+        function updateUI() {
+            const slides = document.querySelectorAll('.content-slide');
+            slides.forEach((slide, i) => slide.classList.toggle('active', i === current));
+            if (indicator) indicator.textContent = `Slide ${current + 1} of ${totalSlides}`;
+            if (prevBtn) prevBtn.disabled = current === 0;
+            if (nextBtn) nextBtn.disabled = current === totalSlides - 1;
+            if (dots) {
+                dots.querySelectorAll('.slide-dot').forEach((dot, i) => {
+                    dot.classList.toggle('active', i === current);
+                });
+            }
+        }
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                current = Math.max(0, current - 1);
+                updateUI();
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                current = Math.min(totalSlides - 1, current + 1);
+                updateUI();
+            });
+        }
+
+        updateUI();
+    }
+    
+    function getPassingPercentage(totalQuestions) {
+        if (totalQuestions === 3) return 67;
+        if (totalQuestions === 4) return 75;
+        if (totalQuestions === 5) return 80;
+        return 67;
+    }
+
+    function checkModuleQuiz() {
+        try {
+            console.log('[Quiz Debug] Starting quiz check...');
+            const form = document.getElementById('moduleQuizForm');
+            if (!form) {
+                console.error('[Quiz Error] Form not found');
+                alert('Form not found');
+                return;
+            }
+            
+            const questions = form.querySelectorAll('.quiz-question');
+            console.log('[Quiz Debug] Found', questions.length, 'questions');
+            
+            let correct = 0;
+            let total = questions.length;
+            const passingPercentage = getPassingPercentage(total);
+            
+            questions.forEach((question, qIdx) => {
+                console.log(`[Quiz Debug] Processing question ${qIdx + 1}`);
+                const selected = question.querySelector('input[type="radio"]:checked');
+                
+                if (selected) {
+                    const selectedValue = parseInt(selected.value);
+                    const correctValue = parseInt(selected.dataset.correct);
+                    console.log(`[Quiz Debug] Q${qIdx + 1}: Selected=${selectedValue}, Correct=${correctValue}`);
+                    
+                    const isCorrect = selectedValue === correctValue;
+                    const option = selected.closest('.quiz-option');
+                    
+                    if (isCorrect) {
+                        correct++;
+                        option.style.borderColor = '#10b981';
+                        option.style.background = 'rgba(16, 185, 129, 0.1)';
+                    } else {
+                        option.style.borderColor = '#ef4444';
+                        option.style.background = 'rgba(239, 68, 68, 0.1)';
+                        
+                        // Show correct answer - with defensive checks
+                        try {
+                            const correctInput = question.querySelector(`input[value="${correctValue}"]`);
+                            console.log(`[Quiz Debug] Q${qIdx + 1}: Looking for correct answer ${correctValue}`, correctInput);
+                            
+                            if (correctInput) {
+                                const correctOption = correctInput.closest('.quiz-option');
+                                if (correctOption) {
+                                    correctOption.style.borderColor = '#10b981';
+                                    correctOption.style.background = 'rgba(16, 185, 129, 0.1)';
+                                    console.log(`[Quiz Debug] Q${qIdx + 1}: Highlighted correct answer`);
+                                }
+                            }
+                        } catch (e) {
+                            console.warn(`[Quiz Debug] Could not highlight correct answer for Q${qIdx + 1}:`, e.message);
+                        }
+                    }
+                } else {
+                    console.log(`[Quiz Debug] Q${qIdx + 1}: No answer selected`);
+                }
+            });
+            
+            console.log('[Quiz Debug] Quiz check complete. Correct:', correct, 'Total:', total);
+            
+            const percentage = Math.round((correct / total) * 100);
+            const resultDiv = document.getElementById('moduleQuizResult');
+            if (!resultDiv) {
+                console.error('[Quiz Error] Result div not found');
+                alert('Result div not found');
+                return;
+            }
+            
+            resultDiv.style.display = 'block';
+            
+            const nextBtn = document.getElementById('nextLessonBtn');
+            const quizRequirement = document.getElementById('quizRequirement');
+            const redoBtn = document.getElementById('redoQuizBtn');
+
+            if (percentage >= passingPercentage) {
+                resultDiv.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.05))';
+                resultDiv.style.border = '2px solid #10b981';
+                resultDiv.innerHTML = `
+                    <div style="text-align: center;">
+                        <i class="fas fa-check-circle fa-3x" style="color: #10b981; margin-bottom: 15px;"></i>
+                        <h4 style="color: #10b981; font-weight: 700;">Excellent Work!</h4>
+                        <p style="font-size: 1.2rem; color: #333; margin: 10px 0;">You scored <strong>${correct}/${total}</strong> (${percentage}%)</p>
+                        <p style="color: #666;">You've achieved the required ${passingPercentage}% to master this lesson! Continue to the next module.</p>
+                    </div>
+                `;
+                
+                localStorage.setItem(`moduleQuizPassed_${moduleId}`, 'true');
+                if (redoBtn) redoBtn.style.display = 'none';
+                unlockNextLesson();
+                // auto-mark module complete when quiz passed
+                markModuleComplete(moduleId);
+                // also update complete button state
+                const manualBtn = document.getElementById('markCompleteBtn');
+                if (manualBtn) {
+                    manualBtn.disabled = true;
+                    manualBtn.innerHTML = '<i class="fas fa-check-circle"></i> Lesson Completed';
+                    manualBtn.style.background = 'linear-gradient(135deg, #10b981, #34d399)';
+                }
+            } else {
+                const needed = Math.ceil(total * (passingPercentage / 100)) - correct;
+                resultDiv.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(252, 165, 165, 0.05))';
+                resultDiv.style.border = '2px solid #ef4444';
+                resultDiv.innerHTML = `
+                    <div style="text-align: center;">
+                        <i class="fas fa-times-circle fa-3x" style="color: #ef4444; margin-bottom: 15px;"></i>
+                        <h4 style="color: #ef4444; font-weight: 700;">Keep Practicing!</h4>
+                        <p style="font-size: 1.2rem; color: #333; margin: 10px 0;">You scored <strong>${correct}/${total}</strong> (${percentage}%)</p>
+                        <p style="color: #666;">You need ${needed} more correct answer${needed > 1 ? 's' : ''} to pass (${passingPercentage}% required). Review the video and try again!</p>
+                    </div>
+                `;
+                
+                if (quizRequirement) {
+                    quizRequirement.style.color = '#ef4444';
+                    quizRequirement.innerHTML = `<i class="fas fa-lock"></i> You must score ${passingPercentage}% or higher to unlock the next lesson.`;
+                }
+                if (redoBtn) redoBtn.style.display = 'inline-flex';
+            }
+            
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            console.log('[Quiz Debug] Quiz processing complete');
+        } catch (error) {
+            console.error('[Quiz Error] Exception caught:', error);
+            console.error('[Quiz Error] Stack:', error.stack);
+            alert('Quiz Error: ' + error.message + '\n\nCheck browser console for details.');
+        }
+    }
+
+    function unlockNextLesson() {
+        const nextBtn = document.getElementById('nextLessonBtn');
+        const quizRequirement = document.getElementById('quizRequirement');
+
+        if (nextBtn) {
+            nextBtn.style.pointerEvents = 'auto';
+            nextBtn.style.opacity = '1';
+            nextBtn.classList.remove('locked');
+        }
+        if (quizRequirement) {
+            quizRequirement.style.color = '#10b981';
+            quizRequirement.innerHTML = '<i class="fas fa-check-circle"></i> Quiz passed! You can now proceed to the next lesson.';
+        }
+    }
+
+    function resetModuleQuiz() {
+        const form = document.getElementById('moduleQuizForm');
+        const resultDiv = document.getElementById('moduleQuizResult');
+        const redoBtn = document.getElementById('redoQuizBtn');
+        const questions = form ? form.querySelectorAll('.quiz-question').length : 0;
+        const passingPercentage = getPassingPercentage(questions);
+
+        if (form) {
+            form.querySelectorAll('input[type="radio"]').forEach(input => {
+                input.checked = false;
+            });
+            form.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.style.borderColor = '#e0e0e0';
+                opt.style.background = 'white';
+            });
+        }
+
+        if (resultDiv) {
+            resultDiv.style.display = 'none';
+            resultDiv.innerHTML = '';
+        }
+
+        if (redoBtn) redoBtn.style.display = 'none';
+
+        const nextBtn = document.getElementById('nextLessonBtn');
+        const quizRequirement = document.getElementById('quizRequirement');
+        if (nextBtn) {
+            nextBtn.style.pointerEvents = 'none';
+            nextBtn.style.opacity = '0.5';
+            nextBtn.classList.add('locked');
+        }
+        if (quizRequirement) {
+            quizRequirement.style.color = '#ef4444';
+            quizRequirement.innerHTML = `<i class="fas fa-lock"></i> Complete the quiz above with ${passingPercentage}% to unlock the next lesson`;
+        }
+        localStorage.removeItem(`moduleQuizPassed_${moduleId}`);
+    }
+</script>
+{% endblock %}

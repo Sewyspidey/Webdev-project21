@@ -1,0 +1,106 @@
+/* Inventory Display Styling */
+.inventory-item-equipped {
+    background-color: var(--cream) !important;
+    border-color: var(--brown) !important;
+    border-width: 2px !important;
+}
+
+.inventory-item-equipped::before {
+    content: "✓ Equipped";
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: var(--brown);
+    color: white;
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    z-index: 10;
+}
+
+/* Rarity color indicators */
+.item-rarity-common {
+    color: var(--gray);
+    border-bottom: 2px solid var(--gray-light);
+}
+
+.item-rarity-rare {
+    color: var(--brown);
+    border-bottom: 2px solid var(--brown);
+}
+
+.item-rarity-epic {
+    color: #5D4037;
+    border-bottom: 2px solid #5D4037;
+}
+
+.item-rarity-legendary {
+    color: #B08D55;
+    border-bottom: 2px solid #B08D55;
+}
+
+/* Category heading styling */
+.inventory-category-header {
+    color: var(--brown);
+    border-bottom: 2px solid var(--tan-light);
+    padding-bottom: 0.5rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.inventory-category-header:first-child {
+    margin-top: 0;
+}
+
+/* Inventory grid items */
+.inventory-item {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.inventory-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.inventory-item-icon {
+    font-size: 2rem;
+    color: var(--brown);
+    margin-bottom: 0.5rem;
+}
+
+.inventory-item-name {
+    font-weight: 600;
+    color: var(--black);
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.inventory-item-rarity {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem;
+}
+
+.inventory-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.inventory-empty i {
+    color: var(--tan);
+    margin-bottom: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .inventory-item-equipped::before {
+        font-size: 0.6rem;
+        padding: 0.2rem 0.4rem;
+    }
+}

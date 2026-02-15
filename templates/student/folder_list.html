@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+{% block title %}My Collections - BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    body { background-color: var(--cream-dark); }
+    
+    .page-content {
+        padding: 2.5rem 3rem;
+        padding-top: 90px;
+    }
+    
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .page-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        font-weight: 500;
+        color: var(--black);
+    }
+    
+    .btn-new-folder {
+        background: var(--brown);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-new-folder:hover {
+        background: #7A6A5A;
+        color: white;
+    }
+    
+    .page-subtitle {
+        color: var(--gray);
+        margin-bottom: 2rem;
+    }
+    
+    /* Folder Grid */
+    .folder-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .folder-card {
+        height: 160px;
+        border-radius: 12px;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.2s;
+        padding: 1.25rem;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .folder-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    
+    .folder-icon {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .folder-name {
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .folder-desc {
+        font-size: 0.85rem;
+        opacity: 0.8;
+        margin-bottom: auto;
+    }
+    
+    .folder-count {
+        font-size: 0.8rem;
+        opacity: 0.7;
+    }
+    
+    /* Folder Actions */
+    .folder-actions {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        display: flex;
+        gap: 0.5rem;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    
+    .folder-card:hover .folder-actions {
+        opacity: 1;
+    }
+    
+    .folder-action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: none;
+        background: rgba(255,255,255,0.4);
+        color: inherit;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    
+    .folder-action-btn:hover {
+        background: rgba(255,255,255,0.6);
+    }
+    
+    .folder-action-btn.delete-btn:hover {
+        background: rgba(197,75,75,0.8);
+        color: white;
+    }
+    
+    /* Add Folder Card */
+    .add-folder-card {
+        border: 2px dashed var(--gray-light);
+        background: transparent;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray);
+        text-decoration: none;
+    }
+    
+    .add-folder-card:hover {
+        border-color: var(--brown);
+        color: var(--brown);
+        background: rgba(143,123,106,0.05);
+        transform: translateY(-4px);
+    }
+    
+    .add-folder-card i {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .add-folder-card span {
+        font-weight: 500;
+    }
+    
+    /* Preset Badge */
+    .preset-badge {
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        background: rgba(0,0,0,0.1);
+    }
+    
+    /* Back Link */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--gray);
+        text-decoration: none;
+        margin-bottom: 1.5rem;
+    }
+    
+    .back-link:hover {
+        color: var(--brown);
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <a href="{{ url_for('both_homepage') }}" class="back-link">
+        <i class="bi bi-arrow-left"></i> Back to Home
+    </a>
+    
+    <div class="page-header">
+        <h1 class="page-title">My Collections</h1>
+        <a href="{{ url_for('student_folder_create') }}" class="btn-new-folder">
+            <i class="bi bi-plus-circle"></i> New Folder
+        </a>
+    </div>
+    <p class="page-subtitle">Organize your courses into folders</p>
+    
+    <div class="folder-grid">
+        {% for folder in folders %}
+        <div class="folder-card" style="background-color: {{ folder.color }}; {% if folder.color in ['#8F7B6A', '#C4B4A7'] %}color: white;{% else %}color: #454545;{% endif %}">
+            <!-- Action Buttons -->
+            <div class="folder-actions">
+                <a href="{{ url_for('student_folder_edit', folder_id=folder.id) }}" class="folder-action-btn" title="Edit">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                {% if folder.is_deletable %}
+                <button class="folder-action-btn delete-btn" title="Delete" onclick="openDeleteModal({{ folder.id }}, '{{ folder.folder_name }}')">
+                    <i class="bi bi-trash"></i>
+                </button>
+                {% endif %}
+            </div>
+            
+            <!-- Folder Content (Clickable) -->
+            <a href="{{ url_for('student_folder_view', folder_id=folder.id) }}" style="color: inherit; text-decoration: none; display: flex; flex-direction: column; height: 100%;">
+                <div class="folder-icon">
+                    {% if folder.icon == 'heart' %}<i class="bi bi-heart-fill"></i>
+                    {% elif folder.icon == 'bookmark' %}<i class="bi bi-bookmark-fill"></i>
+                    {% elif folder.icon == 'star' %}<i class="bi bi-star-fill"></i>
+                    {% else %}<i class="bi bi-folder-fill"></i>{% endif %}
+                </div>
+                <div class="folder-name">{{ folder.folder_name }}</div>
+                <div class="folder-desc">{{ folder.description or '' }}</div>
+                <div class="folder-count">{{ folder_course_counts.get(folder.id, 0) }} course{% if folder_course_counts.get(folder.id, 0) != 1 %}s{% endif %}</div>
+            </a>
+            
+            {% if not folder.is_deletable %}
+            <span class="preset-badge">Preset</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+        
+        <!-- Add New Folder Card -->
+        <a href="{{ url_for('student_folder_create') }}" class="folder-card add-folder-card">
+            <i class="bi bi-plus-circle"></i>
+            <span>Create New Folder</span>
+        </a>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box">
+        <h3>Delete Folder</h3>
+        <p>Are you sure you want to delete "<span id="deleteFolderName"></span>"? This action cannot be undone.</p>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+            <form id="deleteForm" method="POST" style="display: inline;">
+                <button type="submit" class="btn-delete">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openDeleteModal(folderId, folderName) {
+    document.getElementById('deleteFolderName').textContent = folderName;
+    document.getElementById('deleteForm').action = '/folders/' + folderId + '/delete';
+    document.getElementById('deleteModal').classList.add('show');
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('show');
+}
+
+// Close modal when clicking outside
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeDeleteModal();
+    }
+});
+</script>
+{% endblock %}

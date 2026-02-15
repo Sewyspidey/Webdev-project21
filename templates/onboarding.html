@@ -1,0 +1,413 @@
+{% extends "base.html" %}
+{% block title %}Sign Up - BridgeHive{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/onboarding.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="overlay-container">
+    <div class="modal-card">
+        
+        <!-- Exit button - allows users to leave onboarding and return to landing page -->
+        <span class="close-btn" onclick="exitOnboarding()">
+            <i class="fas fa-times"></i>
+        </span>
+        
+        <!-- Main onboarding form - submits all collected data to backend -->
+        <form action="{{ url_for('process_onboarding') }}" method="POST" id="mainForm">
+            
+            <!-- ==================== STEP 1: ROLE & INTERESTS ==================== -->
+            <div id="step-1">
+                <h1 class="welcome-title">Welcome to BridgeHive! 👋</h1>
+                <p class="subtitle">Let's set up your profile</p>
+
+                <!-- Role Selection - determines what content sections appear -->
+                <div class="form-section">
+                    <label class="question-label">What Brings you to BridgeHive today?</label>
+                    <div class="button-group">
+                        <input type="radio" name="role" value="learner" id="role_learner" required>
+                        <label for="role_learner" class="selection-btn">To be Learner</label>
+
+                        <input type="radio" name="role" value="mentor" id="role_mentor">
+                        <label for="role_mentor" class="selection-btn">To be Mentor</label>
+
+                        <input type="radio" name="role" value="both" id="role_both">
+                        <label for="role_both" class="selection-btn">Learner & Mentor</label>
+                    </div>
+                </div>
+
+                <!-- Learning Interests - shown only for learner/both roles -->
+                <div id="learning-section" class="form-section hidden">
+                    <hr>
+                    <label class="question-label">What are you interested in learning?</label>
+                    <div class="button-group">
+                        <input type="checkbox" name="learning_interests" value="Cooking" id="learn_cooking">
+                        <label for="learn_cooking" class="tag-btn">Cooking</label>
+                        <input type="checkbox" name="learning_interests" value="Technology" id="learn_tech">
+                        <label for="learn_tech" class="tag-btn">Technology</label>
+                        <input type="checkbox" name="learning_interests" value="Language" id="learn_lang">
+                        <label for="learn_lang" class="tag-btn">Language</label>
+                        <input type="checkbox" name="learning_interests" value="Sports & Fitness" id="learn_sports">
+                        <label for="learn_sports" class="tag-btn">Sports & Fitness</label>
+                        <input type="checkbox" name="learning_interests" value="Arts & Creativity" id="learn_arts">
+                        <label for="learn_arts" class="tag-btn">Arts & Creativity</label>
+                        <input type="checkbox" name="learning_interests" value="Health & Wellness" id="learn_health">
+                        <label for="learn_health" class="tag-btn">Health & Wellness</label>
+                        <input type="checkbox" name="learning_interests" value="Gardening" id="learn_garden">
+                        <label for="learn_garden" class="tag-btn">Gardening</label>
+                        <input type="checkbox" name="learning_interests" value="Finance" id="learn_finance">
+                        <label for="learn_finance" class="tag-btn">Finance</label>
+                        <input type="checkbox" value="Others" id="learn_other_btn">
+                        <label for="learn_other_btn" class="tag-btn btn-others-compact">Others</label>
+                    </div>
+                    <div id="learn_other_box" class="others-box hidden">
+                        <textarea name="learning_others" placeholder="List others here..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Teaching Interests - shown only for mentor/both roles -->
+                <div id="teaching-section" class="form-section hidden">
+                    <hr>
+                    <label class="question-label">What are you interested in teaching?</label>
+                    <div class="button-group">
+                        <input type="checkbox" name="teaching_interests" value="Cooking" id="teach_cooking">
+                        <label for="teach_cooking" class="tag-btn">Cooking</label>
+                        <input type="checkbox" name="teaching_interests" value="Technology" id="teach_tech">
+                        <label for="teach_tech" class="tag-btn">Technology</label>
+                        <input type="checkbox" name="teaching_interests" value="Language" id="teach_lang">
+                        <label for="teach_lang" class="tag-btn">Language</label>
+                        <input type="checkbox" name="teaching_interests" value="Sports & Fitness" id="teach_sports">
+                        <label for="teach_sports" class="tag-btn">Sports & Fitness</label>
+                        <input type="checkbox" name="teaching_interests" value="Arts & Creativity" id="teach_arts">
+                        <label for="teach_arts" class="tag-btn">Arts & Creativity</label>
+                        <input type="checkbox" name="teaching_interests" value="Health & Wellness" id="teach_health">
+                        <label for="teach_health" class="tag-btn">Health & Wellness</label>
+                        <input type="checkbox" name="teaching_interests" value="Gardening" id="teach_garden">
+                        <label for="teach_garden" class="tag-btn">Gardening</label>
+                        <input type="checkbox" name="teaching_interests" value="Finance" id="teach_finance">
+                        <label for="teach_finance" class="tag-btn">Finance</label>
+                        <input type="checkbox" value="Others" id="teach_other_btn">
+                        <label for="teach_other_btn" class="tag-btn btn-others-compact">Others</label>
+                    </div>
+                    <div id="teach_other_box" class="others-box hidden">
+                        <textarea name="teaching_others" placeholder="List others here..."></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <a href="{{ url_for('landing') }}" class="btn-back">Back</a>
+                    <button type="button" class="btn-next" onclick="goToStep2()">Next</button>
+                </div>
+            </div>
+
+            <!-- ==================== STEP 2: AGE & TECH COMFORT ==================== -->
+            <div id="step-2" class="hidden">
+                <h1 class="welcome-title">Tell me more about yourself?</h1>
+                <p class="subtitle">We match you based on your preferences</p>
+
+                <!-- Age Group - different options based on youth/senior selection from landing page -->
+                <div class="form-section">
+                    <input type="hidden" name="user_type" value="{{ user_type }}">
+                    <label class="question-label">
+                        {% if user_type == 'youth' %}
+                            How old are you?
+                        {% else %}
+                            Which age group do you belong to?
+                        {% endif %}
+                    </label>
+
+                    <div class="age-group-container">
+                        {% if user_type == 'youth' %}
+                            <label class="age-radio">
+                                <input type="radio" name="age_group" value="5-15" class="visible-radio">
+                                <span>5 - 15</span>
+                            </label>
+                            <label class="age-radio">
+                                <input type="radio" name="age_group" value="16-24" class="visible-radio">
+                                <span>16 - 24</span>
+                            </label>
+                            <label class="age-radio">
+                                <input type="radio" name="age_group" value="25+" class="visible-radio">
+                                <span>25+</span>
+                            </label>
+                        {% else %}
+                            <label class="age-radio">
+                                <input type="radio" name="age_group" value="55-64" class="visible-radio">
+                                <span>55 - 64</span>
+                            </label>
+                            <label class="age-radio">
+                                <input type="radio" name="age_group" value="65-74" class="visible-radio">
+                                <span>65 - 74</span>
+                            </label>
+                            <label class="age-radio">
+                                <input type="radio" name="age_group" value="75+" class="visible-radio">
+                                <span>75+</span>
+                            </label>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Tech Comfort Level - helps us tailor the experience -->
+                <div class="form-section">
+                    <label class="question-label">How comfortable are you with technology?</label>
+                    <div class="button-group">
+                        <input type="radio" name="tech_comfort" value="Beginner" id="tech_beg">
+                        <label for="tech_beg" class="selection-btn">Beginner</label>
+
+                        <input type="radio" name="tech_comfort" value="Intermediate" id="tech_int">
+                        <label for="tech_int" class="selection-btn">Intermediate</label>
+
+                        <input type="radio" name="tech_comfort" value="Expert" id="tech_exp">
+                        <label for="tech_exp" class="selection-btn">Expert</label>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-back" onclick="goToStep1()">Back</button>
+                    <button type="button" class="btn-next" onclick="goToStep3()">Next</button>
+                </div>
+            </div>
+
+            <!-- ==================== STEP 3: ACCOUNT CREATION ==================== -->
+            <div id="step-3" class="hidden">
+                <h1 class="welcome-title">Almost done!</h1>
+                <p class="subtitle">Let's create your account</p>
+
+                <div class="form-section">
+                    <label class="question-label">Sign in details:</label>
+                    <input type="text" name="username" class="input-field" placeholder="Username" required>
+                    <input type="email" name="email" class="input-field" placeholder="Email" required>
+                    <input type="password" name="password" class="input-field" placeholder="Password" required>
+                </div>
+
+                <!-- Terms and Conditions checkbox -->
+                <div class="terms-container">
+                    <input type="checkbox" id="terms" name="terms" class="visible-checkbox" required>
+                    <label for="terms">By clicking "I Agree," you accept BridgeHive's Terms of Service, Privacy Policy, and Community Guidelines.</label>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-back" onclick="goToStep2()">Back</button>
+                    <button type="button" class="btn-next" onclick="goToStep4()">Next</button>
+                </div>
+            </div>
+
+            <!-- ==================== STEP 4: CELEBRATION & COMPLETION ==================== -->
+            <div id="step-4" class="hidden centered-step">
+                <!-- Celebration visual effects -->
+                <div class="spotlight-glow"></div>
+                <div class="star-shooter shoot-l-top"></div>
+                <div class="star-shooter shoot-l-mid"></div>
+                <div class="star-shooter shoot-l-bot"></div>
+                <div class="star-shooter shoot-r-top"></div>
+                <div class="star-shooter shoot-r-mid"></div>
+                <div class="star-shooter shoot-r-bot"></div>
+                <div class="deco-star s-left">🌟</div>
+                <div class="deco-star s-right">🌟</div>
+                <div class="stars">✨ 🌟 ✨</div>
+
+                <h1 class="welcome-title">Congratulations!</h1>
+                <h2 class="welcome-title">You Are All Set Up</h2>
+                <p class="subtitle">Get ready to connect, share and learn more!</p>
+
+                <!-- Final submit button - sends all form data to server -->
+                <button type="submit" class="btn-start">Let's get started</button>
+
+                <!-- Quick navigation preview -->
+                <div class="icon-nav-container">
+                    <a href="#" class="nav-item">
+                        <div class="icon-circle"><i class="fas fa-user-circle"></i></div>
+                        <span>Courses</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <div class="icon-circle"><i class="fas fa-users"></i></div>
+                        <span>Community</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <div class="icon-circle"><i class="fas fa-envelope"></i></div>
+                        <span>Contact Us</span>
+                    </a>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // 1. SELECTION LOGIC (Roles, Tech, Others)
+    // ==========================================
+    
+    // --- Role Selection (With Unselect Logic) ---
+    // Clicking same option again will unselect it
+    const roleRadios = document.querySelectorAll('input[name="role"]');
+    const learningSection = document.getElementById('learning-section');
+    const teachingSection = document.getElementById('teaching-section');
+    let lastRoleChecked = null;
+
+    roleRadios.forEach(radio => {
+        radio.addEventListener('click', function(e) {
+            if (this === lastRoleChecked) {
+                // User clicked the same option - uncheck and reset sections
+                this.checked = false;
+                lastRoleChecked = null;
+                learningSection.classList.add('hidden');
+                teachingSection.classList.add('hidden');
+            } else {
+                // New selection - show appropriate sections
+                lastRoleChecked = this;
+                learningSection.classList.add('hidden');
+                teachingSection.classList.add('hidden');
+                
+                if (this.value === 'learner' || this.value === 'both') {
+                    learningSection.classList.remove('hidden');
+                } 
+                if (this.value === 'mentor' || this.value === 'both') {
+                    teachingSection.classList.remove('hidden');
+                }
+            }
+        });
+    });
+
+    // --- Tech Comfort (With Unselect Logic) ---
+    const techRadios = document.querySelectorAll('input[name="tech_comfort"]');
+    let lastTechChecked = null;
+
+    techRadios.forEach(radio => {
+        radio.addEventListener('click', function(e) {
+            if (this === lastTechChecked) {
+                this.checked = false;
+                lastTechChecked = null;
+            } else {
+                lastTechChecked = this;
+            }
+        });
+    });
+
+    // --- Others Button Logic ---
+    // Shows textarea when "Others" is checked
+    const learnBtn = document.getElementById('learn_other_btn');
+    if(learnBtn) {
+        learnBtn.addEventListener('change', function() {
+            const box = document.getElementById('learn_other_box');
+            if (this.checked) box.classList.remove('hidden'); else box.classList.add('hidden');
+        });
+    }
+    const teachBtn = document.getElementById('teach_other_btn');
+    if(teachBtn) {
+        teachBtn.addEventListener('change', function() {
+            const box = document.getElementById('teach_other_box');
+            if (this.checked) box.classList.remove('hidden'); else box.classList.add('hidden');
+        });
+    }
+
+    // ==========================================
+    // 2. WIZARD NAVIGATION
+    // ==========================================
+
+    function goToStep2() {
+        // Validate Role
+        const roleSelected = document.querySelector('input[name="role"]:checked');
+        if (!roleSelected) {
+            alert("Please select what brings you to BridgeHive today.");
+            return;
+        }
+        const role = roleSelected.value;
+
+        // Validate Learning Interests (if learner or both)
+        if (role === 'learner' || role === 'both') {
+            const learnChecked = document.querySelectorAll('input[name="learning_interests"]:checked');
+            const learnOtherBtn = document.getElementById('learn_other_btn');
+            if (learnChecked.length === 0 && (!learnOtherBtn || !learnOtherBtn.checked)) {
+                alert("Please select at least one thing you are interested in learning.");
+                return;
+            }
+        }
+
+        // Validate Teaching Interests (if mentor or both)
+        if (role === 'mentor' || role === 'both') {
+            const teachChecked = document.querySelectorAll('input[name="teaching_interests"]:checked');
+            const teachOtherBtn = document.getElementById('teach_other_btn');
+            if (teachChecked.length === 0 && (!teachOtherBtn || !teachOtherBtn.checked)) {
+                alert("Please select at least one thing you are interested in teaching.");
+                return;
+            }
+        }
+        
+        // Move to Step 2
+        document.getElementById('step-1').classList.add('hidden');
+        document.getElementById('step-3').classList.add('hidden'); 
+        document.getElementById('step-2').classList.remove('hidden');
+    }
+
+    function goToStep1() {
+        document.getElementById('step-2').classList.add('hidden');
+        document.getElementById('step-1').classList.remove('hidden');
+    }
+
+    function goToStep3() {
+        // Validate Age Group
+        const ageSelected = document.querySelector('input[name="age_group"]:checked');
+        if (!ageSelected) {
+            alert("Please select your age group.");
+            return;
+        }
+
+        // Validate Tech Comfort
+        const techSelected = document.querySelector('input[name="tech_comfort"]:checked');
+        if (!techSelected) {
+            alert("Please select your comfort level with technology.");
+            return;
+        }
+
+        // Move to Step 3
+        document.getElementById('step-2').classList.add('hidden');
+        document.getElementById('step-3').classList.remove('hidden');
+    }
+
+    function goToStep4() {
+        // Validate Account Details
+        const user = document.querySelector('input[name="username"]').value;
+        const pass = document.querySelector('input[name="password"]').value;
+        const terms = document.querySelector('input[name="terms"]').checked;
+
+        if(user === "" || pass === "") {
+            alert("Please fill in your details.");
+            return;
+        }
+        if(!terms) {
+            alert("Please accept the terms and conditions.");
+            return;
+        }
+
+        // Move to Step 4 (Celebration)
+        document.getElementById('step-3').classList.add('hidden');
+        document.getElementById('step-4').classList.remove('hidden');
+
+        // Trigger Celebration Mode - adds special styling
+        document.querySelector('.modal-card').classList.add('celebration-mode');
+
+        // Hide Exit Button on celebration screen
+        const closeBtn = document.querySelector('.close-btn');
+        if(closeBtn) {
+            closeBtn.style.display = 'none';
+        }
+    }
+
+    // --- Exit Function ---
+    function exitOnboarding() {
+        window.location.href = "{{ url_for('landing') }}"; 
+    }
+</script>
+{% endblock %}
+
+{% block footer %}
+<!-- No footer on signup/onboarding page -->
+{% endblock %}

@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% block title %}Edit Folder - BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    body { background-color: var(--cream-dark); }
+    
+    .page-content {
+        padding: 2.5rem 3rem;
+        padding-top: 90px;
+        max-width: 550px;
+        margin: 0 auto;
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--gray);
+        text-decoration: none;
+        margin-bottom: 1.5rem;
+    }
+    
+    .back-link:hover { color: var(--brown); }
+    
+    .page-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        color: var(--black);
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .form-group { margin-bottom: 1.5rem; }
+    
+    .form-label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: var(--black);
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--gray-light);
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-family: inherit;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--brown);
+    }
+    
+    .option-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+    
+    .option-item {
+        width: 48px;
+        height: 48px;
+        border: 2px solid var(--cream-dark);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 1.1rem;
+        color: var(--gray);
+    }
+    
+    .option-item:hover { border-color: var(--brown); }
+    
+    .option-item.selected {
+        border-color: var(--brown);
+        background: var(--brown);
+        color: white;
+    }
+    
+    .option-item input { display: none; }
+    
+    .color-option.selected {
+        border-color: var(--black);
+        transform: scale(1.1);
+    }
+    
+    .btn-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .btn-submit {
+        flex: 1;
+        background: var(--brown);
+        color: white;
+        padding: 0.85rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+    
+    .btn-submit:hover { background: #7A6A5A; }
+    
+    .btn-cancel-link {
+        background: var(--cream-dark);
+        color: var(--black);
+        padding: 0.85rem 2rem;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        text-align: center;
+    }
+    
+    .btn-cancel-link:hover { background: #E0E0D8; }
+</style>
+{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <a href="{{ url_for('both_folder_list') }}" class="back-link">
+        <i class="bi bi-arrow-left"></i> Back to Collections
+    </a>
+    
+    <h1 class="page-title">Edit Folder</h1>
+    
+    <div class="form-card">
+        <form method="POST">
+            <div class="form-group">
+                <label class="form-label">Folder Name</label>
+                <input type="text" name="folder_name" class="form-control" value="{{ folder.folder_name }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-control" rows="3">{{ folder.description or '' }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Icon</label>
+                <div class="option-group">
+                    {% for icon in icons %}
+                    <label class="option-item {% if folder.icon == icon %}selected{% endif %}">
+                        <input type="radio" name="icon" value="{{ icon }}" {% if folder.icon == icon %}checked{% endif %}>
+                        {% if icon == 'folder' %}<i class="bi bi-folder-fill"></i>
+                        {% elif icon == 'heart' %}<i class="bi bi-heart-fill"></i>
+                        {% elif icon == 'bookmark' %}<i class="bi bi-bookmark-fill"></i>
+                        {% elif icon == 'star' %}<i class="bi bi-star-fill"></i>
+                        {% elif icon == 'book' %}<i class="bi bi-book-fill"></i>{% endif %}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Color</label>
+                <div class="option-group">
+                    {% for color in colors %}
+                    <label class="option-item color-option {% if folder.color == color %}selected{% endif %}" style="background-color: {{ color }};">
+                        <input type="radio" name="color" value="{{ color }}" {% if folder.color == color %}checked{% endif %}>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="btn-actions">
+                <button type="submit" class="btn-submit">Save Changes</button>
+                <a href="{{ url_for('both_folder_list') }}" class="btn-cancel-link">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.option-item').forEach(item => {
+    item.addEventListener('click', function() {
+        this.closest('.option-group').querySelectorAll('.option-item').forEach(i => i.classList.remove('selected'));
+        this.classList.add('selected');
+    });
+});
+</script>
+{% endblock %}

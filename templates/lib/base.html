@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BridgeHive{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/style.css', v='20260206-1') }}">
+    {% block extra_css %}{% endblock %}
+    <style>
+        :root {
+            --cream: #FEFAF1;
+            --cream-dark: #EDEDE5;
+            --brown: #8F7B6A;
+            --tan: #DEC09A;
+            --tan-light: #ECD9B9;
+            --peach: #FFE5C4;
+            --black: #454545;
+            --gray: #555555;
+            --gray-light: #B7B7B7;
+            --taupe: #C4B4A7;
+            --warm-gray: #BEBAAF;
+            --off-white: #ECECE4;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main {
+            flex: 1;
+        }
+
+        /* ==================== UNIFIED NAVBAR ==================== */
+        .navbar-new {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 2rem;
+            background-color: #bfbfb8;
+            border-bottom: 1px solid #ECD9B9;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar-new-brand {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: #454545;
+            text-decoration: none;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-right: 2.5rem;
+        }
+        .navbar-new-brand:hover { color: #454545; }
+        .navbar-new-links { display: flex; align-items: center; gap: 0.25rem; }
+        .navbar-new-link {
+            color: #454545; text-decoration: none; font-size: 0.95rem;
+            font-weight: 400; padding: 0.5rem 0.75rem; cursor: pointer;
+            display: flex; align-items: center; gap: 0.3rem; transition: color 0.2s;
+        }
+        .navbar-new-link:hover { color: #8F7B6A; }
+        .navbar-new-dropdown { position: relative; }
+        .navbar-new-dropmenu {
+            display: none; position: absolute; top: 100%; left: 50%;
+            transform: translateX(-50%); background-color: #454545;
+            border-radius: 8px; padding: 0.5rem 0; min-width: 170px;
+            z-index: 1000; margin-top: 0.5rem;
+        }
+        .navbar-new-dropmenu::before {
+            content: ''; position: absolute; top: -8px; left: 50%;
+            transform: translateX(-50%); border-left: 8px solid transparent;
+            border-right: 8px solid transparent; border-bottom: 8px solid #454545;
+        }
+        .navbar-new-dropmenu a {
+            display: block; padding: 0.6rem 1rem; color: white !important;
+            font-size: 0.85rem; text-decoration: none;
+        }
+        .navbar-new-dropmenu a:hover { background-color: rgba(255,255,255,0.1); }
+        .navbar-new-dropdown:hover .navbar-new-dropmenu { display: block; }
+        .navbar-new-right { margin-left: auto; display: flex; align-items: center; gap: 1rem; }
+        .navbar-new-points {
+            background-color: #DEC09A; color: #454545; border-radius: 20px;
+            padding: 0.3rem 1rem; font-weight: 500; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .navbar-new-searchbar {
+            display: flex; align-items: center; background-color: #454545;
+            border-radius: 25px; padding: 0.4rem 0.5rem 0.4rem 1.25rem;
+            width: 280px; border: 1px solid transparent;
+        }
+        .navbar-new-searchbar input {
+            border: none; background: transparent; outline: none;
+            flex: 1; font-size: 0.9rem; color: white; cursor: default;
+        }
+        .navbar-new-searchbar input::placeholder { color: rgba(255,255,255,0.6); }
+        .navbar-new-searchbar button {
+            background-color: #555; border: none; border-radius: 50%;
+            width: 30px; height: 30px; display: flex;
+            align-items: center; justify-content: center; cursor: default;
+        }
+        .navbar-new-searchbar button i { color: white; font-size: 0.8rem; }
+        .navbar-new-bell { position: relative; cursor: pointer; }
+        .navbar-new-bell i { color: #555; font-size: 1.2rem; }
+        .navbar-new-bell-dot {
+            position: absolute; top: -2px; right: -4px; width: 8px; height: 8px;
+            background-color: #C54B4B; border-radius: 50%; border: 1.5px solid #bfbfb8;
+        }
+        .navbar-new-profile-wrap { position: relative; }
+        .navbar-new-profile-circle {
+            width: 38px; height: 38px; border: 2px solid #555;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; color: #555; font-size: 1.1rem;
+            cursor: pointer; overflow: hidden;
+        }
+        .navbar-new-profile-menu {
+            display: none; position: absolute; top: 100%; right: 0;
+            margin-top: 0.75rem; background-color: #454545; border-radius: 8px;
+            padding: 0.5rem 0; min-width: 200px; z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+        }
+        .navbar-new-profile-menu::before {
+            content: ''; position: absolute; top: -8px; right: 12px;
+            border-left: 8px solid transparent; border-right: 8px solid transparent;
+            border-bottom: 8px solid #454545;
+        }
+        .navbar-new-profile-wrap:hover .navbar-new-profile-menu { display: block; }
+        .navbar-new-profile-header {
+            padding: 0.6rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.15);
+            margin-bottom: 0.25rem;
+        }
+        .navbar-new-profile-name { color: white; font-weight: 600; font-size: 0.9rem; }
+        .navbar-new-profile-email { color: #aaa; font-size: 0.8rem; }
+        .navbar-new-profile-menu a {
+            display: flex; align-items: center; gap: 10px;
+            padding: 0.6rem 1rem; color: white !important;
+            font-size: 0.85rem; text-decoration: none;
+        }
+        .navbar-new-profile-menu a:hover { background-color: rgba(255,255,255,0.1); }
+        .navbar-new-profile-menu a i { width: 20px; text-align: center; }
+        .navbar-new-profile-divider { height: 1px; background: rgba(255,255,255,0.15); margin: 0.25rem 0.75rem; }
+        .navbar-new-logout { color: #dc6868 !important; }
+        /* Admin Login Popup */
+        .admin-login-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            z-index: 10000; display: none; align-items: center; justify-content: center;
+        }
+        .admin-login-overlay.active { display: flex; }
+        .admin-login-popup {
+            background: #FEFAF1; border-radius: 16px;
+            max-width: 400px; width: 90%; padding: 2rem; position: relative;
+        }
+        .admin-login-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.25rem; color: #555; cursor: pointer; }
+        .admin-login-close:hover { color: #454545; }
+        .admin-login-popup h2 { font-family: 'Playfair Display', serif; text-align: center; margin-bottom: 0.5rem; }
+        .admin-login-popup p { text-align: center; color: #555; margin-bottom: 1.5rem; }
+        .admin-input { width: 100%; padding: 0.85rem 1rem; border: 1px solid #B7B7B7; border-radius: 8px; font-size: 1rem; margin-bottom: 1rem; box-sizing: border-box; }
+        .admin-input:focus { outline: none; border-color: #8F7B6A; }
+        .btn-admin-login { width: 100%; padding: 0.85rem; background: #8F7B6A; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; }
+        .btn-admin-login:hover { background: #7A6A5A; }
+        .admin-error { color: #C54B4B; text-align: center; margin-bottom: 1rem; display: none; }
+
+        /* ==================== FOOTER ==================== */
+        .site-footer {
+            margin-top: auto;
+            background-color: var(--black);
+            color: var(--cream);
+            padding: 3rem 0 1.5rem;
+            font-size: 0.9rem;
+        }
+        .site-footer a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .site-footer a:hover {
+            color: var(--tan);
+        }
+        .site-footer h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            margin-bottom: 0.8rem;
+            color: white;
+        }
+        .site-footer .social-icon {
+            width: 36px;
+            height: 36px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
+            transition: background-color 0.2s;
+        }
+        .site-footer .social-icon:hover {
+            background-color: var(--tan);
+            color: var(--black);
+        }
+        .site-footer .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        .site-footer .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            gap: 2rem;
+        }
+        .site-footer .footer-brand p {
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 1rem;
+        }
+        .site-footer .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .site-footer .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+        .site-footer .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .site-footer .footer-bottom p {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+        .site-footer .social-links {
+            display: flex;
+            gap: 0.5rem;
+        }
+        @media (max-width: 768px) {
+            .site-footer .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 1.5rem;
+            }
+            .site-footer .footer-brand {
+                grid-column: span 2;
+            }
+        }
+        @media (max-width: 480px) {
+            .site-footer .footer-grid {
+                grid-template-columns: 1fr;
+            }
+            .site-footer .footer-brand {
+                grid-column: span 1;
+            }
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1.2rem;
+            margin-top: 1.2rem;
+        }
+
+        .social-icons a {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(248, 180, 180, 0.25);
+            border-radius: 50%;
+            color: #F8B4B4;
+            transition: all 0.3s ease;
+            padding: 0 !important;
+            font-size: 1rem;
+            text-decoration: none;
+            border: 1px solid rgba(248, 180, 180, 0.4);
+        }
+
+        .social-icons a:hover {
+            background: #F8B4B4;
+            color: #1a252f;
+            transform: translateY(-4px) scale(1.1);
+            box-shadow: 0 8px 20px rgba(248, 180, 180, 0.3);
+            border-color: #F8B4B4;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 1rem;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+        }
+
+        /* ALERT STYLING */
+        .alert {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            animation: slideInDown 0.5s ease-out;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: #222 !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.3);
+            color: #000 !important;
+            font-weight: 600;
+        }
+
+        .nav-link.active {
+            background: rgba(248, 180, 180, 0.3);
+            color: #000 !important;
+            font-weight: 700;
+            border-bottom: 3px solid #F8B4B4;
+        }
+
+        .btn-outline-dark {
+            color: #222 !important;
+            border-color: #222 !important;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-dark:hover {
+            background: #222;
+            color: white !important;
+            transform: scale(1.1);
+        }
+
+        .navbar-toggler {
+            border-color: #222 !important;
+            color: #222 !important;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.25rem rgba(34, 34, 34, 0.25);
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23222' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        .btn-primary-ent {
+            background: var(--color-primary);
+            color: white !important;
+            border: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary-ent:hover {
+            background: #1a252f;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        
+        /* ==================== DARK MODE ==================== */
+        body.dark-mode {
+            background-color: #1a1a1a !important;
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode .navbar-new,
+        body.dark-mode nav {
+            background-color: #252525 !important;
+            border-color: #3a3a3a !important;
+        }
+        body.dark-mode .navbar-new-link,
+        body.dark-mode a {
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode .card,
+        body.dark-mode .modal-content,
+        body.dark-mode .dropdown-menu,
+        body.dark-mode .navbar-new-dropdown {
+            background-color: #2d2d2d !important;
+            border-color: #3a3a3a !important;
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode .form-control,
+        body.dark-mode .form-select,
+        body.dark-mode input,
+        body.dark-mode textarea {
+            background-color: #333 !important;
+            border-color: #4a4a4a !important;
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, 
+        body.dark-mode h4, body.dark-mode h5, body.dark-mode h6,
+        body.dark-mode p, body.dark-mode label, body.dark-mode span {
+            color: #e8e8e8 !important;
+        }
+        body.dark-mode .text-muted {
+            color: #999 !important;
+        }
+        body.dark-mode .site-footer {
+            background-color: #111 !important;
+        }
+        
+        /* ==================== HIGH CONTRAST ==================== */
+        body.high-contrast {
+            background-color: #000 !important;
+            color: #fff !important;
+        }
+        body.high-contrast nav,
+        body.high-contrast .navbar-new {
+            background-color: #000 !important;
+            border: 2px solid #ff0 !important;
+        }
+        body.high-contrast a {
+            color: #ff0 !important;
+            text-decoration: underline !important;
+        }
+        body.high-contrast .card,
+        body.high-contrast .modal-content {
+            background-color: #000 !important;
+            border: 2px solid #fff !important;
+            color: #fff !important;
+        }
+        body.high-contrast .btn {
+            background-color: #ff0 !important;
+            color: #000 !important;
+            border: 2px solid #fff !important;
+            font-weight: bold !important;
+        }
+        body.high-contrast .form-control,
+        body.high-contrast .form-select {
+            background-color: #000 !important;
+            color: #fff !important;
+            border: 2px solid #fff !important;
+        }
+        
+        /* ==================== FONT SIZE ==================== */
+        body.font-large {
+            font-size: 1.15rem !important;
+        }
+        body.font-large h1 { font-size: 2.8rem !important; }
+        body.font-large h2 { font-size: 2.2rem !important; }
+        body.font-large h3 { font-size: 1.8rem !important; }
+        
+        body.font-extra-large {
+            font-size: 1.35rem !important;
+        }
+        body.font-extra-large h1 { font-size: 3.2rem !important; }
+        body.font-extra-large h2 { font-size: 2.6rem !important; }
+        body.font-extra-large h3 { font-size: 2.1rem !important; }
+    </style>
+</head>
+<body class="{{ body_classes }}" data-tts-enabled="{{ 'true' if tts_enabled else 'false' }}">
+    <!-- Disable animated particle background for improved readability -->
+    <div id="no-particles" hidden></div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar-new">
+        <a href="/both/home" class="navbar-new-brand">
+            <i class="bi bi-hexagon-fill" style="color: #8F7B6A;"></i>
+            <span>BridgeHive</span>
+        </a>
+        <div class="navbar-new-links">
+            <div class="navbar-new-dropdown">
+                <span class="navbar-new-link">Learn <i class="bi bi-chevron-down" style="font-size: 0.65rem;"></i></span>
+                <div class="navbar-new-dropmenu">
+                    <a href="/both/home">View progress</a>
+                    <a href="/lib/library">Browse courses</a>
+                    <a href="/mentor/templates/all">View Templates</a>
+                </div>
+            </div>
+            <div class="navbar-new-dropdown">
+                <span class="navbar-new-link">Create <i class="bi bi-chevron-down" style="font-size: 0.65rem;"></i></span>
+                <div class="navbar-new-dropmenu">
+                    <a href="/lib/create">Create new course</a>
+                    <a href="/both/folders/create">Create folder</a>
+                    <a href="/mentor/templates/all">View Templates</a>
+                </div>
+            </div>
+            <a href="/socialhub/" class="navbar-new-link">Chat</a>
+            <a href="{{ url_for('support') }}" class="navbar-new-link">Support</a>
+            <a href="{{ url_for('rewards') }}" class="navbar-new-link">Rewards</a>
+        </div>
+        <div class="navbar-new-right">
+            <div class="navbar-new-points"><i class="bi bi-star-fill"></i> {{ (user.hive_points if user else navbar_user.hive_points if navbar_user else 0)|default(0) }}</div>
+            <div class="navbar-new-searchbar">
+                <input type="text" placeholder="Search..." readonly>
+                <button type="button"><i class="bi bi-search"></i></button>
+            </div>
+            <div class="navbar-new-bell">
+                <i class="bi bi-bell-fill"></i>
+                <span class="navbar-new-bell-dot"></span>
+            </div>
+            <div class="navbar-new-profile-wrap">
+                <div class="navbar-new-profile-circle"><i class="bi bi-person-fill"></i></div>
+                <div class="navbar-new-profile-menu">
+                    <div class="navbar-new-profile-header">
+                        <div class="navbar-new-profile-name">{{ (user.username if user else navbar_user.username if navbar_user else 'Guest') }}</div>
+                        <div class="navbar-new-profile-email">{{ (user.email if user else navbar_user.email if navbar_user else '') }}</div>
+                    </div>
+                    <a href="#"><i class="bi bi-person"></i> Profile</a>
+                    <a href="{{ url_for('settings') }}"><i class="bi bi-gear"></i> Settings</a>
+                    <a href="{{ url_for('support') }}"><i class="bi bi-question-circle"></i> Support</a>
+                    <a href="#" onclick="openAdminLogin(); return false;"><i class="bi bi-shield-lock"></i> Admin Login</a>
+                    <div class="navbar-new-profile-divider"></div>
+                    <a href="/logout" class="navbar-new-logout"><i class="bi bi-box-arrow-right"></i> Log Out</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show m-3" role="alert">
+                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- MAIN CONTENT -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <i class="bi bi-hexagon-fill" style="color: var(--brown); font-size: 1.5rem;"></i>
+                        <span style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.25rem; color: white;">BridgeHive</span>
+                    </div>
+                    <p>{{ t('footer.tagline') }}</p>
+                    <div style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">
+                        <i class="bi bi-envelope me-2"></i>hello@bridgehive.sg
+                    </div>
+                </div>
+                <div>
+                    <h4>{{ t('footer.platform') }}</h4>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('about') }}">{{ t('footer.about') }}</a></li>
+                        <li><a href="{{ url_for('rewards') }}">{{ t('nav.rewards') }}</a></li>
+                        <li><a href="{{ url_for('both_homepage') }}">{{ t('footer.dashboard') }}</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>{{ t('footer.resources') }}</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">{{ t('footer.safety') }}</a></li>
+                        <li><a href="#">{{ t('footer.community') }}</a></li>
+                        <li><a href="#">{{ t('footer.accessibility') }}</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>{{ t('nav.support') }}</h4>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('support') }}">{{ t('footer.help_center') }}</a></li>
+                        <li><a href="{{ url_for('contact') }}">{{ t('footer.contact') }}</a></li>
+                        <li><a href="#">{{ t('footer.feedback') }}</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>{{ t('footer.legal') }}</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">{{ t('footer.privacy') }}</a></li>
+                        <li><a href="#">{{ t('footer.terms') }}</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 BridgeHive. All rights reserved. Made with <i class="fas fa-heart text-danger"></i> for intergenerational learning.</p>
+                <div class="social-links">
+                    <a href="https://www.facebook.com/bridgehive" target="_blank" title="Facebook" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.twitter.com/bridgehive" target="_blank" title="Twitter" class="social-icon"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.instagram.com/bridgehive" target="_blank" title="Instagram" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.linkedin.com/company/bridgehive" target="_blank" title="LinkedIn" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Admin Login Popup -->
+    <div class="admin-login-overlay" id="adminLoginOverlay">
+        <div class="admin-login-popup">
+            <button class="admin-login-close" onclick="closeAdminLogin()"><i class="bi bi-x-lg"></i></button>
+            <h2>Admin Login</h2>
+            <p>Enter your admin credentials</p>
+            <div class="admin-error" id="adminError">Invalid username or password</div>
+            <form id="adminLoginForm" onsubmit="submitAdminLogin(event)">
+                <input type="text" name="username" class="admin-input" placeholder="Username" required>
+                <input type="password" name="password" class="admin-input" placeholder="Password" required>
+                <button type="submit" class="btn-admin-login">Log In</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    function openAdminLogin() {
+        var o = document.getElementById('adminLoginOverlay');
+        if (o) o.classList.add('active');
+        var e = document.getElementById('adminError');
+        if (e) e.style.display = 'none';
+    }
+    function closeAdminLogin() {
+        var o = document.getElementById('adminLoginOverlay');
+        if (o) o.classList.remove('active');
+        var f = document.getElementById('adminLoginForm');
+        if (f) f.reset();
+    }
+    function submitAdminLogin(e) {
+        e.preventDefault();
+        var fd = new FormData(e.target);
+        fetch('/admin/login', { method: 'POST', body: fd })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                if (d.success) window.location.href = '/admin/dashboard';
+                else document.getElementById('adminError').style.display = 'block';
+            })
+            .catch(function() { document.getElementById('adminError').style.display = 'block'; });
+    }
+    </script>
+    <script src="{{ url_for('static', filename='lib/script.js') }}"></script>
+    <script>
+        // Close navbar on link click
+        document.querySelectorAll('.navbar-collapse a').forEach(link => {
+            link.addEventListener('click', () => {
+                const navbarToggle = document.querySelector('.navbar-toggler');
+                if (window.getComputedStyle(navbarToggle).display !== 'none') {
+                    navbarToggle.click();
+                }
+            });
+        });
+    </script>
+    
+    <!-- Text-to-Speech Engine -->
+    <script>
+    (function() {
+        window.BH = window.BH || {};
+        window.BH.ttsEnabled = (document.body.dataset.ttsEnabled === 'true');
+        
+        const pill = document.createElement('div');
+        pill.id = 'tts-reading-pill';
+        pill.innerHTML = '<i class="bi bi-volume-up-fill me-2"></i><span id="tts-pill-text"></span>' +
+                         '<button onclick="window.BH.ttsStop()" style="background:none;border:none;color:white;margin-left:10px;cursor:pointer;font-size:1rem;">✕</button>';
+        Object.assign(pill.style, {
+            position: 'fixed', bottom: '100px', left: '50%', transform: 'translateX(-50%) translateY(20px)',
+            background: 'var(--brown, #8F7B6A)', color: 'white', padding: '0.6rem 1.2rem',
+            borderRadius: '50px', fontSize: '0.85rem', fontWeight: '500',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.25)', zIndex: '9999',
+            display: 'none', alignItems: 'center', gap: '4px',
+            maxWidth: '380px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            transition: 'opacity 0.3s, transform 0.3s', opacity: '0'
+        });
+        document.body.appendChild(pill);
+        
+        function showPill(text) {
+            const display = text.length > 45 ? text.substring(0, 45) + '…' : text;
+            document.getElementById('tts-pill-text').textContent = '"' + display + '"';
+            pill.style.display = 'flex';
+            requestAnimationFrame(() => { pill.style.opacity = '1'; pill.style.transform = 'translateX(-50%) translateY(0)'; });
+        }
+        function hidePill() {
+            pill.style.opacity = '0';
+            pill.style.transform = 'translateX(-50%) translateY(20px)';
+            setTimeout(() => { pill.style.display = 'none'; }, 300);
+        }
+        
+        window.BH.ttsStop = function() { window.speechSynthesis.cancel(); hidePill(); };
+        window.BH.ttsSpeak = function(text, lang) {
+            if (!text || !text.trim()) return;
+            const langMap = { 'en': 'en-SG', 'zh': 'zh-CN', 'ms': 'ms-MY', 'ta': 'ta-IN' };
+            const pageLang = document.documentElement.lang || 'en';
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text.trim());
+            utterance.lang = lang || langMap[pageLang] || pageLang;
+            utterance.rate = 0.92;
+            utterance.onstart = () => showPill(text.trim());
+            utterance.onend = () => hidePill();
+            utterance.onerror = () => hidePill();
+            window.speechSynthesis.speak(utterance);
+        };
+        
+        function handleSelectionEnd() {
+            if (!window.BH.ttsEnabled) return;
+            setTimeout(function() {
+                const selected = window.getSelection().toString().trim();
+                if (selected.length > 1) window.BH.ttsSpeak(selected);
+            }, 120);
+        }
+        document.addEventListener('mouseup', handleSelectionEnd);
+        document.addEventListener('touchend', handleSelectionEnd);
+        
+        const badge = document.createElement('div');
+        badge.innerHTML = '<i class="bi bi-volume-up-fill"></i> TTS On';
+        Object.assign(badge.style, {
+            position: 'fixed', top: '72px', right: '16px',
+            background: 'var(--brown, #8F7B6A)', color: 'white',
+            padding: '0.35rem 0.85rem', borderRadius: '20px',
+            fontSize: '0.75rem', fontWeight: '500', zIndex: '9998',
+            display: 'none', alignItems: 'center', gap: '6px', cursor: 'pointer'
+        });
+        badge.onclick = () => window.BH.ttsStop();
+        document.body.appendChild(badge);
+        
+        window.BH.updateTTSBadge = function() { badge.style.display = window.BH.ttsEnabled ? 'flex' : 'none'; };
+        window.BH.updateTTSBadge();
+    })();
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

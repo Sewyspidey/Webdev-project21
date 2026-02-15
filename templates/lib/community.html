@@ -1,0 +1,187 @@
+{% extends "lib/base.html" %}
+
+{% block title %}Community Hub | BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    .community-hero {
+        position: relative;
+        background: linear-gradient(140deg, rgba(44, 62, 80, 0.12), rgba(248, 180, 180, 0.18));
+        border-radius: 26px;
+        padding: 3.5rem 3rem;
+        overflow: hidden;
+        box-shadow: 0 20px 45px rgba(44, 62, 80, 0.12);
+        margin-bottom: 3rem;
+    }
+
+    .community-hero::before {
+        content: '';
+        position: absolute;
+        width: 320px;
+        height: 320px;
+        left: -120px;
+        top: -120px;
+        background: radial-gradient(circle, rgba(248, 180, 180, 0.45), transparent 70%);
+    }
+
+    .community-hero::after {
+        content: '';
+        position: absolute;
+        width: 260px;
+        height: 260px;
+        right: -100px;
+        bottom: -120px;
+        background: radial-gradient(circle, rgba(44, 62, 80, 0.35), transparent 70%);
+    }
+
+    .community-eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 0.8rem;
+        color: #2C3E50;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .community-title {
+        font-size: 2.6rem;
+        font-weight: 800;
+        color: #1a252f;
+        margin-bottom: 1rem;
+    }
+
+    .community-subtitle {
+        font-size: 1.1rem;
+        color: #4b5563;
+        max-width: 560px;
+    }
+
+    .community-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+    }
+
+    .community-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.9rem 1.9rem;
+        border-radius: 999px;
+        font-weight: 700;
+        border: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .community-btn.primary {
+        background: linear-gradient(135deg, #2C3E50, #1a252f);
+        color: #fff;
+        box-shadow: 0 14px 30px rgba(44, 62, 80, 0.25);
+    }
+
+    .community-btn.secondary {
+        background: #fff;
+        color: #2C3E50;
+        border: 2px solid rgba(44, 62, 80, 0.15);
+    }
+
+    .community-btn:hover {
+        transform: translateY(-3px) scale(1.02);
+    }
+
+    .community-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .community-card {
+        background: #fff;
+        border-radius: 18px;
+        padding: 1.75rem;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(44, 62, 80, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        min-height: 210px;
+    }
+
+    .community-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 40px rgba(44, 62, 80, 0.12);
+    }
+
+    .community-card h4 {
+        font-weight: 700;
+        color: #1a252f;
+        margin-bottom: 0.8rem;
+    }
+
+    .community-card p {
+        color: #5f6b74;
+        margin-bottom: 0;
+    }
+
+    .community-placeholder {
+        background: linear-gradient(135deg, rgba(248, 180, 180, 0.2), rgba(181, 176, 161, 0.15));
+        border-radius: 20px;
+        padding: 2rem;
+        margin-top: 2.5rem;
+        border: 1px dashed rgba(44, 62, 80, 0.2);
+    }
+
+    .community-placeholder h5 {
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+        .community-hero {
+            padding: 2.5rem 2rem;
+        }
+
+        .community-title {
+            font-size: 2.1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="community-hero">
+        <div class="community-eyebrow">BridgeHive Community</div>
+        <h1 class="community-title">Community Hub, Coming to Life</h1>
+        <p class="community-subtitle">This page is ready to connect with your group chat experience. We will integrate your friend's community system here, so learners can join or build their own circles.</p>
+        <div class="community-actions">
+            <a href="/lib/community" class="community-btn primary">
+                <i class="fas fa-users"></i> Join a Community
+            </a>
+            <!-- creation currently just brings user here; can be enhanced later -->
+            <a href="/lib/community" class="community-btn secondary">
+                <i class="fas fa-plus"></i> Create a Community
+            </a>
+        </div>
+    </div>
+
+    <div class="community-grid">
+        <div class="community-card">
+            <h4>Shared Learning Rooms</h4>
+            <p>Jump into topic-based rooms for seniors, youth mentors, and mixed-age teams.</p>
+        </div>
+        <div class="community-card">
+            <h4>Mentor Matching</h4>
+            <p>Pair up with experienced guides or offer mentorship in your own specialty.</p>
+        </div>
+        <div class="community-card">
+            <h4>Weekly Challenges</h4>
+            <p>Collaborate on community challenges that keep learning social and fun.</p>
+        </div>
+    </div>
+
+    <div class="community-placeholder">
+        <h5>Integration Placeholder</h5>
+        <p>This area will host the embedded group chat experience. When your friend is ready, we can connect their chat UI or API right here.</p>
+    </div>
+</div>
+{% endblock %}

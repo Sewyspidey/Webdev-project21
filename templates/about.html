@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+{% block title %}About Us - BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Page Hero */
+    .page-hero {
+        text-align: center;
+        padding: 5rem 2rem 3rem;
+        padding-top: 90px;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    
+    .page-hero h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 3rem;
+        color: var(--black);
+        margin-bottom: 1rem;
+    }
+    
+    .page-hero p {
+        font-size: 1.1rem;
+        color: var(--gray);
+        line-height: 1.8;
+    }
+    
+    /* Mission Section */
+    .mission-section {
+        display: flex;
+        gap: 4rem;
+        padding: 3rem 4rem 4rem;
+        max-width: 1000px;
+        margin: 0 auto;
+        align-items: center;
+    }
+    
+    .mission-content {
+        flex: 1;
+    }
+    
+    .mission-content h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.75rem;
+        color: var(--black);
+        margin-bottom: 1rem;
+    }
+    
+    .mission-content p {
+        color: var(--gray);
+        line-height: 1.8;
+    }
+    
+    .mission-visual {
+        flex: 0 0 300px;
+        height: 220px;
+        background: linear-gradient(135deg, var(--tan) 0%, var(--brown) 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+    }
+    
+    /* Values Section */
+    .values-section {
+        padding: 4rem;
+        text-align: center;
+        background-color: var(--cream-dark);
+    }
+    
+    .values-section h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        color: var(--black);
+        margin-bottom: 2.5rem;
+    }
+    
+    .values-grid {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .value-card {
+        flex: 1;
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        text-align: center;
+    }
+    
+    .value-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .value-card h3 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.25rem;
+        color: var(--black);
+        margin-bottom: 0.75rem;
+    }
+    
+    .value-card p {
+        color: var(--gray);
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+    
+    /* CTA Section */
+    .cta-section {
+        text-align: center;
+        padding: 5rem 2rem;
+    }
+    
+    .cta-section h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        color: var(--black);
+        margin-bottom: 0.5rem;
+    }
+    
+    .cta-section p {
+        color: var(--gray);
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn-cta {
+        display: inline-block;
+        background-color: var(--brown);
+        color: white;
+        padding: 0.85rem 2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .btn-cta:hover {
+        background-color: #7A6A5A;
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+<nav class="navbar-landing">
+    <a href="{{ url_for('landing') }}" class="logo">BridgeHive</a>
+    <div class="nav-links">
+        <a href="{{ url_for('about') }}">about us</a>
+        <a href="{{ url_for('contact') }}">contact us</a>
+    </div>
+    <div class="nav-right">
+        <div class="search-bar-dark" onclick="openSearchOverlay()" style="cursor: pointer;">
+            <input type="text" placeholder="What would you like to ask?" readonly style="cursor: pointer;">
+            <button type="button"><i class="bi bi-search"></i></button>
+        </div>
+        <a href="#" class="profile-icon" onclick="openSignupPopup(); return false;">
+            <i class="bi bi-person"></i>
+        </a>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="page-hero">
+    <h1>About BridgeHive</h1>
+    <p>We're on a mission to connect generations through the joy of learning. BridgeHive brings youth and seniors together to share skills, stories, and experiences.</p>
+</section>
+
+<!-- Mission -->
+<section class="mission-section">
+    <div class="mission-content">
+        <h2>Why We Exist</h2>
+        <p>In Singapore's fast-paced digital world, seniors often feel left behind while youth miss out on valuable life wisdom. BridgeHive bridges this gap by creating a safe, welcoming space where both generations can learn from each other.</p>
+    </div>
+    <div class="mission-visual">🌉</div>
+</section>
+
+<section class="mission-section" style="flex-direction: row-reverse;">
+    <div class="mission-content">
+        <h2>How It Works</h2>
+        <p>Seniors share their expertise in cooking, crafts, languages, and life skills. Youth offer guidance on technology, social media, and digital tools. Everyone learns. Everyone teaches. Everyone grows together.</p>
+    </div>
+    <div class="mission-visual">🤝</div>
+</section>
+
+<!-- Values -->
+<section class="values-section">
+    <h2>What We Believe In</h2>
+    <div class="values-grid">
+        <div class="value-card">
+            <div class="value-icon">💛</div>
+            <h3>Respect</h3>
+            <p>Every person has something valuable to offer, regardless of age or background.</p>
+        </div>
+        <div class="value-card">
+            <div class="value-icon">🌱</div>
+            <h3>Growth</h3>
+            <p>Learning never stops. We encourage curiosity and celebrate every small win.</p>
+        </div>
+        <div class="value-card">
+            <div class="value-icon">🛡️</div>
+            <h3>Safety</h3>
+            <p>A welcoming, moderated community where everyone feels comfortable.</p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+    <h2>Ready to Join?</h2>
+    <p>Start your intergenerational learning journey today.</p>
+    <a href="{{ url_for('landing') }}" class="btn-cta">Get Started</a>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const faqData = [
+    {% for faq in faqs %}
+    {id: {{ faq.id }}, question: "{{ faq.question|e }}", answer: "{{ faq.answer|e }}"}{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+
+const searchOverlayInput = document.getElementById('searchOverlayInput');
+const searchOverlayResults = document.getElementById('searchOverlayResults');
+
+if (searchOverlayInput) {
+    searchOverlayInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        if (query.length < 2) {
+            searchOverlayResults.innerHTML = '';
+            return;
+        }
+        
+        const matches = faqData.filter(f => f.question.toLowerCase().includes(query)).slice(0, 5);
+        
+        if (matches.length === 0) {
+            searchOverlayResults.innerHTML = '<div class="search-overlay-no-results">No matching questions found</div>';
+        } else {
+            searchOverlayResults.innerHTML = matches.map(f => `
+                <div class="search-overlay-result-item" onclick="this.classList.toggle('expanded')">
+                    <div class="question">${f.question}</div>
+                    <div class="answer">${f.answer}</div>
+                </div>
+            `).join('');
+        }
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,516 @@
+/* static/css/onboarding.css */
+
+/* 1. The Background Overlay - FULL SCREEN NO GAPS */
+.overlay-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 10000;
+    overflow-y: auto;       
+    display: flex;          
+    padding: 20px;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+/* 2. The Card Styling - STABLE & FIXED SIZE */
+.modal-card {
+    background-color: #FDFBF7;
+    padding: 50px;
+    border-radius: 16px;
+    
+    /* --- STABILITY SETTINGS --- */
+    width: 750px;           /* Fixed width */
+    max-width: 100%;        /* Safety for small screens */
+    min-height: 650px;      /* IMPORTANT: Forces a tall, stable shape */
+    
+    /* Center the card in the overlay */
+    margin: auto; 
+    
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    font-family: 'Georgia', serif;
+
+    /* Internal Layout to push Footer to bottom */
+    display: flex;
+    flex-direction: column;
+
+    /* Ensure the card is the reference point for the absolute X button */
+    position: relative; 
+    
+    /* ... rest of your modal-card styles ... */
+}
+
+/* Ensure the form takes up the full height so footer pushes down */
+#mainForm {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+/* Wrapper for step content to allow it to grow */
+#step-1, #step-2 {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+/* 3. Typography */
+.welcome-title {
+    font-size: 2.5rem;
+    color: #1a1a1a;
+    margin-bottom: 10px;
+    text-align: center;
+    margin-top: 0;
+}
+.subtitle {
+    text-align: center;
+    color: #555;
+    margin-bottom: 40px;
+    font-family: sans-serif;
+    font-size: 1.1rem;
+}
+.question-label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+}
+
+/* --- Section Spacing --- */
+.form-section {
+    margin-bottom: 30px;
+}
+
+/* 4. Button Groups */
+.button-group {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+input[type="radio"], input[type="checkbox"] {
+    display: none;
+}
+
+/* 5. The "Buttons" */
+.selection-btn, .tag-btn {
+    padding: 15px 20px;
+    background-color: #E6E6E1;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: sans-serif;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+    flex: 1;
+    text-align: center;
+    font-size: 1rem;
+    min-width: 120px;
+}
+
+/* 6. Active State */
+input[type="radio"]:checked + .selection-btn,
+input[type="checkbox"]:checked + .tag-btn {
+    background-color: #D3CEC4;
+    box-shadow: inset 0 0 0 2px #8B8B8B;
+    transform: translateY(-2px);
+}
+
+/* --- OTHERS BUTTON COMPACT STYLE --- */
+.btn-others-compact {
+    background-color: #7D7D7D !important;
+    color: white !important;
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
+    width: auto !important;
+    display: inline-block;
+    padding: 15px 30px;
+}
+
+/* 7. Text Area */
+.others-box {
+    margin-top: 15px;
+    width: 100%;
+}
+textarea {
+    width: 100%;
+    height: 80px;
+    padding: 15px;
+    border: 2px solid #E6E6E1;
+    border-radius: 10px;
+    font-family: sans-serif;
+    resize: vertical;
+    background-color: #FAFAFA;
+}
+textarea:focus {
+    outline: none;
+    border-color: #D3CEC4;
+}
+
+/* 8. Footer Buttons - STICK TO BOTTOM */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+    
+    /* This pushes the footer to the bottom of the card */
+    margin-top: auto; 
+    
+    padding-top: 30px;
+    /* border-top: 1px solid #eee;  <-- THIS LINE IS NOW REMOVED */
+}
+.btn-back, .btn-next {
+    padding: 12px 40px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    font-family: sans-serif;
+    font-size: 1.1rem;
+}
+.btn-back { background-color: #999; color: white; }
+.btn-next { background-color: #8D7F73; color: white; }
+
+/* Animation Classes */
+.hidden { display: none !important; }
+
+/* --- STEP 2 STYLING --- */
+input[type="radio"].visible-radio {
+    display: inline-block !important;
+    width: 20px; 
+    height: 20px;
+    margin-right: 10px;
+    accent-color: #000;
+    cursor: pointer;
+}
+.age-group-container {
+    display: flex;
+    gap: 40px;
+    margin-top: 15px;
+}
+.age-radio {
+    font-size: 1.2rem;
+    font-weight: bold;
+    font-family: sans-serif;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+/* --- STEP 3 STYLING --- */
+
+/* 1. Big Input Fields */
+.input-field {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 2px solid #E6E6E1;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: sans-serif;
+    background-color: #FAFAFA;
+    box-sizing: border-box;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #8D7F73;
+    background-color: #fff;
+}
+
+/* 2. Terms & Conditions Container - CLEAN & ALIGNED */
+.terms-container {
+    display: flex;
+    align-items: flex-start; /* Aligns checkbox with the FIRST line of text */
+    gap: 12px;               /* Tighter, cleaner gap */
+    margin-top: 20px;
+    padding: 0 5px;          /* Small side padding for neatness */
+}
+
+/* The Text Label */
+.terms-container label {
+    color: #333;             /* Darker grey for better readability */
+    font-size: 0.95rem;      /* Readable size */
+    line-height: 1.5;        /* Good spacing between lines */
+    cursor: pointer;
+    margin: 0;               /* Remove default margins */
+}
+
+/* The Checkbox Itself */
+input[type="checkbox"].visible-checkbox {
+    display: inline-block !important;
+    width: 18px;             /* Slightly smaller for a cleaner look */
+    height: 18px;
+    flex-shrink: 0;          /* Prevents the box from getting squashed */
+    
+    /* IMPORTANT: Pushes the box down to match the text's eye-level */
+    margin-top: 3px;         
+    
+    cursor: pointer;
+    accent-color: #8D7F73;   /* Your Brand Brown Color */
+}
+
+
+/* --- STEP 4 SPECIAL MODE: CENTERED BURST (ADJUSTED) --- */
+
+/* 1. Modal Config */
+.modal-card.celebration-mode {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    min-height: auto !important; 
+    width: 100% !important;
+    max-width: 900px;
+    overflow: hidden !important; 
+    position: relative;
+}
+
+/* 2. Pop-Up Animation */
+.modal-card.celebration-mode #step-4 {
+    animation: popUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes popUp {
+    0% { transform: scale(0.5) translateY(50px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* 3. Layout */
+.centered-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; 
+    gap: 25px;
+    padding: 20px 0;
+    text-align: center;
+}
+
+/* --- THE SPOTLIGHT GLOW --- */
+.spotlight-glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0) 70%);
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* --- NEW: 6-STAR CENTER BURST (NUDGED RIGHT) --- */
+
+.star-shooter {
+    position: absolute;
+    top: 50%; left: 50%; 
+    
+    /* --- THE FIX: Nudge it 20px to the right to fix the alignment --- */
+    margin-left: 20px; 
+    
+    width: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, white);
+    border-radius: 50%;
+    opacity: 0;
+    z-index: -1;
+    
+    transform-origin: left center; 
+}
+
+.star-shooter::after {
+    content: '';
+    position: absolute;
+    right: -4px; top: 50%;
+    transform: translateY(-50%);
+    width: 6px; height: 6px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #fff, 0 0 15px #FFFacd;
+}
+
+/* Animation: Burst Outward */
+@keyframes shootBurst {
+    0% {
+        width: 0; opacity: 0;
+        /* Start 130px away from the center point */
+        transform: translate(-50%, -50%) rotate(var(--angle)) translateX(130px);
+    }
+    15% {
+        width: 150px; opacity: 1; 
+    }
+    100% {
+        /* Fly 450px outward */
+        transform: translate(-50%, -50%) rotate(var(--angle)) translateX(450px);
+        width: 0; opacity: 0;
+    }
+}
+
+/* === LEFT SIDE BURST === */
+.shoot-l-top {
+    --angle: 215deg; 
+    animation: shootBurst 2.5s ease-out infinite;
+    animation-delay: 0.2s;
+}
+.shoot-l-mid {
+    --angle: 180deg; 
+    animation: shootBurst 2.5s ease-out infinite;
+    animation-delay: 0.5s;
+}
+.shoot-l-bot {
+    --angle: 145deg; 
+    animation: shootBurst 2.5s ease-out infinite;
+    animation-delay: 0.3s;
+}
+
+/* === RIGHT SIDE BURST === */
+.shoot-r-top {
+    --angle: -35deg; 
+    animation: shootBurst 2.5s ease-out infinite;
+    animation-delay: 0.2s;
+}
+.shoot-r-mid {
+    --angle: 0deg;   
+    animation: shootBurst 2.5s ease-out infinite;
+    animation-delay: 0.5s;
+}
+.shoot-r-bot {
+    --angle: 35deg;  
+    animation: shootBurst 2.5s ease-out infinite;
+    animation-delay: 0.3s;
+}
+
+
+/* --- GIANT FLOATING STARS --- */
+.deco-star {
+    position: absolute;
+    font-size: 5rem; 
+    opacity: 0.5;
+    z-index: -1;
+    animation: floatSlow 6s ease-in-out infinite;
+}
+.s-left { top: 40%; left: 5%; animation-delay: 0s; }
+.s-right { top: 20%; right: 5%; animation-delay: 3s; }
+
+@keyframes floatSlow {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(10deg); }
+}
+
+/* 4. TEXT STYLES */
+.stars {
+    font-size: 3rem;
+    margin-bottom: 5px;
+    animation: bounce 2s infinite;
+    position: relative; z-index: 2;
+}
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.modal-card.celebration-mode .welcome-title {
+    color: #FFFFFF !important;
+    font-size: 3.5rem; 
+    line-height: 1.1;
+    margin: 0;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    position: relative; z-index: 2;
+}
+
+.modal-card.celebration-mode .subtitle {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 1.3rem;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    position: relative; z-index: 2;
+}
+
+/* 5. Button */
+.modal-card.celebration-mode .btn-start {
+    background-color: #ffffff;
+    color: #5C544D;
+    font-size: 1.3rem;
+    font-weight: bold;
+    padding: 16px 55px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 30px;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.5); 
+    transition: transform 0.2s;
+    position: relative; z-index: 2;
+}
+.modal-card.celebration-mode .btn-start:hover {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 0 50px rgba(255, 255, 255, 0.8);
+}
+
+/* 6. Icons */
+.icon-nav-container {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    width: 100%;
+    position: relative; z-index: 2;
+}
+.nav-item {
+    display: flex; flex-direction: column; align-items: center;
+    opacity: 0.9; transition: opacity 0.3s;
+    text-decoration: none; 
+    cursor: pointer;
+}
+.nav-item:hover { opacity: 1; }
+
+.modal-card.celebration-mode .icon-circle {
+    width: 70px; height: 70px;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px; font-size: 1.8rem; color: white;
+    background-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+.modal-card.celebration-mode .nav-item span {
+    font-size: 1rem; font-weight: normal; color: white !important;
+    font-family: sans-serif; letter-spacing: 1px;
+}
+
+/* button for onboarding exit icon */
+/* --- NEW: CLOSE BUTTON STYLING --- */
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    font-size: 1.5rem;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s;
+    z-index: 10; /* Ensure it sits on top of everything */
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.close-btn:hover {
+    color: #333; /* Darker on hover */
+    background-color: #f0f0f0; /* Subtle circle background */
+    transform: rotate(90deg); /* meaningful interaction */
+}
+
+/* Hide the close button during the final celebration step if you want */
+.modal-card.celebration-mode .close-btn {
+    color: rgba(255, 255, 255, 0.5); /* Make it semi-transparent white */
+}
+.modal-card.celebration-mode .close-btn:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.2);
+}

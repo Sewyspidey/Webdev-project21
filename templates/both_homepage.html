@@ -1,0 +1,1397 @@
+{% extends "base.html" %}
+{% block title %}Learner & Mentor Home - BridgeHive{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* --- VIBRANT HOMEPAGE ENHANCEMENTS --- */
+    
+    /* Animated gradient background */
+    body {
+        background: linear-gradient(135deg, #EDEDE5 0%, #F5F3EE 25%, #EDEDE5 50%, #F0EDE6 75%, #EDEDE5 100%);
+        background-size: 400% 400%;
+        animation: subtleGradient 20s ease infinite;
+    }
+    
+    @keyframes subtleGradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    /* --- MAIN CONTENT CONTAINER --- */
+    .main-content {
+        padding: 2rem 3rem;
+        padding-top: 90px;
+        position: relative;
+    }
+    
+    /* Decorative background shapes */
+    .main-content::before {
+        content: '';
+        position: fixed;
+        top: 15%;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(222, 192, 154, 0.15) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 0;
+    }
+    
+    .main-content::after {
+        content: '';
+        position: fixed;
+        bottom: 20%;
+        left: -80px;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(143, 123, 106, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 0;
+    }
+    
+    /* --- WELCOME SECTION --- */
+    .welcome-section {
+        text-align: center;
+        padding: 2.5rem 0 3rem;
+        margin-bottom: 2.5rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .welcome-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 3.5rem;
+        font-weight: 500;
+        color: var(--black);
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, var(--black) 0%, var(--brown) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .welcome-streak {
+        font-size: 1.1rem;
+        color: var(--gray);
+        position: relative;
+        display: inline-block;
+    }
+    
+    /* Decorative line under welcome */
+    .welcome-section::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, var(--tan), var(--brown), var(--tan), transparent);
+        border-radius: 2px;
+    }
+    
+    /* --- BOOTSTRAP CAROUSEL OVERRIDE --- */
+    /* Override Bootstrap's carousel-item display:none that hides our cards */
+    .carousel-track .carousel-item {
+        display: block !important;
+        position: relative !important;
+        float: none !important;
+        width: auto !important;
+        margin-right: 0 !important;
+        backface-visibility: visible !important;
+        transition: none !important;
+    }
+    
+    /* --- SECTION STYLING --- */
+    .course-section {
+        margin-bottom: 2.5rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .section-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: var(--black);
+        position: relative;
+        padding-left: 16px;
+    }
+    
+    /* Accent bar for section titles */
+    .section-title::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 70%;
+        background: linear-gradient(180deg, var(--brown) 0%, var(--tan) 100%);
+        border-radius: 2px;
+    }
+    
+    .view-all {
+        color: var(--brown);
+        text-decoration: none;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+    
+    .view-all:hover {
+        color: #7a6859;
+        text-decoration: underline;
+    }
+    
+    .section-subtitle {
+        color: var(--gray);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        padding-left: 16px;
+    }
+    
+    /* --- SUBSECTION LABELS --- */
+    .subsection-label {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--black);
+        margin-bottom: 0.75rem;
+        margin-top: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .subsection-label::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background: linear-gradient(135deg, var(--tan) 0%, var(--brown) 100%);
+        border-radius: 50%;
+    }
+    
+    .subsection-label:first-of-type {
+        margin-top: 0;
+    }
+    
+    /* --- CAROUSEL CONTAINER --- */
+    .carousel-container {
+        position: relative;
+        padding: 0;
+    }
+    
+    .carousel-wrapper {
+        overflow: hidden;
+    }
+    
+    .carousel-track {
+        display: flex;
+        gap: 1.25rem;
+    }
+    
+    /* --- COURSE CARDS --- */
+    .course-card {
+        min-width: calc(25% - 1rem);
+        max-width: calc(25% - 1rem);
+        border-radius: 16px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        position: relative;
+    }
+    
+    /* Subtle gradient overlay on cards */
+    .course-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(180deg, transparent 60%, rgba(255,255,255,0.9) 100%);
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .course-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(143, 123, 106, 0.2);
+    }
+    
+    .course-img {
+        height: 110px;
+        width: 100%;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        position: relative;
+    }
+    
+    /* Gradient overlay on course image */
+    .course-img::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 40%;
+        background: linear-gradient(to top, rgba(0,0,0,0.1), transparent);
+        pointer-events: none;
+    }
+    
+    .course-body {
+        padding: 1rem;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .course-category {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: var(--brown);
+        background: linear-gradient(135deg, var(--cream) 0%, #FFF8E7 100%);
+        padding: 0.25rem 0.6rem;
+        border-radius: 20px;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+    
+    .course-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--black);
+        margin-bottom: 0.25rem;
+    }
+    
+    .course-instructor {
+        font-size: 0.8rem;
+        color: var(--gray);
+    }
+    
+    /* --- PROGRESS BAR --- */
+    .progress-bar-bg {
+        height: 5px;
+        background: linear-gradient(90deg, var(--cream-dark), var(--off-white));
+        border-radius: 3px;
+        margin-top: 0.5rem;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--tan) 0%, var(--brown) 100%);
+        border-radius: 3px;
+        position: relative;
+    }
+    
+    /* Animated shine effect on progress */
+    .progress-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        animation: progressShine 2s ease-in-out infinite;
+    }
+    
+    @keyframes progressShine {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+    
+    /* --- TEMPLATE CARDS --- */
+    .template-card {
+        min-width: calc(25% - 1rem);
+        max-width: calc(25% - 1rem);
+        border-radius: 16px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    }
+    
+    .template-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(143, 123, 106, 0.2);
+    }
+    
+    .template-img {
+        height: 110px;
+        width: 100%;
+        position: relative;
+    }
+    
+    /* Pattern overlay on template images */
+    .template-img::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 40%);
+        pointer-events: none;
+    }
+    
+    .template-body {
+        padding: 1rem;
+    }
+    
+    .template-category {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: var(--brown);
+        background: linear-gradient(135deg, var(--cream) 0%, #FFF8E7 100%);
+        padding: 0.25rem 0.6rem;
+        border-radius: 20px;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+    
+    .template-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--black);
+        margin-bottom: 0.25rem;
+    }
+    
+    .template-usage {
+        font-size: 0.8rem;
+        color: var(--gray);
+    }
+    
+    /* --- CAROUSEL NAVIGATION --- */
+    .carousel-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: white;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+    
+    .carousel-nav:hover {
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 6px 20px rgba(143, 123, 106, 0.25);
+        background: linear-gradient(135deg, #FFF 0%, var(--cream) 100%);
+    }
+    
+    .carousel-nav i {
+        color: var(--brown);
+        font-size: 1.1rem;
+    }
+    
+    .carousel-nav.prev { left: -15px; }
+    .carousel-nav.next { right: -15px; }
+    .carousel-nav.hidden { display: none; }
+    
+    /* --- EMPTY STATE --- */
+    .empty-state {
+        text-align: center;
+        padding: 2.5rem;
+        color: var(--gray);
+        background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(254,250,241,0.5) 100%);
+        border-radius: 16px;
+        border: 2px dashed var(--tan-light);
+    }
+    
+    .empty-state i {
+        font-size: 2.5rem;
+        opacity: 0.5;
+        margin-bottom: 0.5rem;
+        display: block;
+        color: var(--tan);
+    }
+    
+    /* --- FOLDERS SECTION --- */
+    .folders-section {
+        margin-top: 2.5rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .folders-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .folder-card {
+        height: 150px;
+        border-radius: 16px;
+        padding: 1.25rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+    
+    /* Decorative gradient overlay */
+    .folder-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+        pointer-events: none;
+    }
+    
+    .folder-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    }
+    
+    .folder-icon {
+        font-size: 1.75rem;
+        margin-bottom: 0.75rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .folder-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .folder-count {
+        font-size: 0.8rem;
+        opacity: 0.8;
+        margin-top: auto;
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* --- ADD FOLDER CARD --- */
+    .add-folder-card {
+        border: 2px dashed var(--tan);
+        background: linear-gradient(135deg, rgba(254,250,241,0.5) 0%, rgba(255,255,255,0.8) 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .add-folder-card:hover {
+        border-color: var(--brown);
+        color: var(--brown);
+        background: linear-gradient(135deg, rgba(222, 192, 154, 0.15) 0%, rgba(254,250,241,0.8) 100%);
+        transform: translateY(-4px);
+    }
+    
+    .add-folder-card i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .add-folder-card:hover i {
+        transform: scale(1.15);
+    }
+    
+    /* --- FAB BUTTONS --- */
+    .fab-container {
+        position: fixed;
+        right: 2rem;
+        bottom: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        z-index: 100;
+    }
+    
+    .fab {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(143, 123, 106, 0.25);
+        border: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .fab:hover {
+        transform: scale(1.1);
+        box-shadow: 0 10px 30px rgba(143, 123, 106, 0.35);
+    }
+    
+    .fab-chat {
+        background: linear-gradient(135deg, #FFFFFF 0%, var(--cream) 100%);
+        color: var(--brown);
+        font-size: 1.25rem;
+    }
+    
+    .fab-add {
+        background: linear-gradient(135deg, var(--brown) 0%, #7a6859 100%);
+        color: white;
+        font-size: 1.5rem;
+    }
+    
+    .fab-menu {
+        display: none;
+        position: absolute;
+        right: 65px;
+        bottom: 0;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        padding: 0.5rem 0;
+        min-width: 180px;
+        overflow: hidden;
+    }
+    
+    .fab-menu.show {
+        display: block;
+        animation: slideIn 0.2s ease;
+    }
+    
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateX(10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    
+    .fab-menu a {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1.25rem;
+        color: var(--black);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: background 0.2s ease;
+    }
+    
+    .fab-menu a:hover {
+        background: linear-gradient(90deg, var(--cream) 0%, transparent 100%);
+    }
+    
+    /* --- COURSE POPUP MODAL --- */
+    .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(4px);
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .popup-overlay.active {
+        display: flex;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .popup-modal {
+        background: white;
+        border-radius: 20px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+        box-shadow: 0 25px 80px rgba(0,0,0,0.25);
+        animation: popIn 0.3s ease;
+    }
+    
+    @keyframes popIn {
+        from { opacity: 0; transform: scale(0.95) translateY(20px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    
+    .popup-header {
+        height: 150px;
+        position: relative;
+        border-radius: 20px 20px 0 0;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    
+    /* Gradient overlay on popup header */
+    .popup-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 50%;
+        background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
+        border-radius: 0 0 0 0;
+        pointer-events: none;
+    }
+    
+    .popup-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10;
+        transition: transform 0.2s ease;
+    }
+    
+    .popup-close:hover {
+        transform: scale(1.1);
+    }
+    
+    .popup-body {
+        padding: 1.5rem;
+    }
+    
+    .popup-category {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--brown);
+        background: linear-gradient(135deg, var(--cream) 0%, #FFF8E7 100%);
+        padding: 0.3rem 0.85rem;
+        border-radius: 20px;
+        display: inline-block;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+    
+    .popup-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+    
+    .popup-instructor {
+        color: var(--gray);
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+    }
+    
+    .popup-desc {
+        color: var(--gray);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+    
+    .popup-actions {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .btn-primary-action {
+        flex: 1;
+        padding: 0.875rem;
+        background: linear-gradient(135deg, var(--brown) 0%, #7a6859 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+    }
+    
+    .btn-primary-action:hover {
+        background: #7A6A5A;
+        color: white;
+    }
+    
+    .btn-folder {
+        padding: 0.875rem 1.25rem;
+        background: var(--cream);
+        color: var(--brown);
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+    
+    .btn-folder:hover {
+        background: var(--tan);
+    }
+    
+    /* --- FOLDER DROPDOWN --- */
+    .folder-dropdown {
+        position: relative;
+    }
+    
+    .folder-dropdown-content {
+        display: none;
+        position: absolute;
+        bottom: 100%;
+        right: 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        min-width: 180px;
+        margin-bottom: 0.5rem;
+        overflow: hidden;
+    }
+    
+    .folder-dropdown-content.show {
+        display: block;
+    }
+    
+    .folder-dropdown-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: background 0.2s;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        font-size: 0.95rem;
+        color: var(--black);
+    }
+    
+    .folder-dropdown-item:hover {
+        background: var(--cream);
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <!-- ==================== WELCOME SECTION ==================== -->
+    <section class="welcome-section">
+        {% if user and user.is_new_user %}
+        <h1 class="welcome-title">{{ t('home.welcome') }}, {{ user.username }}</h1>
+        <p class="welcome-streak">{{ t('home.start_journey') }}! 🌟</p>
+        {% else %}
+        <h1 class="welcome-title">{{ t('home.welcome') }} back, {{ user.username if user else 'Guest' }}</h1>
+        <p class="welcome-streak">You have a {{ user.streak_days if user else 0 }} day streak 🔥, extend it by learning or creating today!</p>
+        {% endif %}
+    </section>
+    
+    <!-- ==================== JUMP BACK IN SECTION ==================== -->
+    <section class="course-section">
+        <div class="section-header">
+            <h2 class="section-title">{{ t('home.jump_back') }}</h2>
+        </div>
+        <p class="section-subtitle">{{ t('home.pick_up') }}</p>
+        
+        <!-- Courses Subsection -->
+        <div class="subsection-label">{{ t('home.learn_courses') }}</div>
+        {% if courses_in_progress|length > 0 %}
+        <div class="carousel-container" id="progressCoursesCarousel">
+            <div class="carousel-wrapper">
+                <div class="carousel-track" data-page="0">
+                    {% for item in courses_in_progress %}
+                    <div class="course-card carousel-item" data-index="{{ loop.index0 }}" {% if loop.index0 >= 4 %}style="display: none;"{% endif %} onclick="openCoursePopup({{ item.course.id }}, '{{ item.course.title | e }}', '{{ item.course.instructor_name | e }}', '{{ item.course.category }}', '{{ item.course.color }}', '{{ item.course.description | default("") | e }}', {{ item.course.library_id or 'null' }}, '{{ item.course.image_url | default("") }}')">
+                        <div class="course-img" style="{% if item.course.image_url %}background-image: url('{{ item.course.image_url }}');{% endif %} background-color: {{ item.course.color }};"></div>
+                        <div class="course-body">
+                            <span class="course-category">{{ item.course.category }}</span>
+                            <h3 class="course-title">{{ item.course.title }}</h3>
+                            <p class="course-instructor">{{ item.course.instructor_name }}</p>
+                            <div class="progress-bar-bg">
+                                <div class="progress-fill" style="width: {{ item.progress }}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if courses_in_progress|length > 4 %}
+            <button class="carousel-nav prev hidden" onclick="scrollCarousel('progressCoursesCarousel', -1)"><i class="bi bi-chevron-left"></i></button>
+            <button class="carousel-nav next" onclick="scrollCarousel('progressCoursesCarousel', 1)"><i class="bi bi-chevron-right"></i></button>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="empty-state"><i class="bi bi-journal-bookmark"></i><p>{{ t('home.no_courses') }}</p></div>
+        {% endif %}
+        
+        <!-- Templates Subsection -->
+        <div class="subsection-label">{{ t('home.your_creations') }}</div>
+        {% if templates_in_progress|length > 0 %}
+        <div class="carousel-container" id="progressTemplatesCarousel">
+            <div class="carousel-wrapper">
+                <div class="carousel-track" data-page="0">
+                    {% for item in templates_in_progress %}
+                    <div class="template-card carousel-item" data-index="{{ loop.index0 }}" {% if loop.index0 >= 4 %}style="display: none;"{% endif %} onclick="openTemplatePopup({{ item.template.id }}, '{{ item.template.title | e }}', '{{ item.template.category }}', '{{ item.template.color }}', '{{ item.template.description | default('A template to help you create engaging courses.') | e }}')">
+                        <div class="template-img" style="background-color: {{ item.template.color }};"></div>
+                        <div class="template-body">
+                            <span class="template-category">{{ item.template.category }}</span>
+                            <h3 class="template-title">{{ item.template.title }}</h3>
+                            <div class="progress-bar-bg">
+                                <div class="progress-fill" style="width: {{ item.progress }}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if templates_in_progress|length > 4 %}
+            <button class="carousel-nav prev hidden" onclick="scrollCarousel('progressTemplatesCarousel', -1)"><i class="bi bi-chevron-left"></i></button>
+            <button class="carousel-nav next" onclick="scrollCarousel('progressTemplatesCarousel', 1)"><i class="bi bi-chevron-right"></i></button>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="empty-state"><i class="bi bi-file-earmark-plus"></i><p>{{ t('home.no_templates') }}</p></div>
+        {% endif %}
+    </section>
+    
+    <!-- ==================== RECOMMENDED SECTION ==================== -->
+    <section class="course-section">
+        <div class="section-header">
+            <h2 class="section-title">{{ t('home.think_like') }}</h2>
+        </div>
+        <p class="section-subtitle">{{ t('home.based_interests') }}</p>
+        
+        <!-- Courses Subsection -->
+        <div class="subsection-label">Courses:</div>
+        {% if recommended_courses|length > 0 %}
+        <div class="carousel-container" id="recommendedCoursesCarousel">
+            <div class="carousel-wrapper">
+                <div class="carousel-track" data-page="0">
+                    {% for course in recommended_courses %}
+                    <div class="course-card carousel-item" data-index="{{ loop.index0 }}" {% if loop.index0 >= 4 %}style="display: none;"{% endif %} onclick="openCoursePopup({{ course.id }}, '{{ course.title | e }}', '{{ course.instructor_name | e }}', '{{ course.category }}', '{{ course.color }}', '{{ course.description | default("") | e }}', {{ course.library_id or 'null' }}, '{{ course.image_url | default("") }}')">
+                        <div class="course-img" style="{% if course.image_url %}background-image: url('{{ course.image_url }}');{% endif %} background-color: {{ course.color }};"></div>
+                        <div class="course-body">
+                            <span class="course-category">{{ course.category }}</span>
+                            <h3 class="course-title">{{ course.title }}</h3>
+                            <p class="course-instructor">{{ course.instructor_name }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if recommended_courses|length > 4 %}
+            <button class="carousel-nav prev hidden" onclick="scrollCarousel('recommendedCoursesCarousel', -1)"><i class="bi bi-chevron-left"></i></button>
+            <button class="carousel-nav next" onclick="scrollCarousel('recommendedCoursesCarousel', 1)"><i class="bi bi-chevron-right"></i></button>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="empty-state"><p>Update your interests to see recommendations!</p></div>
+        {% endif %}
+        
+        <!-- Templates Subsection -->
+        <div class="subsection-label">Templates:</div>
+        {% if recommended_templates|length > 0 %}
+        <div class="carousel-container" id="recommendedTemplatesCarousel">
+            <div class="carousel-wrapper">
+                <div class="carousel-track" data-page="0">
+                    {% for template in recommended_templates %}
+                    <div class="template-card carousel-item" data-index="{{ loop.index0 }}" {% if loop.index0 >= 4 %}style="display: none;"{% endif %} onclick="openTemplatePopup({{ template.id }}, '{{ template.title | e }}', '{{ template.category }}', '{{ template.color }}', '{{ template.description | default('A template to help you create engaging courses.') | e }}')">
+                        <div class="template-img" style="background-color: {{ template.color }};"></div>
+                        <div class="template-body">
+                            <span class="template-category">{{ template.category }}</span>
+                            <h3 class="template-title">{{ template.title }}</h3>
+                            <p class="template-usage">{{ template.usage_count }} uses</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if recommended_templates|length > 4 %}
+            <button class="carousel-nav prev hidden" onclick="scrollCarousel('recommendedTemplatesCarousel', -1)"><i class="bi bi-chevron-left"></i></button>
+            <button class="carousel-nav next" onclick="scrollCarousel('recommendedTemplatesCarousel', 1)"><i class="bi bi-chevron-right"></i></button>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="empty-state"><p>Update your teaching interests to see recommendations!</p></div>
+        {% endif %}
+    </section>
+    
+    <!-- ==================== LATEST FROM US SECTION ==================== -->
+    <section class="course-section">
+        <div class="section-header">
+            <h2 class="section-title">{{ t('home.latest') }}</h2>
+            <a href="/lib/library" class="view-all">{{ t('home.view_all') }}</a>
+        </div>
+        <p class="section-subtitle">{{ t('home.explore_new') }}</p>
+        
+        <!-- Courses Subsection -->
+        <div class="subsection-label">Courses:</div>
+        <div class="carousel-container" id="latestCoursesCarousel">
+            <div class="carousel-wrapper">
+                <div class="carousel-track" data-page="0">
+                    {% for course in all_courses %}
+                    <div class="course-card carousel-item" data-index="{{ loop.index0 }}" {% if loop.index0 >= 4 %}style="display: none;"{% endif %} onclick="openCoursePopup({{ course.id }}, '{{ course.title | e }}', '{{ course.instructor_name | e }}', '{{ course.category }}', '{{ course.color }}', '{{ course.description | default("") | e }}', {{ course.library_id or 'null' }}, '{{ course.image_url | default("") }}')">
+                        <div class="course-img" style="{% if course.image_url %}background-image: url('{{ course.image_url }}');{% endif %} background-color: {{ course.color }};"></div>
+                        <div class="course-body">
+                            <span class="course-category">{{ course.category }}</span>
+                            <h3 class="course-title">{{ course.title }}</h3>
+                            <p class="course-instructor">{{ course.instructor_name }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if all_courses|length > 4 %}
+            <button class="carousel-nav prev hidden" onclick="scrollCarousel('latestCoursesCarousel', -1)"><i class="bi bi-chevron-left"></i></button>
+            <button class="carousel-nav next" onclick="scrollCarousel('latestCoursesCarousel', 1)"><i class="bi bi-chevron-right"></i></button>
+            {% endif %}
+        </div>
+        
+        <!-- Templates Subsection -->
+        <div class="subsection-label">Templates:</div>
+        <div class="carousel-container" id="latestTemplatesCarousel">
+            <div class="carousel-wrapper">
+                <div class="carousel-track" data-page="0">
+                    {% for template in all_templates %}
+                    <div class="template-card carousel-item" data-index="{{ loop.index0 }}" {% if loop.index0 >= 4 %}style="display: none;"{% endif %} onclick="openTemplatePopup({{ template.id }}, '{{ template.title | e }}', '{{ template.category }}', '{{ template.color }}', '{{ template.description | default('A template to help you create engaging courses.') | e }}')">
+                        <div class="template-img" style="background-color: {{ template.color }};"></div>
+                        <div class="template-body">
+                            <span class="template-category">{{ template.category }}</span>
+                            <h3 class="template-title">{{ template.title }}</h3>
+                            <p class="template-usage">{{ template.usage_count }} uses</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if all_templates|length > 4 %}
+            <button class="carousel-nav prev hidden" onclick="scrollCarousel('latestTemplatesCarousel', -1)"><i class="bi bi-chevron-left"></i></button>
+            <button class="carousel-nav next" onclick="scrollCarousel('latestTemplatesCarousel', 1)"><i class="bi bi-chevron-right"></i></button>
+            {% endif %}
+        </div>
+    </section>
+    
+    <!-- ==================== SEE WHAT OTHERS ARE CREATING ==================== -->
+    <section class="course-section">
+        <div class="section-header">
+            <h2 class="section-title">{{ t('home.see_others') }}</h2>
+        </div>
+        <p class="section-subtitle">{{ t('home.based_topics') }}</p>
+        
+        <!-- Courses Subsection -->
+        <div class="subsection-label">Courses:</div>
+        {% if related_courses|length > 0 %}
+        <div class="carousel-container" id="relatedCoursesCarousel">
+            <div class="carousel-wrapper">
+                <div class="carousel-track" data-page="0">
+                    {% for course in related_courses %}
+                    <div class="course-card carousel-item" data-index="{{ loop.index0 }}" {% if loop.index0 >= 4 %}style="display: none;"{% endif %} onclick="openCoursePopup({{ course.id }}, '{{ course.title | e }}', '{{ course.instructor_name | e }}', '{{ course.category }}', '{{ course.color }}', '{{ course.description | default("") | e }}', {{ course.library_id or 'null' }}, '{{ course.image_url | default("") }}')">
+                        <div class="course-img" style="{% if course.image_url %}background-image: url('{{ course.image_url }}');{% endif %} background-color: {{ course.color }};"></div>
+                        <div class="course-body">
+                            <span class="course-category">{{ course.category }}</span>
+                            <h3 class="course-title">{{ course.title }}</h3>
+                            <p class="course-instructor">{{ course.instructor_name }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if related_courses|length > 4 %}
+            <button class="carousel-nav prev hidden" onclick="scrollCarousel('relatedCoursesCarousel', -1)"><i class="bi bi-chevron-left"></i></button>
+            <button class="carousel-nav next" onclick="scrollCarousel('relatedCoursesCarousel', 1)"><i class="bi bi-chevron-right"></i></button>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="empty-state"><p>Start using courses or templates to see related content!</p></div>
+        {% endif %}
+        
+        <!-- Templates Subsection -->
+        <div class="subsection-label">Templates:</div>
+        {% if related_templates|length > 0 %}
+        <div class="carousel-container" id="relatedTemplatesCarousel">
+            <div class="carousel-wrapper">
+                <div class="carousel-track" data-page="0">
+                    {% for template in related_templates %}
+                    <div class="template-card carousel-item" data-index="{{ loop.index0 }}" {% if loop.index0 >= 4 %}style="display: none;"{% endif %} onclick="openTemplatePopup({{ template.id }}, '{{ template.title | e }}', '{{ template.category }}', '{{ template.color }}', '{{ template.description | default('A template to help you create engaging courses.') | e }}')">
+                        <div class="template-img" style="background-color: {{ template.color }};"></div>
+                        <div class="template-body">
+                            <span class="template-category">{{ template.category }}</span>
+                            <h3 class="template-title">{{ template.title }}</h3>
+                            <p class="template-usage">{{ template.usage_count }} uses</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if related_templates|length > 4 %}
+            <button class="carousel-nav prev hidden" onclick="scrollCarousel('relatedTemplatesCarousel', -1)"><i class="bi bi-chevron-left"></i></button>
+            <button class="carousel-nav next" onclick="scrollCarousel('relatedTemplatesCarousel', 1)"><i class="bi bi-chevron-right"></i></button>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="empty-state"><p>Start using courses or templates to see related content!</p></div>
+        {% endif %}
+    </section>
+    
+    <!-- ==================== MY COLLECTIONS SECTION ==================== -->
+    <section class="folders-section">
+        <div class="section-header">
+            <h2 class="section-title">{{ t('home.my_collections') }}</h2>
+            <a href="{{ url_for('both_folder_list') }}" class="view-all">{{ t('home.view_all') }}</a>
+        </div>
+        <p class="section-subtitle">{{ t('home.organize') }}</p>
+        
+        <div class="folders-grid">
+            {% for folder in folders %}
+            <a href="{{ url_for('both_folder_view', folder_id=folder.id) }}" class="folder-card" style="background-color: {{ folder.color }}; {% if folder.color in ['#8F7B6A', '#C4B4A7'] %}color: white;{% else %}color: #454545;{% endif %}">
+                <div class="folder-icon">
+                    {% if folder.icon == 'heart' %}<i class="bi bi-heart-fill"></i>
+                    {% elif folder.icon == 'bookmark' %}<i class="bi bi-bookmark-fill"></i>
+                    {% elif folder.icon == 'star' %}<i class="bi bi-star-fill"></i>
+                    {% else %}<i class="bi bi-folder-fill"></i>{% endif %}
+                </div>
+                <span class="folder-name">{{ folder.folder_name }}</span>
+                <span class="folder-count">{{ folder_course_counts.get(folder.id, 0) }} courses · {{ folder_template_counts.get(folder.id, 0) }} templates</span>
+            </a>
+            {% endfor %}
+            <a href="{{ url_for('both_folder_create') }}" class="folder-card add-folder-card">
+                <i class="bi bi-plus-lg"></i>
+                <span>{{ t('home.new_folder') }}</span>
+            </a>
+        </div>
+    </section>
+</div>
+
+<!-- ==================== COURSE POPUP MODAL ==================== -->
+<div class="popup-overlay" id="coursePopup">
+    <div class="popup-modal">
+        <div class="popup-header" id="popupCourseHeader" style="background-color: #FEFAF1;">
+            <button class="popup-close" onclick="closeCoursePopup()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="popup-body">
+            <span class="popup-category" id="popupCourseCategory">Category</span>
+            <h2 class="popup-title" id="popupCourseTitle">Course Title</h2>
+            <p class="popup-instructor" id="popupCourseInstructor">by Instructor</p>
+            <p class="popup-desc" id="popupCourseDesc">Course description.</p>
+            <div class="popup-actions">
+                <a href="#" class="btn-primary-action" id="btnOpenCourse">Open Course</a>
+                <div class="folder-dropdown">
+                    <button class="btn-folder" onclick="toggleCourseFolderDropdown()">
+                        <i class="bi bi-folder-plus"></i>
+                    </button>
+                    <div class="folder-dropdown-content" id="courseFolderDropdown">
+                        {% for folder in folders %}
+                        <button class="folder-dropdown-item" onclick="addCourseToFolder({{ folder.id }})">
+                            <i class="bi bi-{{ folder.icon }}"></i>
+                            {{ folder.folder_name }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== TEMPLATE POPUP MODAL ==================== -->
+<div class="popup-overlay" id="templatePopup">
+    <div class="popup-modal">
+        <div class="popup-header" id="popupTemplateHeader" style="background-color: #FEFAF1;">
+            <button class="popup-close" onclick="closeTemplatePopup()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="popup-body">
+            <span class="popup-category" id="popupTemplateCategory">Category</span>
+            <h2 class="popup-title" id="popupTemplateTitle">Template Title</h2>
+            <p class="popup-desc" id="popupTemplateDesc">Template description.</p>
+            <div class="popup-actions">
+                <a href="#" class="btn-primary-action" id="btnUseTemplate">Use Template</a>
+                <div class="folder-dropdown">
+                    <button class="btn-folder" onclick="toggleTemplateFolderDropdown()">
+                        <i class="bi bi-folder-plus"></i>
+                    </button>
+                    <div class="folder-dropdown-content" id="templateFolderDropdown">
+                        {% for folder in folders %}
+                        <button class="folder-dropdown-item" onclick="addTemplateToFolder({{ folder.id }})">
+                            <i class="bi bi-{{ folder.icon }}"></i>
+                            {{ folder.folder_name }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== FLOATING ACTION BUTTONS ==================== -->
+<div class="fab-container">
+    <div style="position: relative;">
+        <button class="fab fab-chat" id="fabChat" onclick="toggleChatMenu()">
+            <i class="bi bi-chat-square-text"></i>
+        </button>
+        <div class="fab-menu" id="chatFabMenu">
+            <a href="{{ url_for('creation_chatbot') }}"><i class="bi bi-robot" style="margin-right:0.4rem;"></i>Creation AI</a>
+            <a href="{{ url_for('both_chatbot') }}"><i class="bi bi-headset" style="margin-right:0.4rem;"></i>Support AI</a>
+            <a href="/socialhub/"><i class="bi bi-chat-dots" style="margin-right:0.4rem;"></i>Chat</a>
+        </div>
+    </div>
+    <div style="position: relative;">
+        <button class="fab fab-add" id="fabAdd" onclick="toggleFabMenu()">
+            <i class="bi bi-plus"></i>
+        </button>
+        <div class="fab-menu" id="fabMenu">
+            <a href="/lib/create">Create new course</a>
+            <a href="{{ url_for('both_folder_create') }}">New folder</a>
+            <a href="/mentor/templates/all">View Templates</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// --- GLOBAL VARIABLES ---
+let currentCourseId = null;
+let currentTemplateId = null;
+
+// --- FAB MENU TOGGLE ---
+function toggleFabMenu() {
+    document.getElementById('fabMenu').classList.toggle('show');
+    document.getElementById('chatFabMenu').classList.remove('show');
+}
+
+function toggleChatMenu() {
+    document.getElementById('chatFabMenu').classList.toggle('show');
+    document.getElementById('fabMenu').classList.remove('show');
+}
+
+// Close FAB menus when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.fab-add') && !e.target.closest('#fabMenu')) {
+        document.getElementById('fabMenu').classList.remove('show');
+    }
+    if (!e.target.closest('.fab-chat') && !e.target.closest('#chatFabMenu')) {
+        document.getElementById('chatFabMenu').classList.remove('show');
+    }
+});
+
+// --- CAROUSEL NAVIGATION ---
+function scrollCarousel(containerId, direction) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    const track = container.querySelector('.carousel-track');
+    const cards = track.querySelectorAll('.carousel-item');
+    const totalCards = cards.length;
+    
+    if (totalCards === 0) return;
+    
+    let currentPage = parseInt(track.dataset.page) || 0;
+    const totalPages = Math.ceil(totalCards / 4);
+    
+    currentPage += direction;
+    if (currentPage < 0) currentPage = 0;
+    if (currentPage >= totalPages) currentPage = totalPages - 1;
+    
+    track.dataset.page = currentPage;
+    
+    const startIndex = currentPage * 4;
+    const endIndex = startIndex + 4;
+    
+    cards.forEach((card, index) => {
+        card.style.display = (index >= startIndex && index < endIndex) ? '' : 'none';
+    });
+    
+    const prevBtn = container.querySelector('.carousel-nav.prev');
+    const nextBtn = container.querySelector('.carousel-nav.next');
+    
+    if (prevBtn) prevBtn.classList.toggle('hidden', currentPage === 0);
+    if (nextBtn) nextBtn.classList.toggle('hidden', currentPage >= totalPages - 1);
+}
+
+// --- COURSE POPUP FUNCTIONS ---
+function openCoursePopup(id, title, instructor, category, color, description, libraryId, imageUrl) {
+    currentCourseId = id;
+    // Set popup header: show image if available, otherwise use color
+    var header = document.getElementById('popupCourseHeader');
+    if (imageUrl) {
+        header.style.backgroundImage = "url('" + imageUrl + "')";
+        header.style.backgroundColor = color;
+    } else {
+        header.style.backgroundImage = 'none';
+        header.style.backgroundColor = color;
+    }
+    document.getElementById('popupCourseCategory').textContent = category;
+    document.getElementById('popupCourseTitle').textContent = title;
+    document.getElementById('popupCourseInstructor').textContent = 'by ' + instructor;
+    document.getElementById('popupCourseDesc').textContent = description || ('Learn ' + category.toLowerCase() + ' skills with ' + instructor + '.');
+    // Set up Open Course button: track progress then navigate
+    var btn = document.getElementById('btnOpenCourse');
+    btn.onclick = function(e) {
+        e.preventDefault();
+        // Track progress via AJAX
+        fetch('/api/track-course/' + id, { method: 'POST' })
+            .then(function() {
+                if (libraryId) {
+                    window.location.href = '/lib/course/' + libraryId + '/learn';
+                } else {
+                    window.location.href = '/course/' + id;
+                }
+            })
+            .catch(function() {
+                if (libraryId) {
+                    window.location.href = '/lib/course/' + libraryId + '/learn';
+                } else {
+                    window.location.href = '/course/' + id;
+                }
+            });
+    };
+    btn.href = '#';
+    document.getElementById('coursePopup').classList.add('active');
+    document.getElementById('courseFolderDropdown').classList.remove('show');
+}
+
+function closeCoursePopup() {
+    document.getElementById('coursePopup').classList.remove('active');
+    document.getElementById('courseFolderDropdown').classList.remove('show');
+    currentCourseId = null;
+}
+
+function toggleCourseFolderDropdown() {
+    document.getElementById('courseFolderDropdown').classList.toggle('show');
+}
+
+async function addCourseToFolder(folderId) {
+    try {
+        const response = await fetch('/folder/' + folderId + '/add-course/' + currentCourseId, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
+        document.getElementById('courseFolderDropdown').classList.remove('show');
+        const btn = document.querySelector('#coursePopup .btn-folder');
+        btn.innerHTML = '<i class="bi bi-check"></i>';
+        setTimeout(() => { btn.innerHTML = '<i class="bi bi-folder-plus"></i>'; }, 1500);
+    } catch (error) {
+        console.error('Error adding course to folder:', error);
+    }
+}
+
+// --- TEMPLATE POPUP FUNCTIONS ---
+function openTemplatePopup(id, title, category, color, description) {
+    currentTemplateId = id;
+    document.getElementById('popupTemplateHeader').style.backgroundColor = color;
+    document.getElementById('popupTemplateHeader').style.backgroundImage = 'none';
+    document.getElementById('popupTemplateCategory').textContent = category;
+    document.getElementById('popupTemplateTitle').textContent = title;
+    document.getElementById('popupTemplateDesc').textContent = description;
+    // Track progress on Use Template click
+    var btn = document.getElementById('btnUseTemplate');
+    btn.onclick = function(e) {
+        e.preventDefault();
+        fetch('/api/track-template/' + id, { method: 'POST' })
+            .then(function() { window.location.href = '/template/' + id; })
+            .catch(function() { window.location.href = '/template/' + id; });
+    };
+    btn.href = '#';
+    document.getElementById('templatePopup').classList.add('active');
+    document.getElementById('templateFolderDropdown').classList.remove('show');
+}
+
+function closeTemplatePopup() {
+    document.getElementById('templatePopup').classList.remove('active');
+    document.getElementById('templateFolderDropdown').classList.remove('show');
+    currentTemplateId = null;
+}
+
+function toggleTemplateFolderDropdown() {
+    document.getElementById('templateFolderDropdown').classList.toggle('show');
+}
+
+async function addTemplateToFolder(folderId) {
+    try {
+        const response = await fetch('/folder/' + folderId + '/add-template/' + currentTemplateId, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
+        document.getElementById('templateFolderDropdown').classList.remove('show');
+        const btn = document.querySelector('#templatePopup .btn-folder');
+        btn.innerHTML = '<i class="bi bi-check"></i>';
+        setTimeout(() => { btn.innerHTML = '<i class="bi bi-folder-plus"></i>'; }, 1500);
+    } catch (error) {
+        console.error('Error adding template to folder:', error);
+    }
+}
+
+// --- CLOSE POPUPS ON OVERLAY CLICK ---
+document.getElementById('coursePopup').addEventListener('click', function(e) {
+    if (e.target === this) closeCoursePopup();
+});
+document.getElementById('templatePopup').addEventListener('click', function(e) {
+    if (e.target === this) closeTemplatePopup();
+});
+
+// --- CLOSE ON ESCAPE KEY ---
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeCoursePopup();
+        closeTemplatePopup();
+    }
+});
+
+// --- CLOSE DROPDOWNS WHEN CLICKING OUTSIDE ---
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.folder-dropdown')) {
+        document.getElementById('courseFolderDropdown').classList.remove('show');
+        document.getElementById('templateFolderDropdown').classList.remove('show');
+    }
+});
+</script>
+{% endblock %}

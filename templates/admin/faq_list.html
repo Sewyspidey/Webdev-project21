@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}FAQ Management - BridgeHive{% endblock %}
+
+{% block navbar %}
+{% include 'includes/navbar_new.html' %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background-color: #8F7B6A;
+        color: white;
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .admin-header h1 { font-family: 'Playfair Display', serif; font-size: 1.5rem; }
+    .admin-content { padding: 2rem; }
+    .btn-back {
+        background: white;
+        color: #454545;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        margin-right: 0.5rem;
+    }
+    .btn-add {
+        background: white;
+        color: #454545;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        text-decoration: none;
+    }
+    .faq-table {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #FEFAF1; padding: 1rem; text-align: left; font-weight: 600; }
+    td { padding: 1rem; border-bottom: 1px solid #EDEDE5; }
+    tr:last-child td { border-bottom: none; }
+    .badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+    }
+    .badge-active { background: rgba(74,124,89,0.15); color: #4A7C59; }
+    .badge-inactive { background: rgba(197,75,75,0.15); color: #C54B4B; }
+    .action-btn {
+        padding: 0.35rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        text-decoration: none;
+        margin-right: 0.25rem;
+    }
+    .btn-edit { background: #FEFAF1; color: #454545; }
+    .btn-delete { background: rgba(197,75,75,0.1); color: #C54B4B; border: none; cursor: pointer; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <h1>FAQ Management</h1>
+    <div>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn-back">← Back</a>
+        <a href="{{ url_for('admin_faq_create') }}" class="btn-add">+ Add FAQ</a>
+    </div>
+</div>
+
+<div class="admin-content">
+    <div class="faq-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Question</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for faq in faqs %}
+                <tr>
+                    <td>#{{ faq.id }}</td>
+                    <td style="max-width: 300px;">{{ faq.question[:60] }}{% if faq.question|length > 60 %}...{% endif %}</td>
+                    <td>{{ faq.category }}</td>
+                    <td>
+                        {% if faq.is_active %}
+                            <span class="badge badge-active">Active</span>
+                        {% else %}
+                            <span class="badge badge-inactive">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('admin_faq_edit', faq_id=faq.id) }}" class="action-btn btn-edit">Edit</a>
+                        <form action="{{ url_for('admin_faq_delete', faq_id=faq.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Delete this FAQ?');">
+                            <button type="submit" class="action-btn btn-delete">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,511 @@
+{% extends "lib/base.html" %}
+
+{% block title %}{{ course.title }} - Learning Path{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: none;
+        color: #2a2a2a;
+    }
+
+    .learning-shell {
+        padding: 40px 0 30px;
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .breadcrumb-ent {
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 12px;
+        padding: 12px 18px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        animation: slideInDown 0.5s ease-out;
+    }
+
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-15px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .breadcrumb-ent a {
+        color: var(--color-primary);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .breadcrumb-ent a:hover {
+        color: var(--color-primary-hover);
+        text-decoration: underline;
+        transform: translateX(4px);
+    }
+
+    .learning-header {
+        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent-pink) 100%);
+        color: white;
+        padding: 40px 32px;
+        border-radius: 18px;
+        margin-bottom: 32px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        animation: slideInUp 0.6s ease-out;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .learning-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) translateX(0px); }
+        50% { transform: translateY(-20px) translateX(10px); }
+    }
+
+    .learning-hero {
+        width: 220px;
+        height: 140px;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+        flex-shrink: 0;
+        background: rgba(255, 255, 255, 0.2);
+        animation: zoomIn 0.6s ease-out;
+        position: relative;
+    }
+
+    @keyframes zoomIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .learning-hero img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.6s ease;
+    }
+
+    .learning-header:hover .learning-hero img {
+        transform: scale(1.08);
+    }
+
+    .progress-bar-custom {
+        height: 12px;
+        background-color: rgba(255, 255, 255, 0.25);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #10b981, #34d399);
+        border-radius: 12px;
+        transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+    }
+
+    .module-card {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 2px solid transparent;
+        text-decoration: none;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        animation: slideInUp 0.5s ease-out backwards;
+        position: relative;
+    }
+
+    .module-card:nth-child(1) { animation-delay: 0.1s; }
+    .module-card:nth-child(2) { animation-delay: 0.2s; }
+    .module-card:nth-child(3) { animation-delay: 0.3s; }
+    .module-card:nth-child(4) { animation-delay: 0.4s; }
+    .module-card:nth-child(5) { animation-delay: 0.5s; }
+    .module-card:nth-child(6) { animation-delay: 0.6s; }
+
+    .module-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 48px rgba(44, 62, 80, 0.25);
+        border-color: var(--color-primary);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.99), rgba(248, 180, 180, 0.03));
+    }
+
+    .module-card.completed {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(52, 211, 153, 0.08));
+        border-color: #10b981;
+        position: relative;
+    }
+
+    .module-card.completed::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: linear-gradient(to bottom, #10b981, #34d399);
+        border-radius: 16px 0 0 16px;
+    }
+
+    .module-card.current {
+        background: linear-gradient(135deg, rgba(44, 62, 80, 0.08), rgba(248, 180, 180, 0.08));
+        border-color: var(--color-primary);
+        position: relative;
+    }
+
+    .module-card.current::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: linear-gradient(to bottom, #2C3E50, #1a252f);
+        border-radius: 16px 0 0 16px;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .module-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+        color: white;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .module-card:hover .module-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .module-card.completed .module-icon {
+        background: linear-gradient(135deg, #10b981, #34d399);
+        box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+    }
+
+    .module-card.current .module-icon {
+        background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+        box-shadow: 0 8px 16px rgba(44, 62, 80, 0.3);
+        animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-4px); }
+    }
+
+    .module-card.pending .module-icon {
+        background: #e5e7eb;
+        color: #6b7280;
+    }
+
+    .module-card.pending {
+        opacity: 0.75;
+        cursor: not-allowed;
+    }
+
+    .module-card.pending:hover {
+        transform: none;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        border-color: transparent;
+        background: white;
+    }
+
+    .module-info {
+        flex: 1;
+    }
+
+    .module-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+
+    .module-meta {
+        font-size: 0.9rem;
+        color: #666;
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .module-meta span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .module-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .module-status.completed { color: #10b981; }
+    .module-status.current { color: #667eea; }
+    .module-status.pending { color: #9ca3af; }
+
+    .resources-section {
+        background: white;
+        border-radius: 16px;
+        padding: 26px;
+        margin-top: 32px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .resource-item {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 14px;
+        border-left: 4px solid #667eea;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .resource-type-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .resource-type-icon.video { background: #ef4444; }
+    .resource-type-icon.pdf { background: #f97316; }
+    .resource-type-icon.article { background: #10b981; }
+    .resource-type-icon.ebook { background: #3b82f6; }
+    .resource-type-icon.link { background: #6b7280; }
+
+    .resource-title { font-weight: 700; margin-bottom: 4px; }
+    .resource-type { font-size: 0.85rem; color: #666; }
+
+    .action-buttons {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+        flex-wrap: wrap;
+    }
+
+    .btn-back {
+        background: white;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-back:hover { background: #f0f4ff; }
+
+    .btn-start {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+    }
+
+    .btn-start:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 22px rgba(102, 126, 234, 0.3);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #d1d5db;
+        margin-bottom: 16px;
+    }
+
+    @media (max-width: 768px) {
+        .learning-header h1 { font-size: 1.8rem; }
+        .module-card { flex-direction: column; text-align: center; }
+        .module-meta { justify-content: center; }
+        .learning-hero { width: 100%; height: 180px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="no-particles" hidden></div>
+<div class="learning-shell">
+    <div class="container-lg">
+        <div class="breadcrumb-ent mb-4">
+            <a href="/lib/library" class="breadcrumb-item">
+                <i class="fas fa-home me-1"></i> Library
+            </a>
+            <span class="breadcrumb-item active">
+                <i class="fas fa-book me-1"></i> {{ course.title }}
+            </span>
+        </div>
+
+        <div class="learning-header">
+            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+                <div>
+                    <h1 class="mb-2">{{ course.title }}</h1>
+                    <p class="mb-0">{{ course.description }}</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge bg-light text-dark fs-6">{{ modules|length }} Lessons</span>
+                    <div class="learning-hero">
+                        <img src="{{ course.image_url or '' }}" alt="{{ course.title }}" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800';">
+                    </div>
+                </div>
+            </div>
+            <div class="progress-wrapper mt-3">
+                <div class="progress-bar-custom">
+                    <div class="progress-bar-fill" data-progress="{{ completion_percentage|round(0) }}"></div>
+                </div>
+                <div class="progress-text mt-2">
+                    <span id="modulesCompleted">{{ completed_modules }}</span> of
+                    <span id="totalModules">{{ total_modules }}</span> lessons completed
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mb-3">
+            <i class="fas fa-book-open me-2" style="color: var(--color-primary);"></i>
+            <h4 class="mb-0" style="color: var(--color-primary);">Course Modules</h4>
+        </div>
+
+        {% if modules %}
+            <div>
+                {% for module in modules %}
+                    {% set is_completed = module.id in completed_ids %}
+                    {% set is_current = (not is_completed) and (module.id == current_module_id) %}
+                    {% set card_class = 'completed' if is_completed else ('current' if is_current else 'pending') %}
+                    {% if card_class == 'pending' %}
+                        {% set module_href = '#' %}
+                    {% else %}
+                        {% set module_href = url_for('lib.view_module', course_id=course.id, module_id=module.id) %}
+                    {% endif %}
+                    <a href="{{ module_href }}" class="text-decoration-none" {% if card_class == 'pending' %}aria-disabled="true"{% endif %}>
+                        <div class="module-card {{ card_class }}">
+                            <div class="module-icon">
+                                {% if is_completed %}
+                                    <i class="fas fa-check"></i>
+                                {% elif is_current %}
+                                    <i class="fas fa-play"></i>
+                                {% else %}
+                                    <i class="fas fa-book"></i>
+                                {% endif %}
+                            </div>
+                            <div class="module-info">
+                                <div class="module-title">{{ module.title }}</div>
+                                <div class="module-meta">
+                                    <span><i class="far fa-clock"></i> {{ module.duration_mins }} minutes</span>
+                                    <span><i class="fas fa-video"></i> {{ module.content_type|capitalize or 'Video' }}</span>
+                                    <span><i class="fas fa-bookmark"></i> Module {{ loop.index }}</span>
+                                </div>
+                            </div>
+                            <div class="module-status {{ card_class }}">
+                                {% if is_completed %}
+                                    <i class="fas fa-check-circle"></i> Completed
+                                {% elif is_current %}
+                                    <i class="fas fa-play-circle"></i> In Progress
+                                {% else %}
+                                    <i class="fas fa-hourglass-start"></i> Pending
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>No modules available for this course yet.</p>
+            </div>
+        {% endif %}
+
+
+
+        <div class="action-buttons">
+            <a href="{{ url_for('lib.course_view', course_id=course.id) }}" class="btn btn-lg btn-back">
+                <i class="fas fa-arrow-left me-2"></i> Back to Course
+            </a>
+            {% if modules %}
+                {% set target_module_id = current_module_id or modules[0].id %}
+                <a href="{{ url_for('lib.view_module', course_id=course.id, module_id=target_module_id) }}" class="btn btn-lg btn-start">
+                    <i class="fas fa-play-circle me-2"></i> {{ 'Resume Learning' if completed_modules else 'Start Learning' }}
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Apply progress widths after render to avoid template syntax in inline styles triggering validators
+    document.querySelectorAll('[data-progress]').forEach(bar => {
+        const pct = Number(bar.dataset.progress) || 0;
+        bar.style.width = `${pct}%`;
+    });
+</script>
+{% endblock %}
