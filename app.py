@@ -614,7 +614,7 @@ def translate(key, locale='en'):
     return TRANSLATIONS.get(locale, {}).get(key, TRANSLATIONS['en'].get(key, key))
 
 # --- PUT YOUR GEMINI API KEY HERE ---
-GEMINI_API_KEY = "AIzaSyCQaFzVGWC8IVav7MCHeRmUxo2qOPP-yW4"  # Replace with your actual API key from https://aistudio.google.com/app/apikey
+GEMINI_API_KEY = "AIzaSyD4a-eKozA1NfafEvB7zlOZkbY_RcgXPM4"  # Replace with your actual API key from https://aistudio.google.com/app/apikey
 
 # System prompt - this tells the AI how to behave and what to answer
 # The AI will follow these instructions for every conversation
