@@ -20,29 +20,149 @@
 <style>body { padding-top: 60px; box-sizing: border-box; } .app-navbar { display: none !important; } .avatar-grandma { background: #8D7F73 !important; } .avatar-uncle { background: #5C6BC0 !important; } .avatar-default { background: #D9534F !important; }</style>
 
 <div class="app-container">
-    
     <aside class="sidebar-left d-none d-lg-block">
         <h6 class="group-title">Menu</h6>
+        
         <a href="{{ url_for('socialhub.feed', user=user.username) }}" class="nav-link"><i class="fas fa-stream"></i> Feed</a>
         <a href="{{ url_for('socialhub.explore', user=user.username) }}" class="nav-link"><i class="far fa-compass"></i> Explore</a>
-        <a href="{{ url_for('socialhub.saved', user=user.username) }}" class="nav-link active"><i class="fas fa-bookmark"></i> Saved</a>
+        <a href="{{ url_for('socialhub.saved', user=user.username) }}" class="nav-link active"><i class="far fa-bookmark"></i> Saved</a>
         
-        <h6 class="group-title">My Communities</h6>
-        <a href="#" class="nav-link"><span class="hive-icon" style="background:#D4A373;">DE</span> Dialect Exchange</a>
-        <a href="#" class="nav-link"><span class="hive-icon" style="background:#CCD5AE;">GP</span> Gardening Pros</a>
+        <div class="d-flex align-items-center justify-content-between mt-4 mb-2 px-2">
+            <h6 class="group-title mb-0 mt-0" style="font-size: 0.75rem;">MY COMMUNITIES</h6>
+            <a href="{{ url_for('socialhub.explore', user=user.username) }}" class="text-muted small text-decoration-none hover-dark">
+                <i class="fas fa-plus"></i>
+            </a>
+        </div>
+
+        <a href="{{ url_for('socialhub.community', name='Dialect Exchange', user=user.username) }}" 
+        class="nav-link community-item mb-1 {{ 'active-community' if community and community.name == 'Dialect Exchange' else '' }}" {% if community and community.name == 'Dialect Exchange' %}style="background-color: #A67C52;"{% endif %}>
+            
+            <span class="hive-icon" style="background:#D4A373;">DE</span> 
+            <span class="text-truncate">Dialect Exchange</span>
+            
+            {% if not (community and community.name == 'Dialect Exchange') %}
+            <span class="community-badge">5</span>
+            {% endif %}
+
+            <div class="community-hover-menu" onclick="event.preventDefault(); alert('Options: Mute, Leave, Pin');">
+                <i class="fas fa-ellipsis-h"></i>
+            </div>
+        </a>
+
+        <a href="{{ url_for('socialhub.community', name='Gardening Pros', user=user.username) }}" 
+        class="nav-link community-item mb-1 {{ 'active-community' if community and community.name == 'Gardening Pros' else '' }}" {% if community and community.name == 'Gardening Pros' %}style="background-color: #7A8B62;"{% endif %}>
+            
+            <span class="hive-icon" style="background:#CCD5AE;">GP</span> 
+            <span class="text-truncate">Gardening Pros</span>
+            
+            <div class="community-hover-menu" onclick="event.preventDefault(); alert('Options: Mute, Leave, Pin');">
+                <i class="fas fa-ellipsis-h"></i>
+            </div>
+        </a>
+
+        <a href="{{ url_for('socialhub.explore', user=user.username) }}" class="btn-join-sleek">
+            <i class="fas fa-search me-2"></i> Join New Hive
+        </a>
     </aside>
 
     <main class="feed-content">
+        
         <div class="d-flex align-items-end justify-content-between mb-4">
             <div>
-                <h1 style="font-family: 'Playfair Display', serif; font-weight: 700; color: #2D3748; margin-bottom: 5px;">Saved Posts</h1>
-                <p class="text-muted small mb-0">Community discussions and memories.</p>
+                <h1 style="font-family: 'Playfair Display', serif; font-weight: 700; color: #2D3748; margin-bottom: 5px;">Saved Library</h1>
+                <p class="text-muted small mb-0">3 Collections • 12 Saved Items</p>
             </div>
             
             <div class="filter-tabs">
-                <a href="{{ url_for('socialhub.saved', user=user.username) }}">All</a>
-                <span class="tab-item active">Posts</span>
+                <span class="tab-item active">All</span>
+                <a href="{{ url_for('socialhub.saved_posts', user=user.username) }}">Posts</a>
                 <a href="{{ url_for('socialhub.saved_resources', user=user.username) }}">Resources</a>
+            </div>
+        </div>
+
+        <h5 class="widget-title mb-3 fs-6">My Collections</h5>
+        <div class="row g-3 mb-5">
+            <div class="col-md-4">
+                <div class="collection-card">
+                    <div class="folder-icon"><i class="fas fa-folder"></i></div>
+                    <div>
+                        <div class="fw-bold">Recipes</div>
+                        <div class="small text-muted">5 items</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="collection-card">
+                    <div class="folder-icon" style="background:#EBF8FF; color:#3182CE;">
+                        <i class="fas fa-folder-open"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="fw-bold">Tech Tips</div>
+                            <div class="shared-avatars">
+                                <span class="avatar-tiny" style="background:#8D7F73;">G</span>
+                                <span class="avatar-tiny" style="background:#5C6BC0;">U</span>
+                            </div>
+                        </div>
+                        <div class="small text-muted">Shared • 3 items</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ url_for('socialhub.create_collection', user=user.username) }}" class="text-decoration-none">
+                    <div class="collection-card dashed-border h-100 justify-content-center">
+                        <div class="folder-icon bg-light text-muted"><i class="fas fa-plus"></i></div>
+                        <div class="fw-bold text-muted">New Collection</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <h5 class="widget-title mb-3 fs-6">Recently Saved</h5>
+        
+        <div class="saved-card flex-column align-items-stretch">
+            <div class="d-flex align-items-center gap-3 w-100">
+                <div class="saved-icon-box" style="background-color: #EBF8FF; color: #3182CE;">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+                
+                <div class="saved-content">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge bg-light text-primary border border-primary-subtle" style="font-size:0.65rem;">VIDEO</span>
+                        <small class="text-muted" style="font-size: 0.75rem;">Saved today</small>
+                    </div>
+                    <h6 class="fw-bold mb-1">Digital Banking 101</h6>
+                    <p class="small text-muted mb-0 text-truncate">Step-by-step guide to setting up PayLah! safely.</p>
+                </div>
+                
+                <div class="d-flex gap-2 ms-auto">
+                    <button class="btn btn-sm btn-light border" title="Mark as Learned"><i class="far fa-check-circle"></i></button>
+                    <button class="btn btn-sm btn-light border text-primary"><i class="fas fa-bookmark"></i></button>
+                </div>
+            </div>
+
+            <div class="personal-note mt-3">
+                <i class="fas fa-sticky-note text-warning me-2"></i>
+                <span class="small text-muted fst-italic">"Ask Jason to help me verify the OTP part this weekend."</span>
+                <span class="small ms-auto text-muted cursor-pointer fw-bold">Edit</span>
+            </div>
+        </div>
+
+        <div class="saved-card">
+            <div class="saved-icon-box" style="background-color: #F0FFF4; color: #38A169;">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="saved-content">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="badge bg-light text-success border border-success-subtle" style="font-size:0.65rem;">GUIDE</span>
+                    <small class="text-muted" style="font-size: 0.75rem;">Saved yesterday</small>
+                </div>
+                <h6 class="fw-bold mb-1">Gardening: Aloe Vera Care</h6>
+                <p class="small text-muted mb-0 text-truncate">Best soil mix and watering schedule for succulents.</p>
+            </div>
+            <div class="d-flex gap-2 ms-auto">
+                <button class="btn btn-sm btn-light border"><i class="fas fa-share"></i></button>
+                <button class="btn btn-sm btn-light border text-primary"><i class="fas fa-bookmark"></i></button>
             </div>
         </div>
 
@@ -57,32 +177,13 @@
                 </div>
                 <h6 class="fw-bold mb-1">Grandma Lee's Sambal Recipe</h6>
                 <p class="small text-muted mb-0 text-truncate">"The secret is in the dried shrimp..."</p>
-                <div class="d-flex align-items-center mt-2 small text-muted">
-                    <div class="avatar-circle xsmall me-2" style="width:20px; height:20px; font-size:10px; background:#8D7F73;">G</div>
-                    Grandma Lee
-                </div>
             </div>
-            <div class="saved-action"><i class="fas fa-bookmark"></i></div>
+            <div class="d-flex gap-2 ms-auto">
+                <button class="btn btn-sm btn-light border"><i class="fas fa-share"></i></button>
+                <button class="btn btn-sm btn-light border text-primary"><i class="fas fa-bookmark"></i></button>
+            </div>
         </div>
 
-        <div class="saved-card">
-            <div class="saved-icon-box" style="background-color: #F0FFF4; color: #38A169;">
-                <i class="fas fa-comment-dots"></i>
-            </div>
-            <div class="saved-content">
-                <div class="d-flex align-items-center gap-2 mb-1">
-                    <span class="badge bg-light text-success border border-success-subtle" style="font-size:0.65rem;">DISCUSSION</span>
-                    <small class="text-muted" style="font-size: 0.75rem;">Saved last week</small>
-                </div>
-                <h6 class="fw-bold mb-1">Best places to buy vintage electronics?</h6>
-                <p class="small text-muted mb-0 text-truncate">Looking for a radio repair shop in Sim Lim Square.</p>
-                <div class="d-flex align-items-center mt-2 small text-muted">
-                    <div class="avatar-circle xsmall me-2" style="width:20px; height:20px; font-size:10px; background:#5C6BC0;">U</div>
-                    Uncle Tan
-                </div>
-            </div>
-            <div class="saved-action"><i class="fas fa-bookmark"></i></div>
-        </div>
     </main>
 
     <aside class="sidebar-right d-none d-xl-block">
@@ -105,6 +206,7 @@
             {% endfor %}
         </div>
     </aside>
+
 </div>
 
 <div class="chat-widget collapsed" id="chatWidget">
