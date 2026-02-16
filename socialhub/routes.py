@@ -5,6 +5,8 @@ from . import socialhub_bp, socketio
 from flask_socketio import emit
 from sqlalchemy import or_
 from sqlalchemy.exc import OperationalError, ProgrammingError
+from sqlalchemy.exc import SQLAlchemyError
+from types import SimpleNamespace
 
 # These will be set by init_socialhub_routes()
 SHUser = None
@@ -33,6 +35,10 @@ def get_main_user():
     return None
 
 
+def fallback_socialhub_user(username='Guest_User'):
+    return SimpleNamespace(id=0, username=username)
+
+
 def ensure_socialhub_users():
     """Ensure SocialHub has baseline users so routes don't fail in fresh deployments."""
     if SHUser.query.count() == 0:
@@ -49,15 +55,26 @@ def get_current_socialhub_user(username_param=None):
     try:
         ensure_socialhub_users()
     except (OperationalError, ProgrammingError):
-        db.create_all()
-        ensure_socialhub_users()
+        try:
+            db.create_all()
+            ensure_socialhub_users()
+        except (OperationalError, ProgrammingError, SQLAlchemyError):
+            return fallback_socialhub_user(username_param or 'Guest_User')
+    except SQLAlchemyError:
+        return fallback_socialhub_user(username_param or 'Guest_User')
 
     if username_param:
-        user = SHUser.query.filter_by(username=username_param).first()
-        if user:
-            return user
+        try:
+            user = SHUser.query.filter_by(username=username_param).first()
+            if user:
+                return user
+        except SQLAlchemyError:
+            return fallback_socialhub_user(username_param)
 
-    return SHUser.query.first()
+    try:
+        return SHUser.query.first() or fallback_socialhub_user(username_param or 'Guest_User')
+    except SQLAlchemyError:
+        return fallback_socialhub_user(username_param or 'Guest_User')
 
 # --- 1. NAVIGATION ---
 
@@ -65,10 +82,24 @@ def get_current_socialhub_user(username_param=None):
 def feed():
     username_param = request.args.get('user')
     currentUser = get_current_socialhub_user(username_param)
-    
-    posts = SHPost.query.order_by(SHPost.timestamp.desc()).limit(20).all()
-    all_users = SHUser.query.filter(SHUser.username != currentUser.username).all() if currentUser else []
-    user_likes = [like.post_id for like in SHLike.query.filter_by(user_id=currentUser.id).all()] if currentUser else []
+
+    posts = []
+    all_users = []
+    user_likes = []
+    try:
+        posts = SHPost.query.order_by(SHPost.timestamp.desc()).limit(20).all()
+    except SQLAlchemyError:
+        posts = []
+
+    if currentUser and getattr(currentUser, 'id', 0) != 0:
+        try:
+            all_users = SHUser.query.filter(SHUser.username != currentUser.username).all()
+        except SQLAlchemyError:
+            all_users = []
+        try:
+            user_likes = [like.post_id for like in SHLike.query.filter_by(user_id=currentUser.id).all()]
+        except SQLAlchemyError:
+            user_likes = []
     
     return render_template('socialhub/feed.html', posts=posts, user=currentUser, community_users=all_users, user_likes=user_likes, main_user=get_main_user())
 
@@ -76,29 +107,44 @@ def feed():
 def explore():
     username_param = request.args.get('user')
     currentUser = get_current_socialhub_user(username_param)
-    community_users = SHUser.query.filter(SHUser.username != currentUser.username).all() if currentUser else []
-    trending_posts = SHPost.query.limit(2).all()
+    try:
+        community_users = SHUser.query.filter(SHUser.username != currentUser.username).all() if currentUser and getattr(currentUser, 'id', 0) != 0 else []
+    except SQLAlchemyError:
+        community_users = []
+    try:
+        trending_posts = SHPost.query.limit(2).all()
+    except SQLAlchemyError:
+        trending_posts = []
     return render_template('socialhub/explore.html', user=currentUser, community_users=community_users, posts=trending_posts, main_user=get_main_user())
 
 @socialhub_bp.route('/saved')
 def saved():
     username_param = request.args.get('user')
     currentUser = get_current_socialhub_user(username_param)
-    community_users = SHUser.query.filter(SHUser.username != currentUser.username).all() if currentUser else []
+    try:
+        community_users = SHUser.query.filter(SHUser.username != currentUser.username).all() if currentUser and getattr(currentUser, 'id', 0) != 0 else []
+    except SQLAlchemyError:
+        community_users = []
     return render_template('socialhub/saved.html', user=currentUser, community_users=community_users, main_user=get_main_user())
 
 @socialhub_bp.route('/saved/posts')
 def saved_posts():
     username_param = request.args.get('user')
     currentUser = get_current_socialhub_user(username_param)
-    community_users = SHUser.query.filter(SHUser.username != currentUser.username).all() if currentUser else []
+    try:
+        community_users = SHUser.query.filter(SHUser.username != currentUser.username).all() if currentUser and getattr(currentUser, 'id', 0) != 0 else []
+    except SQLAlchemyError:
+        community_users = []
     return render_template('socialhub/saved_posts.html', user=currentUser, community_users=community_users, main_user=get_main_user())
 
 @socialhub_bp.route('/saved/resources')
 def saved_resources():
     username_param = request.args.get('user')
     currentUser = get_current_socialhub_user(username_param)
-    community_users = SHUser.query.filter(SHUser.username != currentUser.username).all() if currentUser else []
+    try:
+        community_users = SHUser.query.filter(SHUser.username != currentUser.username).all() if currentUser and getattr(currentUser, 'id', 0) != 0 else []
+    except SQLAlchemyError:
+        community_users = []
     return render_template('socialhub/saved_resources.html', user=currentUser, community_users=community_users, main_user=get_main_user())
 
 @socialhub_bp.route('/collections/new')
@@ -249,7 +295,10 @@ def delete_comment():
 def community(name):
     username_param = request.args.get('user')
     currentUser = get_current_socialhub_user(username_param)
-    community_users = SHUser.query.filter(SHUser.username != currentUser.username).all() if currentUser else []
+    try:
+        community_users = SHUser.query.filter(SHUser.username != currentUser.username).all() if currentUser and getattr(currentUser, 'id', 0) != 0 else []
+    except SQLAlchemyError:
+        community_users = []
     
     # MOCK Community Data
     community_data = {}
@@ -281,7 +330,13 @@ def community(name):
             'is_joined': False
         }
 
-    posts = SHPost.query.order_by(SHPost.timestamp.desc()).limit(10).all()
-    user_likes = [like.post_id for like in SHLike.query.filter_by(user_id=currentUser.id).all()] if currentUser else []
+    try:
+        posts = SHPost.query.order_by(SHPost.timestamp.desc()).limit(10).all()
+    except SQLAlchemyError:
+        posts = []
+    try:
+        user_likes = [like.post_id for like in SHLike.query.filter_by(user_id=currentUser.id).all()] if currentUser and getattr(currentUser, 'id', 0) != 0 else []
+    except SQLAlchemyError:
+        user_likes = []
 
     return render_template('socialhub/community.html', user=currentUser, community_users=community_users, community=community_data, posts=posts, user_likes=user_likes, main_user=get_main_user())
