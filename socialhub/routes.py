@@ -36,12 +36,27 @@ def get_main_user():
 @socialhub_bp.route('/', methods=['GET'])
 def feed():
     username_param = request.args.get('user')
+    
+    # Try to find specific user or first user
     if username_param:
         currentUser = SHUser.query.filter_by(username=username_param).first()
     else:
-        currentUser = SHUser.query.first()
+        # Try to get the currently logged in user from session first
+        main_user = get_main_user()
+        if main_user:
+            currentUser = SHUser.query.filter_by(username=main_user.username).first()
+        
+        # Fallback if no logged in user matches
+        if not currentUser:
+            currentUser = SHUser.query.first()
+
+    # SAFETY CHECK: If database is empty or user not found, render a "setup" or empty state
+    if not currentUser:
+        # Returns an empty feed instead of crashing with 500 error
+        return render_template('socialhub/feed.html', posts=[], user=None, community_users=[], user_likes=[], main_user=get_main_user())
     
     posts = SHPost.query.order_by(SHPost.timestamp.desc()).limit(20).all()
+    # Ensure currentUser is valid before filtering
     all_users = SHUser.query.filter(SHUser.username != currentUser.username).all()
     user_likes = [like.post_id for like in SHLike.query.filter_by(user_id=currentUser.id).all()]
     
