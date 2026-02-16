@@ -1434,7 +1434,7 @@ def delete_conversation(conversation_id):
 @app.route('/api/chat', methods=['POST'])
 def chat_api():
     # 1. Check for API Key
-    if not GEMINI_API_KEY or GEMINI_API_KEY == "YOUR_API_KEY_HERE":
+    if not GEMINI_API_KEY or GEMINI_API_KEY == "AIzaSyD4a-eKozA1NfafEvB7zlOZkbY_RcgXPM4":
         return jsonify({
             'error': 'API key not configured. Please check app.py or .env',
             'success': False
