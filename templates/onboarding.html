@@ -221,15 +221,15 @@
 
                 <!-- Quick navigation preview -->
                 <div class="icon-nav-container">
-                    <a href="#" class="nav-item">
+                    <a href="{{ url_for('lib.library') }}" class="nav-item">
                         <div class="icon-circle"><i class="fas fa-user-circle"></i></div>
                         <span>Courses</span>
                     </a>
-                    <a href="#" class="nav-item">
+                    <a href="{{ url_for('socialhub.feed') }}" class="nav-item">
                         <div class="icon-circle"><i class="fas fa-users"></i></div>
                         <span>Community</span>
                     </a>
-                    <a href="#" class="nav-item">
+                    <a href="{{ url_for('contact') }}" class="nav-item">
                         <div class="icon-circle"><i class="fas fa-envelope"></i></div>
                         <span>Contact Us</span>
                     </a>

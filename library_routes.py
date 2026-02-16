@@ -2,6 +2,7 @@
 BridgeHive Courses Library Blueprint
 Integrates the courses library (formerly port 8080) into the main app under /lib prefix.
 Uses its own SQLite database (bridgehive_enterprise.db) separate from the main app's SQLAlchemy DB.
+Updated: User-specific progress tracking and navbar integration.
 """
 
 import sqlite3
@@ -68,6 +69,10 @@ def check_profanity_smart(text):
             return False, None
     return True, flagged_words[0] if flagged_words else 'inappropriate content'
 
+def get_current_user_id():
+    """Get current user ID from session, default to 0 for anonymous users."""
+    return session.get('user_id', 0)
+
 
 # ---- Database Helpers ----
 def get_lib_db():
@@ -128,9 +133,10 @@ def init_lib_db(app):
     )''')
     cursor.execute('''CREATE TABLE IF NOT EXISTS module_completion (
         id INTEGER PRIMARY KEY AUTOINCREMENT, course_id INTEGER NOT NULL,
-        module_id INTEGER NOT NULL, completed BOOLEAN DEFAULT 0,
+        module_id INTEGER NOT NULL, user_id INTEGER DEFAULT 0,
+        completed BOOLEAN DEFAULT 0,
         completed_at TIMESTAMP, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(course_id, module_id),
+        UNIQUE(course_id, module_id, user_id),
         FOREIGN KEY (course_id) REFERENCES courses (id) ON DELETE CASCADE,
         FOREIGN KEY (module_id) REFERENCES modules (id) ON DELETE CASCADE
     )''')
@@ -467,7 +473,8 @@ def course_view(course_id):
     })
     
     modules = db.execute('SELECT * FROM modules WHERE course_id = ? ORDER BY order_index ASC', (course_id,)).fetchall()
-    completions = db.execute('SELECT module_id FROM module_completion WHERE course_id = ? AND completed = 1', (course_id,)).fetchall()
+    user_id = get_current_user_id()
+    completions = db.execute('SELECT module_id FROM module_completion WHERE course_id = ? AND user_id = ? AND completed = 1', (course_id, user_id)).fetchall()
     completed_ids = {row['module_id'] for row in completions}
     total_modules = len(modules)
     completed_modules = sum(1 for m in modules if m['id'] in completed_ids)
@@ -495,7 +502,8 @@ def learn_modules(course_id):
         'image_url': course['image_url']
     })
     modules = db.execute('SELECT * FROM modules WHERE course_id = ? ORDER BY order_index ASC', (course_id,)).fetchall()
-    completions = db.execute('SELECT module_id FROM module_completion WHERE course_id = ? AND completed = 1', (course_id,)).fetchall()
+    user_id = get_current_user_id()
+    completions = db.execute('SELECT module_id FROM module_completion WHERE course_id = ? AND user_id = ? AND completed = 1', (course_id, user_id)).fetchall()
     completed_ids = {row['module_id'] for row in completions}
     total_modules = len(modules)
     completed_modules = sum(1 for m in modules if m['id'] in completed_ids)
@@ -530,11 +538,12 @@ def view_module(course_id, module_id):
     total_modules = len(modules)
     prev_module = db.execute('SELECT * FROM modules WHERE course_id = ? AND order_index < ? ORDER BY order_index DESC LIMIT 1', (course_id, current_index)).fetchone()
     next_module = db.execute('SELECT * FROM modules WHERE course_id = ? AND order_index > ? ORDER BY order_index ASC LIMIT 1', (course_id, current_index)).fetchone()
-    completions = db.execute('SELECT module_id FROM module_completion WHERE course_id = ? AND completed = 1', (course_id,)).fetchall()
+    user_id = get_current_user_id()
+    completions = db.execute('SELECT module_id FROM module_completion WHERE course_id = ? AND user_id = ? AND completed = 1', (course_id, user_id)).fetchall()
     completed_ids = {row['module_id'] for row in completions}
     if module and next_module is None and module['id'] not in completed_ids:
         try:
-            db.execute('INSERT OR REPLACE INTO module_completion (course_id, module_id, completed, completed_at) VALUES (?, ?, 1, CURRENT_TIMESTAMP)', (course_id, module['id']))
+            db.execute('INSERT OR REPLACE INTO module_completion (course_id, module_id, user_id, completed, completed_at) VALUES (?, ?, ?, 1, CURRENT_TIMESTAMP)', (course_id, module['id'], user_id))
             db.commit()
             completed_ids.add(module['id'])
         except: pass
@@ -551,7 +560,8 @@ def quiz(course_id):
     course = db.execute('SELECT * FROM courses WHERE id = ?', (course_id,)).fetchone()
     if not course: abort(404)
     modules = db.execute('SELECT id FROM modules WHERE course_id = ? ORDER BY order_index ASC', (course_id,)).fetchall()
-    completions = db.execute('SELECT module_id FROM module_completion WHERE course_id = ? AND completed = 1', (course_id,)).fetchall()
+    user_id = get_current_user_id()
+    completions = db.execute('SELECT module_id FROM module_completion WHERE course_id = ? AND user_id = ? AND completed = 1', (course_id, user_id)).fetchall()
     completed_ids = {c['module_id'] for c in completions}
     if len(completed_ids) != len(modules) or len(modules) == 0:
         flash('Complete all modules first.', 'warning')
@@ -601,7 +611,8 @@ def certificate(course_id):
     if not entry or not entry.get('passed'):
         modules = db.execute('SELECT id FROM modules WHERE course_id = ? ORDER BY order_index ASC', (course_id,)).fetchall()
         if modules:
-            completions = db.execute('SELECT module_id FROM module_completion WHERE course_id = ? AND completed = 1', (course_id,)).fetchall()
+            user_id = get_current_user_id()
+            completions = db.execute('SELECT module_id FROM module_completion WHERE course_id = ? AND user_id = ? AND completed = 1', (course_id, user_id)).fetchall()
             completed_ids = {c['module_id'] for c in completions}
             all_completed = len(completed_ids) == len(modules) and len(modules) > 0
         else:
@@ -803,10 +814,11 @@ def mark_module_complete(module_id):
     course_id = data.get('course_id')
     if not course_id: return jsonify({'success': False, 'message': 'Missing course_id'}), 400
     try:
-        db.execute('INSERT OR REPLACE INTO module_completion (course_id, module_id, completed, completed_at) VALUES (?, ?, 1, CURRENT_TIMESTAMP)', (course_id, module_id))
+        user_id = get_current_user_id()
+        db.execute('INSERT OR REPLACE INTO module_completion (course_id, module_id, user_id, completed, completed_at) VALUES (?, ?, ?, 1, CURRENT_TIMESTAMP)', (course_id, module_id, user_id))
         db.commit()
         total = db.execute('SELECT COUNT(*) FROM modules WHERE course_id = ?', (course_id,)).fetchone()[0]
-        done = db.execute('SELECT COUNT(*) FROM module_completion WHERE course_id = ? AND completed = 1', (course_id,)).fetchone()[0]
+        done = db.execute('SELECT COUNT(*) FROM module_completion WHERE course_id = ? AND user_id = ? AND completed = 1', (course_id, user_id)).fetchone()[0]
         return jsonify({'success': True, 'completed': done, 'total': total})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
@@ -815,7 +827,8 @@ def mark_module_complete(module_id):
 def get_completion_status(course_id):
     db = get_lib_db()
     modules = db.execute('SELECT id FROM modules WHERE course_id = ?', (course_id,)).fetchall()
-    completions = db.execute('SELECT module_id, completed FROM module_completion WHERE course_id = ?', (course_id,)).fetchall()
+    user_id = get_current_user_id()
+    completions = db.execute('SELECT module_id, completed FROM module_completion WHERE course_id = ? AND user_id = ?', (course_id, user_id)).fetchall()
     completed_dict = {c['module_id']: c['completed'] for c in completions}
     total = len(modules)
     done = sum(1 for m in modules if completed_dict.get(m['id'], False))

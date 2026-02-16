@@ -3087,13 +3087,8 @@ def process_onboarding():
         flash('Error creating account. Email may already be registered.', 'error')
         return redirect(url_for('landing'))
 
-    # Redirect based on role
-    if user_role == 'mentor':
-        return redirect(url_for('both_homepage'))
-    elif user_role == 'both':
-        return redirect(url_for('both_homepage'))
-    else:
-        return redirect(url_for('both_homepage'))
+    # Redirect all users to the unified dashboard after onboarding
+    return redirect(url_for('both_homepage'))
 
 
 # ============================================================================
