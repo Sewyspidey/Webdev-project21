@@ -39,8 +39,18 @@ import os as _os
 from socialhub import socialhub_bp, socketio as sh_socketio
 from socialhub.models import init_sh_models
 from socialhub.routes import init_socialhub_routes
+
+# Initialize models immediately
+sh_models = init_sh_models(db)
+SHUser, SHPost, SHComment, SHLike, SHPrivateMessage = sh_models
+
+# Initialize routes immediately
+init_socialhub_routes(db, sh_models, User)
+
+# Register Blueprint
 app.register_blueprint(socialhub_bp, url_prefix='/socialhub')
 sh_socketio.init_app(app)
+
 app.config['SOCIALHUB_UPLOAD_FOLDER'] = _os.path.join(
     _os.path.dirname(_os.path.abspath(__file__)), 'socialhub', 'static', 'uploads')
 _os.makedirs(app.config['SOCIALHUB_UPLOAD_FOLDER'], exist_ok=True)
@@ -3011,17 +3021,17 @@ def process_onboarding():
     username = request.form.get('username')
     email = request.form.get('email')
     password = request.form.get('password')
-    user_type = request.form.get('user_type')  # elder or youth
-    user_role = request.form.get('role')       # learner, mentor, both
+    user_type = request.form.get('user_type')  
+    user_role = request.form.get('role')       
     age_group = request.form.get('age_group')
     tech_comfort = request.form.get('tech_comfort')
 
-    # Process learning interests (checkboxes + other field)
+    # Process learning interests
     learn_list = request.form.getlist('learning_interests')
     learn_other = request.form.get('learning_others')
     if learn_other:
         learn_list.append(learn_other)
-    learn_str = ", ".join(learn_list)  # Convert list to comma-separated string
+    learn_str = ", ".join(learn_list) 
     
     # Process teaching interests
     teach_list = request.form.getlist('teaching_interests')
@@ -3030,7 +3040,7 @@ def process_onboarding():
         teach_list.append(teach_other)
     teach_str = ", ".join(teach_list)
 
-    # Create new User object with all collected data
+    # Create new Main User
     new_user = User(
         username=username,
         email=email,
@@ -3046,25 +3056,27 @@ def process_onboarding():
     # Save to database
     try:
         db.session.add(new_user)
-        db.session.commit()
+        db.session.flush() # Flush to get the new_user.id before committing
         
-        # Create default settings for user
+        # --- SYNC: Create SocialHub User as well ---
+        # This ensures the user exists in the community database
+        new_sh_user = SHUser(username=username)
+        db.session.add(new_sh_user)
+        
+        # Create default settings
         user_settings = UserSettings(user_id=new_user.id)
         db.session.add(user_settings)
-        db.session.commit()
         
-        # Set session so user is logged in
+        # Set session
         session['user_id'] = new_user.id
         
-        # Create default folders based on user role
+        # Create default folders (Logic remains the same as your code)
         if user_role == 'mentor':
-            # Mentor gets template-focused folders
             folders = [
                 Folder(user_id=new_user.id, folder_name='Liked Templates', folder_type='preset', icon='heart', color='#ECD9B9', is_deletable=False),
                 Folder(user_id=new_user.id, folder_name='Use Later', folder_type='preset', icon='bookmark', color='#FFE5C4', is_deletable=False),
             ]
         elif user_role == 'both':
-            # Both role gets all 4 folders (learner + mentor)
             folders = [
                 Folder(user_id=new_user.id, folder_name='Liked Courses', folder_type='preset', icon='heart', color='#ECD9B9', is_deletable=False),
                 Folder(user_id=new_user.id, folder_name='Watch Later', folder_type='preset', icon='bookmark', color='#FFE5C4', is_deletable=False),
@@ -3072,22 +3084,21 @@ def process_onboarding():
                 Folder(user_id=new_user.id, folder_name='Use Later', folder_type='preset', icon='bookmark', color='#C4B4A7', is_deletable=False),
             ]
         else:
-            # Learner gets course-focused folders
             folders = [
                 Folder(user_id=new_user.id, folder_name='Liked Courses', folder_type='preset', icon='heart', color='#ECD9B9', is_deletable=False),
                 Folder(user_id=new_user.id, folder_name='Watch Later', folder_type='preset', icon='bookmark', color='#FFE5C4', is_deletable=False),
             ]
         db.session.add_all(folders)
-        db.session.commit()
         
-        print(f"SUCCESS: User {username} saved to database!")
+        db.session.commit()
+        print(f"SUCCESS: User {username} saved to Main DB and SocialHub DB!")
+        
     except Exception as e:
         db.session.rollback()
         print(f"ERROR: Could not save user. {e}")
         flash('Error creating account. Email may already be registered.', 'error')
         return redirect(url_for('landing'))
 
-    # Redirect all users to the unified dashboard after onboarding
     return redirect(url_for('both_homepage'))
 
 
@@ -3645,14 +3656,10 @@ def admin_announcement_delete(announcement_id):
 # DATABASE INITIALIZATION
 # Creates tables and adds sample data on first run
 # ============================================================================
+# Update init_db to NOT re-initialize SH models logic, just create tables
 def init_db():
     with app.app_context():
-        # Initialize SocialHub models and routes BEFORE create_all
-        sh_models = init_sh_models(db)
-        init_socialhub_routes(db, sh_models, User)
-        SHUser, SHPost, SHComment, SHLike, SHPrivateMessage = sh_models
-        
-        db.create_all()  # Create all tables based on models
+        db.create_all() # Just create tables
         
         # Add sample FAQs if empty
         if FAQ.query.count() == 0:
