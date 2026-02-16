@@ -20,6 +20,7 @@ from difflib import SequenceMatcher
 # Google Gemini AI for chatbot functionality (new package)
 from google import genai
 import os
+import time
 
 # --- FLASK APP SETUP ---
 app = Flask(__name__)
@@ -39,18 +40,8 @@ import os as _os
 from socialhub import socialhub_bp, socketio as sh_socketio
 from socialhub.models import init_sh_models
 from socialhub.routes import init_socialhub_routes
-
-# Initialize models immediately
-sh_models = init_sh_models(db)
-SHUser, SHPost, SHComment, SHLike, SHPrivateMessage = sh_models
-
-# Initialize routes immediately
-init_socialhub_routes(db, sh_models, User)
-
-# Register Blueprint
 app.register_blueprint(socialhub_bp, url_prefix='/socialhub')
 sh_socketio.init_app(app)
-
 app.config['SOCIALHUB_UPLOAD_FOLDER'] = _os.path.join(
     _os.path.dirname(_os.path.abspath(__file__)), 'socialhub', 'static', 'uploads')
 _os.makedirs(app.config['SOCIALHUB_UPLOAD_FOLDER'], exist_ok=True)
@@ -624,7 +615,7 @@ def translate(key, locale='en'):
     return TRANSLATIONS.get(locale, {}).get(key, TRANSLATIONS['en'].get(key, key))
 
 # --- PUT YOUR GEMINI API KEY HERE ---
-GEMINI_API_KEY = "AIzaSyD4a-eKozA1NfafEvB7zlOZkbY_RcgXPM4"  # Replace with your actual API key from https://aistudio.google.com/app/apikey
+GEMINI_API_KEY = "AIzaSyCQaFzVGWC8IVav7MCHeRmUxo2qOPP-yW4"  # Replace with your actual API key from https://aistudio.google.com/app/apikey
 
 # System prompt - this tells the AI how to behave and what to answer
 # The AI will follow these instructions for every conversation
@@ -872,6 +863,7 @@ class SupportTicket(db.Model):
     category = db.Column(db.String(50), nullable=False)
     message = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(20), default='Open')
+    priority = db.Column(db.String(20), default='Medium')  # Low, Medium, High, Critical
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -1444,7 +1436,7 @@ def delete_conversation(conversation_id):
 @app.route('/api/chat', methods=['POST'])
 def chat_api():
     # 1. Check for API Key
-    if not GEMINI_API_KEY or GEMINI_API_KEY == "AIzaSyD4a-eKozA1NfafEvB7zlOZkbY_RcgXPM4":
+    if not GEMINI_API_KEY or GEMINI_API_KEY == "YOUR_API_KEY_HERE":
         return jsonify({
             'error': 'API key not configured. Please check app.py or .env',
             'success': False
@@ -2308,15 +2300,32 @@ def contact():
         if not all([first_name, last_name, email, topic, message]):
             flash('Please fill in all fields.', 'error')
         else:
-            # CREATE - Save message to database
-            contact_msg = ContactMessage(
-                first_name=first_name,
-                last_name=last_name,
-                email=email,
-                topic=topic,
-                message=message
-            )
-            db.session.add(contact_msg)
+            # Get user from session or create temporary record
+            user_id = session.get('user_id')
+            user = User.query.get(user_id) if user_id else None
+            
+            if not user:
+                # Create a ticket without user_id if not logged in
+                # Use a special user or create contact message instead
+                contact_msg = ContactMessage(
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email,
+                    topic=topic,
+                    message=message
+                )
+                db.session.add(contact_msg)
+            else:
+                # Save as support ticket for logged-in users
+                ticket = SupportTicket(
+                    user_id=user.id,
+                    subject=topic,
+                    category=topic,
+                    message=message,
+                    priority='Medium'
+                )
+                db.session.add(ticket)
+            
             db.session.commit()
             flash('Thank you for your message! We\'ll get back to you soon.', 'success')
             return redirect(url_for('contact'))
@@ -2330,26 +2339,31 @@ def contact():
 @app.route('/support', methods=['GET', 'POST'])
 def support():
     user_id = session.get('user_id')
-    if not user_id:
-        return redirect(url_for('landing'))
+    user = None
+    tickets = []
     
-    user = User.query.get(user_id)
-    if not user:
-        return redirect(url_for('landing'))
+    if user_id:
+        user = User.query.get(user_id)
+        if user:
+            if request.method == 'POST':
+                priority = request.form.get('priority', 'Medium').strip()
+                if priority not in ['Low', 'Medium', 'High', 'Critical']:
+                    priority = 'Medium'
+                
+                ticket = SupportTicket(
+                    user_id=user.id,
+                    subject=request.form.get('subject', '').strip(),
+                    category=request.form.get('category', '').strip(),
+                    message=request.form.get('message', '').strip(),
+                    priority=priority
+                )
+                db.session.add(ticket)
+                db.session.commit()
+                flash('Ticket submitted successfully!', 'success')
+                return redirect(url_for('support'))
+            
+            tickets = SupportTicket.query.filter_by(user_id=user.id).order_by(SupportTicket.created_at.desc()).all()
     
-    if request.method == 'POST':
-        ticket = SupportTicket(
-            user_id=user.id,
-            subject=request.form.get('subject', '').strip(),
-            category=request.form.get('category', '').strip(),
-            message=request.form.get('message', '').strip()
-        )
-        db.session.add(ticket)
-        db.session.commit()
-        flash('Ticket submitted successfully!', 'success')
-        return redirect(url_for('support'))
-    
-    tickets = SupportTicket.query.filter_by(user_id=user.id).order_by(SupportTicket.created_at.desc()).all()
     faqs = FAQ.query.filter_by(is_active=True).all()
     
     return render_template('support.html', user=user, tickets=tickets, faqs=faqs)
@@ -3021,17 +3035,17 @@ def process_onboarding():
     username = request.form.get('username')
     email = request.form.get('email')
     password = request.form.get('password')
-    user_type = request.form.get('user_type')  
-    user_role = request.form.get('role')       
+    user_type = request.form.get('user_type')  # elder or youth
+    user_role = request.form.get('role')       # learner, mentor, both
     age_group = request.form.get('age_group')
     tech_comfort = request.form.get('tech_comfort')
 
-    # Process learning interests
+    # Process learning interests (checkboxes + other field)
     learn_list = request.form.getlist('learning_interests')
     learn_other = request.form.get('learning_others')
     if learn_other:
         learn_list.append(learn_other)
-    learn_str = ", ".join(learn_list) 
+    learn_str = ", ".join(learn_list)  # Convert list to comma-separated string
     
     # Process teaching interests
     teach_list = request.form.getlist('teaching_interests')
@@ -3040,7 +3054,7 @@ def process_onboarding():
         teach_list.append(teach_other)
     teach_str = ", ".join(teach_list)
 
-    # Create new Main User
+    # Create new User object with all collected data
     new_user = User(
         username=username,
         email=email,
@@ -3056,27 +3070,25 @@ def process_onboarding():
     # Save to database
     try:
         db.session.add(new_user)
-        db.session.flush() # Flush to get the new_user.id before committing
+        db.session.commit()
         
-        # --- SYNC: Create SocialHub User as well ---
-        # This ensures the user exists in the community database
-        new_sh_user = SHUser(username=username)
-        db.session.add(new_sh_user)
-        
-        # Create default settings
+        # Create default settings for user
         user_settings = UserSettings(user_id=new_user.id)
         db.session.add(user_settings)
+        db.session.commit()
         
-        # Set session
+        # Set session so user is logged in
         session['user_id'] = new_user.id
         
-        # Create default folders (Logic remains the same as your code)
+        # Create default folders based on user role
         if user_role == 'mentor':
+            # Mentor gets template-focused folders
             folders = [
                 Folder(user_id=new_user.id, folder_name='Liked Templates', folder_type='preset', icon='heart', color='#ECD9B9', is_deletable=False),
                 Folder(user_id=new_user.id, folder_name='Use Later', folder_type='preset', icon='bookmark', color='#FFE5C4', is_deletable=False),
             ]
         elif user_role == 'both':
+            # Both role gets all 4 folders (learner + mentor)
             folders = [
                 Folder(user_id=new_user.id, folder_name='Liked Courses', folder_type='preset', icon='heart', color='#ECD9B9', is_deletable=False),
                 Folder(user_id=new_user.id, folder_name='Watch Later', folder_type='preset', icon='bookmark', color='#FFE5C4', is_deletable=False),
@@ -3084,22 +3096,28 @@ def process_onboarding():
                 Folder(user_id=new_user.id, folder_name='Use Later', folder_type='preset', icon='bookmark', color='#C4B4A7', is_deletable=False),
             ]
         else:
+            # Learner gets course-focused folders
             folders = [
                 Folder(user_id=new_user.id, folder_name='Liked Courses', folder_type='preset', icon='heart', color='#ECD9B9', is_deletable=False),
                 Folder(user_id=new_user.id, folder_name='Watch Later', folder_type='preset', icon='bookmark', color='#FFE5C4', is_deletable=False),
             ]
         db.session.add_all(folders)
-        
         db.session.commit()
-        print(f"SUCCESS: User {username} saved to Main DB and SocialHub DB!")
         
+        print(f"SUCCESS: User {username} saved to database!")
     except Exception as e:
         db.session.rollback()
         print(f"ERROR: Could not save user. {e}")
         flash('Error creating account. Email may already be registered.', 'error')
         return redirect(url_for('landing'))
 
-    return redirect(url_for('both_homepage'))
+    # Redirect to role-specific homepage based on user's selected role
+    if user_role == 'learner':
+        return redirect(url_for('student_homepage'))
+    elif user_role == 'mentor':
+        return redirect(url_for('mentor_homepage'))
+    else:  # 'both'
+        return redirect(url_for('both_homepage'))
 
 
 # ============================================================================
@@ -3300,6 +3318,11 @@ def admin_dashboard():
     messages = ContactMessage.query.order_by(ContactMessage.date_created.desc()).all()
     announcements = BroadcastNotification.query.order_by(BroadcastNotification.created_at.desc()).all()
     
+    # Fetch support tickets ordered by priority (Critical first) and then by date
+    priority_order = {'Critical': 0, 'High': 1, 'Medium': 2, 'Low': 3}
+    tickets = SupportTicket.query.all()
+    tickets = sorted(tickets, key=lambda x: (priority_order.get(x.priority, 4), -x.created_at.timestamp()))
+    
     return render_template('admin/dashboard.html',
                          active_tab=active_tab,
                          users=users,
@@ -3308,6 +3331,7 @@ def admin_dashboard():
                          folders=folders,
                          faqs=faqs,
                          messages=messages,
+                         tickets=tickets,
                          announcements=announcements,
                          user_count=len(users),
                          course_count=len(courses),
@@ -3315,6 +3339,7 @@ def admin_dashboard():
                          folder_count=len(folders),
                          faq_count=len(faqs),
                          message_count=len(messages),
+                         ticket_count=len(tickets),
                          announcement_count=len(announcements))
 
 
@@ -3656,10 +3681,14 @@ def admin_announcement_delete(announcement_id):
 # DATABASE INITIALIZATION
 # Creates tables and adds sample data on first run
 # ============================================================================
-# Update init_db to NOT re-initialize SH models logic, just create tables
 def init_db():
     with app.app_context():
-        db.create_all() # Just create tables
+        # Initialize SocialHub models and routes BEFORE create_all
+        sh_models = init_sh_models(db)
+        init_socialhub_routes(db, sh_models, User)
+        SHUser, SHPost, SHComment, SHLike, SHPrivateMessage = sh_models
+        
+        db.create_all()  # Create all tables based on models
         
         # Add sample FAQs if empty
         if FAQ.query.count() == 0:
@@ -3902,9 +3931,44 @@ def init_db():
         print("Database initialized!")
 
 
+_startup_initialized = False
+
+
+def ensure_startup_initialized():
+    global _startup_initialized
+    if _startup_initialized:
+        return
+
+    full_init = os.getenv('BRIDGEHIVE_FULL_INIT', '0') == '1' or __name__ == '__main__'
+
+    with app.app_context():
+        if full_init:
+            init_db()
+        else:
+            sh_models = init_sh_models(db)
+            init_socialhub_routes(db, sh_models, User)
+            db.create_all()
+        init_lib_db(app)
+
+    _startup_initialized = True
+
+
+# Initialize app data when imported by Gunicorn/Render (not just when run directly)
+ensure_startup_initialized()
+
+
 # ============================================================================
 # RUN APPLICATION
 # ============================================================================
+if __name__ == '__main__':
+    ensure_startup_initialized()
+    sh_socketio.run(
+        app,
+        debug=os.getenv('FLASK_DEBUG', '0') == '1',
+        host='0.0.0.0',
+        port=int(os.getenv('PORT', '5000'))
+    )
+
 if __name__ == '__main__':
     init_db()  # Initialize database on startup
     init_lib_db(app)  # Initialize courses library database
